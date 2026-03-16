@@ -121,7 +121,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 </div>
 </div>
 <div class="app" id="app">
-<div class="top-bar"><div><span class="logo">🔧 HectoFlex <small style="font-size:10px;color:#444;font-weight:400">v10</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
+<div class="top-bar"><div><span class="logo">🔧 HectoFlex <small style="font-size:10px;color:#444;font-weight:400">v11</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
 <div class="main-tabs"><div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div><div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div></div>
 <div class="page active" id="page-tasks">
 <div class="tabs-row"><button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button><button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button><button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button></div>
@@ -241,13 +241,13 @@ function genQR(){
   var data=getQrData();if(!data){alert('Remplis un champ !');return;}
   var shorten=document.getElementById('qr-shorten');
   if(qrType==='url' && shorten && shorten.checked && data.startsWith('http')){
-    // Shorten URL first, then generate QR
-    api2('/shorten','POST',{target:data}).then(function(r){
-      if(r.short){
-        document.getElementById('qr-url').setAttribute('data-short',r.short);
-        doGenQR(r.short);
-      } else doGenQR(data);
-    }).catch(function(){doGenQR(data);});
+    // Use is.gd free shortener for ultra-short URLs (~20 chars)
+    fetch('https://is.gd/create.php?format=json&url='+encodeURIComponent(data))
+      .then(function(r){return r.json();})
+      .then(function(r){
+        if(r.shorturl) doGenQR(r.shorturl);
+        else doGenQR(data);
+      }).catch(function(){doGenQR(data);});
   } else {
     doGenQR(data);
   }
