@@ -103,7 +103,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .gen-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:10px}
 .gen-btn:hover{background:#c73651}
 .qr-result{text-align:center;margin-top:20px;display:none}
-.qr-result canvas{border-radius:12px;background:#fff;padding:12px}
+.qr-result canvas{border-radius:12px;background:#fff;padding:12px;max-width:100%;height:auto!important;aspect-ratio:1/1}
 .dl-btns{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
 .dl-btn{padding:8px 18px;border-radius:10px;border:2px solid #0f3460;background:transparent;color:#5dade2;cursor:pointer;font-size:12px;font-weight:600;text-decoration:none}
 .dl-btn:hover{border-color:#e94560;color:#e94560}
@@ -121,7 +121,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 </div>
 </div>
 <div class="app" id="app">
-<div class="top-bar"><div><span class="logo">🔧 HectoFlex <small style="font-size:10px;color:#444;font-weight:400">v13</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
+<div class="top-bar"><div><span class="logo">🔧 HectoFlex <small style="font-size:10px;color:#444;font-weight:400">v14</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
 <div class="main-tabs"><div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div><div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div></div>
 <div class="page active" id="page-tasks">
 <div class="tabs-row"><button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button><button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button><button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button></div>
@@ -298,13 +298,18 @@ function doGenQR(data){
       reader.onload=function(e){
         var img=new Image();
         img.onload=function(){
-          var logoSize=Math.floor(realSize*0.22);
-          var lx=Math.floor((realSize-logoSize)/2);
-          var ly=Math.floor((realSize-logoSize)/2);
+          var maxLogo=Math.floor(realSize*0.22);
+          var ratio=img.width/img.height;
+          var lw,lh;
+          if(ratio>=1){lw=maxLogo;lh=Math.floor(maxLogo/ratio);}
+          else{lh=maxLogo;lw=Math.floor(maxLogo*ratio);}
+          var lx=Math.floor((realSize-lw)/2);
+          var ly=Math.floor((realSize-lh)/2);
+          var logoSize=maxLogo;
           // White background behind logo
           ctx.fillStyle='#ffffff';
-          ctx.fillRect(lx-4,ly-4,logoSize+8,logoSize+8);
-          ctx.drawImage(img,lx,ly,logoSize,logoSize);
+          ctx.fillRect(lx-4,ly-4,lw+8,lh+8);
+          ctx.drawImage(img,lx,ly,lw,lh);
           // Update PNG download
           document.getElementById('dlPng').href=canvas.toDataURL('image/png');
         };
