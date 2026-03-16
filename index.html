@@ -10,227 +10,306 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;min-height:100vh}
-.header{background:#16213e;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0f3460}
-.header h1{font-size:20px;color:#e94560}
-.user-tabs{display:flex;gap:8px}
-.user-tab{padding:8px 20px;border-radius:20px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s}
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:#16213e;padding:40px;border-radius:16px;width:100%;max-width:360px;text-align:center}
+.login-box h1{color:#e94560;margin-bottom:8px;font-size:24px}
+.login-box p{color:#666;margin-bottom:25px;font-size:14px}
+.pin-input{width:100%;padding:14px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:24px;text-align:center;letter-spacing:12px;outline:none;margin-bottom:15px}
+.pin-input:focus{border-color:#e94560}
+.pin-input::placeholder{letter-spacing:4px;font-size:16px}
+.login-select{width:100%;padding:12px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:15px;margin-bottom:12px;outline:none}
+.login-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:16px;font-weight:600;cursor:pointer}
+.login-btn:hover{background:#c73651}
+.login-error{color:#e94560;font-size:13px;margin-top:10px;display:none}
+.app{display:none}
+.header{background:#16213e;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0f3460}
+.header h1{font-size:18px;color:#e94560}
+.header-right{display:flex;align-items:center;gap:10px}
+.user-name{color:#aaa;font-size:13px}
+.logout-btn{padding:5px 12px;border-radius:8px;border:1px solid #333;background:transparent;color:#666;cursor:pointer;font-size:12px}
+.logout-btn:hover{color:#e94560;border-color:#e94560}
+.user-tabs{display:flex;gap:6px;padding:12px 20px;background:#16213e}
+.user-tab{padding:7px 18px;border-radius:18px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
 .user-tab.active{background:#e94560;color:#fff;border-color:#e94560}
 .user-tab:hover{border-color:#e94560}
-.container{max-width:800px;margin:0 auto;padding:20px}
-.add-section{display:flex;gap:10px;margin-bottom:20px}
-.add-section input{flex:1;padding:12px 15px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:15px;outline:none}
+.container{max-width:800px;margin:0 auto;padding:15px 20px}
+.add-section{display:flex;gap:8px;margin-bottom:15px}
+.add-section input{flex:1;padding:11px 14px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:14px;outline:none}
 .add-section input:focus{border-color:#e94560}
 .add-section input::placeholder{color:#555}
-.add-btn{padding:12px 20px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:15px;cursor:pointer;font-weight:600;white-space:nowrap}
+.add-btn{padding:11px 18px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:14px;cursor:pointer;font-weight:600;white-space:nowrap}
 .add-btn:hover{background:#c73651}
-.filters{display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap}
-.filter-btn{padding:5px 14px;border-radius:15px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:12px}
+.filters{display:flex;gap:6px;margin-bottom:12px}
+.filter-btn{padding:4px 12px;border-radius:12px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:12px}
 .filter-btn.active{background:#0f3460;color:#fff;border-color:#0f3460}
 .task-list{list-style:none}
-.task-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;margin-bottom:8px;background:#16213e;border-radius:10px;border-left:4px solid #0f3460;transition:all .2s}
-.task-item.done{opacity:0.5;border-left-color:#2d6a4f}
-.task-item.done .task-text{text-decoration:line-through;color:#666}
+.task-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;margin-bottom:6px;background:#16213e;border-radius:10px;border-left:4px solid #0f3460;transition:all .2s}
+.task-item.done{opacity:0.45;border-left-color:#2d6a4f}
+.task-item.done .task-text{text-decoration:line-through;color:#555}
 .task-item.urgent{border-left-color:#e94560}
-.task-check{width:22px;height:22px;border-radius:50%;border:2px solid #444;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .2s}
+.task-check{width:20px;height:20px;border-radius:50%;border:2px solid #444;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
 .task-check:hover{border-color:#e94560}
 .task-item.done .task-check{background:#2d6a4f;border-color:#2d6a4f}
-.task-item.done .task-check::after{content:'✓';color:#fff;font-size:13px}
+.task-item.done .task-check::after{content:'✓';color:#fff;font-size:12px}
 .task-content{flex:1;min-width:0}
-.task-text{font-size:15px;line-height:1.4;word-break:break-word}
-.task-meta{display:flex;gap:8px;margin-top:5px;align-items:center;flex-wrap:wrap}
-.task-date{font-size:11px;color:#555}
-.task-tag{font-size:11px;padding:2px 8px;border-radius:8px;background:#0f3460;color:#aaa}
-.task-actions{display:flex;gap:6px;flex-shrink:0}
-.task-btn{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;background:#1a1a2e;color:#666;transition:all .2s}
+.task-text{font-size:14px;line-height:1.4}
+.task-meta{display:flex;gap:6px;margin-top:4px;align-items:center;flex-wrap:wrap}
+.task-date{font-size:11px;color:#444}
+.task-tag{font-size:10px;padding:2px 7px;border-radius:8px;background:#5c1a1a;color:#e94560}
+.task-owner{font-size:10px;padding:2px 7px;border-radius:8px;background:#0f3460;color:#aaa}
+.task-actions{display:flex;gap:4px;flex-shrink:0}
+.task-btn{width:26px;height:26px;border-radius:6px;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;background:#1a1a2e;color:#555}
 .task-btn:hover{color:#e94560}
-.task-btn.del:hover{color:#ff4444}
-.priority-btns{display:flex;gap:4px;margin-left:8px}
-.priority-btn{padding:2px 8px;border-radius:8px;border:1px solid #333;background:transparent;color:#666;cursor:pointer;font-size:11px}
-.priority-btn.active{background:#e94560;color:#fff;border-color:#e94560}
-.empty{text-align:center;padding:60px 20px;color:#444}
-.empty span{font-size:40px;display:block;margin-bottom:10px}
-.stats{display:flex;gap:15px;margin-bottom:20px;font-size:13px;color:#555}
-.stats span{color:#e94560;font-weight:600}
-.note-input{width:100%;padding:8px 12px;border-radius:8px;border:1px solid #0f3460;background:#1a1a2e;color:#ddd;font-size:13px;margin-top:6px;outline:none;resize:none;display:none}
+.task-note{font-size:12px;color:#666;margin-top:3px;font-style:italic}
+.note-input{width:100%;padding:7px 10px;border-radius:8px;border:1px solid #0f3460;background:#1a1a2e;color:#ddd;font-size:12px;margin-top:5px;outline:none;resize:none;display:none}
 .note-input.show{display:block}
-.task-note{font-size:12px;color:#777;margin-top:4px;font-style:italic}
+.empty{text-align:center;padding:50px 20px;color:#333}
+.empty span{font-size:36px;display:block;margin-bottom:8px}
+.stats{display:flex;gap:12px;margin-bottom:12px;font-size:12px;color:#444}
+.stats b{color:#e94560}
+.sync-status{font-size:11px;color:#333;text-align:center;padding:4px}
+.sync-status.ok{color:#2d6a4f}
+.sync-status.err{color:#e94560}
+.loading{text-align:center;padding:40px;color:#444}
 </style>
 </head>
 <body>
 
+<div class="login-screen" id="loginScreen">
+<div class="login-box">
+<h1>📋 HectoFlex</h1>
+<p>Liste de tâches</p>
+<select class="login-select" id="loginUser">
+<option value="daniel">Daniel</option>
+<option value="marco">Marco</option>
+</select>
+<input type="password" class="pin-input" id="pinInput" placeholder="PIN" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')login()">
+<button class="login-btn" onclick="login()">Connexion</button>
+<div class="login-error" id="loginError">PIN incorrect</div>
+</div>
+</div>
+
+<div class="app" id="app">
 <div class="header">
-<h1>📋 HectoFlex Tâches</h1>
+<h1>📋 HectoFlex</h1>
+<div class="header-right">
+<span class="user-name" id="userName"></span>
+<button class="logout-btn" onclick="logout()">⏏</button>
+</div>
+</div>
 <div class="user-tabs">
-<button class="user-tab active" onclick="switchUser('daniel')">Daniel</button>
-<button class="user-tab" onclick="switchUser('marco')">Marco</button>
-<button class="user-tab" onclick="switchUser('shared')">Commun</button>
+<button class="user-tab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button>
+<button class="user-tab" data-list="shared" onclick="switchList('shared',this)">Commun</button>
 </div>
-</div>
-
 <div class="container">
+<div class="sync-status" id="syncStatus"></div>
 <div class="stats" id="stats"></div>
-
 <div class="add-section">
 <input type="text" id="newTask" placeholder="Nouvelle tâche..." onkeydown="if(event.key==='Enter')addTask()">
 <button class="add-btn" onclick="addTask()">+ Ajouter</button>
 </div>
-
 <div class="filters">
-<button class="filter-btn active" onclick="setFilter('all')">Tout</button>
-<button class="filter-btn" onclick="setFilter('todo')">À faire</button>
-<button class="filter-btn" onclick="setFilter('done')">Fait</button>
-<button class="filter-btn" onclick="setFilter('urgent')">Urgent</button>
+<button class="filter-btn active" onclick="setFilter('all',this)">Tout</button>
+<button class="filter-btn" onclick="setFilter('todo',this)">À faire</button>
+<button class="filter-btn" onclick="setFilter('done',this)">Fait</button>
+<button class="filter-btn" onclick="setFilter('urgent',this)">Urgent</button>
 </div>
-
 <ul class="task-list" id="taskList"></ul>
+</div>
 </div>
 
 <script>
-let currentUser = 'daniel';
-let currentFilter = 'all';
+const API = 'https://hf-tasks-api.hectoflex.workers.dev';
+let token = null, currentUser = null, currentList = 'personal', currentFilter = 'all', tasks = [];
 
-function getKey() { return `hectoflex_tasks_${currentUser}`; }
-function getTasks() { return JSON.parse(localStorage.getItem(getKey()) || '[]'); }
-function saveTasks(tasks) { localStorage.setItem(getKey(), JSON.stringify(tasks)); }
-
-function switchUser(user) {
-  currentUser = user;
-  document.querySelectorAll('.user-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  render();
+async function api(path, method='GET', body=null) {
+  const opts = { method, headers: {'Content-Type':'application/json'} };
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(API + path, opts);
+  return r.json();
 }
 
-function setFilter(f) {
+async function login() {
+  const user = document.getElementById('loginUser').value;
+  const pin = document.getElementById('pinInput').value;
+  try {
+    const res = await api('/login', 'POST', { user, pin });
+    if (res.ok) {
+      token = res.token; currentUser = res.user;
+      localStorage.setItem('hf_token', token);
+      localStorage.setItem('hf_user', currentUser);
+      showApp();
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('pinInput').value = '';
+      setTimeout(() => document.getElementById('loginError').style.display = 'none', 2000);
+    }
+  } catch(e) {
+    document.getElementById('loginError').textContent = 'Erreur de connexion';
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('hf_token');
+  localStorage.removeItem('hf_user');
+  token = null; currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('pinInput').value = '';
+}
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('userName').textContent = currentUser === 'daniel' ? 'Daniel' : 'Marco';
+  loadTasks();
+}
+
+// Auto-login
+const savedToken = localStorage.getItem('hf_token');
+const savedUser = localStorage.getItem('hf_user');
+if (savedToken && savedUser) { token = savedToken; currentUser = savedUser; showApp(); }
+
+function switchList(list, el) {
+  currentList = list;
+  document.querySelectorAll('.user-tab').forEach(t => t.classList.toggle('active', t.dataset.list === list));
+  loadTasks();
+}
+
+function setFilter(f, el) {
   currentFilter = f;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  el.classList.add('active');
   render();
 }
 
-function addTask() {
+function syncStatus(msg, ok=true) {
+  const el = document.getElementById('syncStatus');
+  el.textContent = msg; el.className = 'sync-status ' + (ok?'ok':'err');
+  if (ok) setTimeout(() => el.textContent = '', 2000);
+}
+
+async function loadTasks() {
+  try {
+    tasks = await api('/tasks?list=' + currentList);
+    syncStatus('✓ Synchronisé');
+    render();
+  } catch(e) { syncStatus('✗ Erreur de sync', false); }
+}
+
+async function addTask() {
   const input = document.getElementById('newTask');
   const text = input.value.trim();
   if (!text) return;
-  const tasks = getTasks();
-  tasks.unshift({
-    id: Date.now(),
-    text: text,
-    done: false,
-    urgent: false,
-    note: '',
-    created: new Date().toISOString()
-  });
-  saveTasks(tasks);
-  input.value = '';
-  render();
+  try {
+    await api('/tasks', 'POST', { text, list: currentList });
+    input.value = '';
+    await loadTasks();
+  } catch(e) { syncStatus('✗ Erreur', false); }
 }
 
-function toggleDone(id) {
-  const tasks = getTasks();
-  const t = tasks.find(t => t.id === id);
-  if (t) { t.done = !t.done; t.doneAt = t.done ? new Date().toISOString() : null; }
-  saveTasks(tasks);
-  render();
-}
-
-function toggleUrgent(id) {
-  const tasks = getTasks();
-  const t = tasks.find(t => t.id === id);
-  if (t) t.urgent = !t.urgent;
-  saveTasks(tasks);
-  render();
-}
-
-function deleteTask(id) {
-  let tasks = getTasks();
-  tasks = tasks.filter(t => t.id !== id);
-  saveTasks(tasks);
-  render();
-}
-
-function editTask(id) {
-  const tasks = getTasks();
+async function toggleDone(id) {
   const t = tasks.find(t => t.id === id);
   if (!t) return;
-  const newText = prompt('Modifier la tâche :', t.text);
+  try {
+    await api('/tasks/' + id, 'PUT', { list: currentList, updates: { done: !t.done, done_at: !t.done ? new Date().toISOString() : null } });
+    await loadTasks();
+  } catch(e) { syncStatus('✗ Erreur', false); }
+}
+
+async function toggleUrgent(id) {
+  const t = tasks.find(t => t.id === id);
+  if (!t) return;
+  try {
+    await api('/tasks/' + id, 'PUT', { list: currentList, updates: { urgent: !t.urgent } });
+    await loadTasks();
+  } catch(e) { syncStatus('✗ Erreur', false); }
+}
+
+async function deleteTask(id) {
+  if (!confirm('Supprimer cette tâche ?')) return;
+  try {
+    await api('/tasks/' + id + '?list=' + currentList, 'DELETE');
+    await loadTasks();
+  } catch(e) { syncStatus('✗ Erreur', false); }
+}
+
+async function editTask(id) {
+  const t = tasks.find(t => t.id === id);
+  if (!t) return;
+  const newText = prompt('Modifier :', t.text);
   if (newText !== null && newText.trim()) {
-    t.text = newText.trim();
-    saveTasks(tasks);
-    render();
+    try {
+      await api('/tasks/' + id, 'PUT', { list: currentList, updates: { text: newText.trim() } });
+      await loadTasks();
+    } catch(e) { syncStatus('✗ Erreur', false); }
   }
 }
 
 function toggleNote(id) {
-  const el = document.getElementById(`note-${id}`);
+  const el = document.getElementById('note-' + id);
   el.classList.toggle('show');
   if (el.classList.contains('show')) el.focus();
 }
 
-function saveNote(id) {
-  const tasks = getTasks();
-  const t = tasks.find(t => t.id === id);
-  if (t) {
-    t.note = document.getElementById(`note-${id}`).value;
-    saveTasks(tasks);
-    render();
-  }
+async function saveNote(id) {
+  const val = document.getElementById('note-' + id).value;
+  try {
+    await api('/tasks/' + id, 'PUT', { list: currentList, updates: { note: val } });
+  } catch(e) {}
 }
 
 function formatDate(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString('fr-CH', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('fr-CH', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
 }
 
 function render() {
-  let tasks = getTasks();
-  const total = tasks.length;
-  const done = tasks.filter(t => t.done).length;
-  const urgent = tasks.filter(t => t.urgent && !t.done).length;
+  let filtered = Array.isArray(tasks) ? [...tasks] : [];
+  const total = filtered.length, done = filtered.filter(t=>t.done).length;
+  const urgent = filtered.filter(t=>t.urgent&&!t.done).length;
+  document.getElementById('stats').innerHTML = `<b>${total-done}</b> à faire | <b>${done}</b> terminées${urgent ? ` | <b>${urgent}</b> urgentes` : ''}`;
 
-  document.getElementById('stats').innerHTML = 
-    `<span>${total - done}</span> à faire | <span>${done}</span> terminées${urgent ? ` | <span>${urgent}</span> urgentes` : ''}`;
+  if (currentFilter==='todo') filtered=filtered.filter(t=>!t.done);
+  else if (currentFilter==='done') filtered=filtered.filter(t=>t.done);
+  else if (currentFilter==='urgent') filtered=filtered.filter(t=>t.urgent&&!t.done);
 
-  if (currentFilter === 'todo') tasks = tasks.filter(t => !t.done);
-  else if (currentFilter === 'done') tasks = tasks.filter(t => t.done);
-  else if (currentFilter === 'urgent') tasks = tasks.filter(t => t.urgent && !t.done);
-
-  // Sort: urgent first, then by date
-  tasks.sort((a, b) => {
-    if (a.done !== b.done) return a.done ? 1 : -1;
-    if (a.urgent !== b.urgent) return a.urgent ? -1 : 1;
-    return b.id - a.id;
+  filtered.sort((a,b)=>{
+    if(a.done!==b.done) return a.done?1:-1;
+    if(a.urgent!==b.urgent) return a.urgent?-1:1;
+    return b.id-a.id;
   });
 
   const list = document.getElementById('taskList');
-  if (tasks.length === 0) {
-    list.innerHTML = '<div class="empty"><span>✨</span>Aucune tâche !</div>';
-    return;
-  }
+  if (!filtered.length) { list.innerHTML='<div class="empty"><span>✨</span>Aucune tâche !</div>'; return; }
 
-  list.innerHTML = tasks.map(t => `
-    <li class="task-item ${t.done ? 'done' : ''} ${t.urgent ? 'urgent' : ''}">
+  list.innerHTML = filtered.map(t=>`
+    <li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''}">
       <div class="task-check" onclick="toggleDone(${t.id})"></div>
       <div class="task-content">
         <div class="task-text">${t.text}</div>
-        ${t.note ? `<div class="task-note">📝 ${t.note}</div>` : ''}
-        <textarea class="note-input" id="note-${t.id}" placeholder="Ajouter une note..." onblur="saveNote(${t.id})">${t.note || ''}</textarea>
+        ${t.note?'<div class="task-note">📝 '+t.note+'</div>':''}
+        <textarea class="note-input" id="note-${t.id}" placeholder="Note..." onblur="saveNote(${t.id})">${t.note||''}</textarea>
         <div class="task-meta">
-          <span class="task-date">${formatDate(t.created)}</span>
-          ${t.urgent ? '<span class="task-tag" style="background:#5c1a1a;color:#e94560">🔴 Urgent</span>' : ''}
+          <span class="task-date">${formatDate(t.created_at)}</span>
+          ${t.urgent?'<span class="task-tag">Urgent</span>':''}
+          ${t.created_by&&currentList==='shared'?'<span class="task-owner">par '+t.created_by+'</span>':''}
         </div>
       </div>
       <div class="task-actions">
-        <button class="task-btn" onclick="toggleNote(${t.id})" title="Note">📝</button>
-        <button class="task-btn" onclick="toggleUrgent(${t.id})" title="Urgent">${t.urgent ? '🔴' : '⚪'}</button>
-        <button class="task-btn" onclick="editTask(${t.id})" title="Modifier">✏️</button>
-        <button class="task-btn del" onclick="deleteTask(${t.id})" title="Supprimer">🗑️</button>
+        <button class="task-btn" onclick="toggleNote(${t.id})">📝</button>
+        <button class="task-btn" onclick="toggleUrgent(${t.id})">${t.urgent?'🔴':'⚪'}</button>
+        <button class="task-btn" onclick="editTask(${t.id})">✏️</button>
+        <button class="task-btn" onclick="deleteTask(${t.id})">🗑️</button>
       </div>
     </li>
   `).join('');
 }
 
-render();
-document.getElementById('newTask').focus();
+// Auto-refresh every 30s
+setInterval(() => { if (token) loadTasks(); }, 30000);
 </script>
 </body>
 </html>
