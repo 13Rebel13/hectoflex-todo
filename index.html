@@ -3,40 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HectoFlex - Tâches</title>
+<title>HectoFlex Tools</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a1a2e">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;min-height:100vh}
+
+/* LOGIN */
 .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px}
 .login-box{background:#16213e;padding:40px;border-radius:16px;width:100%;max-width:360px;text-align:center}
 .login-box h1{color:#e94560;margin-bottom:8px;font-size:24px}
 .login-box p{color:#666;margin-bottom:25px;font-size:14px}
 .pin-input{width:100%;padding:14px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:24px;text-align:center;letter-spacing:12px;outline:none;margin-bottom:15px}
 .pin-input:focus{border-color:#e94560}
-.login-select,.cat-select{width:100%;padding:10px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:14px;outline:none}
-.login-select{margin-bottom:12px;font-size:15px;padding:12px}
+.login-select{width:100%;padding:12px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:15px;margin-bottom:12px;outline:none}
 .login-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:16px;font-weight:600;cursor:pointer}
 .login-btn:hover{background:#c73651}
 .login-error{color:#e94560;font-size:13px;margin-top:10px;display:none}
+
+/* APP */
 .app{display:none}
-.header{background:#16213e;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0f3460}
-.header h1{font-size:18px;color:#e94560}
-.header-right{display:flex;align-items:center;gap:10px}
-.user-name{color:#aaa;font-size:13px}
-.logout-btn{padding:5px 12px;border-radius:8px;border:1px solid #333;background:transparent;color:#666;cursor:pointer;font-size:12px}
+.top-bar{background:#16213e;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0f3460}
+.top-left{display:flex;align-items:center;gap:10px}
+.logo{font-size:20px;font-weight:800;color:#e94560}
+.top-right{display:flex;align-items:center;gap:8px}
+.user-name{color:#888;font-size:12px}
+.logout-btn{padding:4px 10px;border-radius:6px;border:1px solid #333;background:transparent;color:#555;cursor:pointer;font-size:11px}
 .logout-btn:hover{color:#e94560;border-color:#e94560}
+
+/* MAIN TABS */
+.main-tabs{display:flex;background:#0d1528;border-bottom:2px solid #0f3460}
+.main-tab{flex:1;text-align:center;padding:12px 8px;color:#555;cursor:pointer;font-size:13px;font-weight:600;border-bottom:3px solid transparent;transition:all .2s}
+.main-tab:hover{color:#aaa}
+.main-tab.active{color:#e94560;border-bottom-color:#e94560}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+
+/* TASKS */
 .tabs-row{display:flex;gap:6px;padding:10px 20px;background:#16213e;flex-wrap:wrap}
-.tab{padding:6px 14px;border-radius:16px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
-.tab.active{background:#e94560;color:#fff;border-color:#e94560}
-.tab:hover{border-color:#e94560}
-.cat-row{display:flex;gap:6px;padding:6px 20px;background:#121a30;flex-wrap:wrap;align-items:center;border-bottom:1px solid #0f3460}
-.cat-chip{padding:5px 12px;border-radius:14px;border:1px solid #1a3a5c;background:transparent;color:#5dade2;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s}
+.stab{padding:6px 14px;border-radius:16px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.stab.active{background:#e94560;color:#fff;border-color:#e94560}
+.stab:hover{border-color:#e94560}
+.cat-row{display:flex;gap:5px;padding:6px 20px;background:#121a30;flex-wrap:wrap;align-items:center;border-bottom:1px solid #0f3460}
+.cat-chip{padding:4px 10px;border-radius:12px;border:1px solid #1a3a5c;background:transparent;color:#5dade2;cursor:pointer;font-size:11px;font-weight:600}
 .cat-chip.active{background:#1a3a5c;color:#fff}
 .cat-chip:hover{border-color:#5dade2}
-.cat-add{padding:5px 10px;border-radius:14px;border:1px dashed #333;background:transparent;color:#444;cursor:pointer;font-size:11px}
+.cat-add{padding:4px 8px;border-radius:12px;border:1px dashed #333;background:transparent;color:#444;cursor:pointer;font-size:11px}
 .cat-add:hover{border-color:#e94560;color:#e94560}
 .container{max-width:800px;margin:0 auto;padding:12px 20px}
 .add-section{display:flex;gap:8px;margin-bottom:6px}
@@ -45,15 +62,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .add-section input::placeholder{color:#555}
 .add-row2{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
 .add-row2 label{color:#555;font-size:11px}
-.date-input{padding:7px 8px;border-radius:8px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:12px;outline:none}
-.date-input:focus{border-color:#e94560}
-.add-btn{padding:10px 16px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:14px;cursor:pointer;font-weight:600;white-space:nowrap}
+.date-input,.cat-sel{padding:7px 8px;border-radius:8px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:12px;outline:none}
+.add-btn{padding:10px 16px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:14px;cursor:pointer;font-weight:600}
 .add-btn:hover{background:#c73651}
 .filters{display:flex;gap:5px;margin-bottom:10px}
-.filter-btn{padding:3px 10px;border-radius:10px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:11px}
-.filter-btn.active{background:#0f3460;color:#fff;border-color:#0f3460}
+.fbtn{padding:3px 10px;border-radius:10px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:11px}
+.fbtn.active{background:#0f3460;color:#fff;border-color:#0f3460}
 .task-list{list-style:none}
-.task-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;margin-bottom:5px;background:#16213e;border-radius:10px;border-left:4px solid #0f3460;transition:all .2s}
+.task-item{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;margin-bottom:5px;background:#16213e;border-radius:10px;border-left:4px solid #0f3460}
 .task-item.done{opacity:0.4;border-left-color:#2d6a4f}
 .task-item.done .task-text{text-decoration:line-through;color:#555}
 .task-item.urgent{border-left-color:#e94560}
@@ -64,69 +80,94 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .task-item.done .task-check::after{content:'✓';color:#fff;font-size:11px}
 .task-content{flex:1;min-width:0}
 .task-text{font-size:13px;line-height:1.3}
-.task-meta{display:flex;gap:5px;margin-top:3px;align-items:center;flex-wrap:wrap}
-.task-date{font-size:10px;color:#333}
-.task-due{font-size:10px;padding:1px 6px;border-radius:6px;background:#1a3a5c;color:#5dade2}
-.task-due.overdue{background:#5c1a1a;color:#ff6b35}
-.task-due.today{background:#5c4a1a;color:#f4d03f}
-.task-tag{font-size:9px;padding:1px 6px;border-radius:6px;background:#5c1a1a;color:#e94560}
-.task-cat{font-size:9px;padding:1px 6px;border-radius:6px;background:#1a3a5c;color:#7fb3d8}
-.task-owner{font-size:9px;padding:1px 6px;border-radius:6px;background:#0f3460;color:#aaa}
+.task-meta{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap}
+.tm{font-size:9px;padding:1px 5px;border-radius:5px}
+.tm-date{background:transparent;color:#333}
+.tm-due{background:#1a3a5c;color:#5dade2}
+.tm-due.overdue{background:#5c1a1a;color:#ff6b35}
+.tm-due.today{background:#5c4a1a;color:#f4d03f}
+.tm-cat{background:#1a3a5c;color:#7fb3d8}
+.tm-urg{background:#5c1a1a;color:#e94560}
+.tm-own{background:#0f3460;color:#aaa}
 .task-actions{display:flex;gap:3px;flex-shrink:0}
-.task-btn{width:24px;height:24px;border-radius:5px;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;background:#1a1a2e;color:#444}
-.task-btn:hover{color:#e94560}
+.tbtn{width:24px;height:24px;border-radius:5px;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;background:#1a1a2e;color:#444}
+.tbtn:hover{color:#e94560}
 .task-note{font-size:11px;color:#555;margin-top:2px;font-style:italic}
 .note-input{width:100%;padding:6px 8px;border-radius:6px;border:1px solid #0f3460;background:#1a1a2e;color:#ddd;font-size:11px;margin-top:4px;outline:none;resize:none;display:none}
 .note-input.show{display:block}
-.empty{text-align:center;padding:40px 20px;color:#333}
+.empty{text-align:center;padding:40px;color:#333}
 .empty span{font-size:32px;display:block;margin-bottom:8px}
 .stats{display:flex;gap:10px;margin-bottom:8px;font-size:11px;color:#444}
 .stats b{color:#e94560}
-.sync-status{font-size:10px;color:#333;text-align:center;padding:3px}
+.sync-status{font-size:10px;color:#333;text-align:center;padding:2px}
 .sync-status.ok{color:#2d6a4f}
 .sync-status.err{color:#e94560}
-.date-sep{font-size:11px;color:#e94560;font-weight:600;padding:6px 0 3px;border-bottom:1px solid #222;margin-bottom:5px}
 .readonly-badge{font-size:10px;padding:3px 10px;border-radius:10px;background:#333;color:#888;margin-bottom:8px;display:inline-block}
-.nav{display:flex;gap:0;background:#16213e;border-bottom:2px solid #0f3460}.nav a{flex:1;text-align:center;padding:10px;color:#666;text-decoration:none;font-size:13px;font-weight:600;border-bottom:3px solid transparent}.nav a:hover{color:#aaa}.nav a.active{color:#e94560;border-bottom-color:#e94560}
+
+/* QR */
+.qr-container{max-width:600px;margin:0 auto;padding:20px}
+.qr-tabs{display:flex;gap:6px;margin-bottom:15px;flex-wrap:wrap}
+.qtab{padding:8px 14px;border-radius:10px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:12px;font-weight:600}
+.qtab.active{background:#e94560;color:#fff;border-color:#e94560}
+.qtab:hover{border-color:#e94560}
+.qr-section{margin-bottom:15px}
+.qr-section h2{font-size:13px;color:#e94560;margin-bottom:8px}
+.fg{margin-bottom:10px}
+.fg label{display:block;color:#888;font-size:11px;margin-bottom:3px}
+.fg input,.fg textarea,.fg select{width:100%;padding:9px 11px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:13px;outline:none;font-family:inherit}
+.fg input:focus,.fg textarea:focus{border-color:#e94560}
+.fg textarea{resize:vertical;min-height:50px}
+.frow{display:flex;gap:10px}
+.frow .fg{flex:1}
+.color-row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.color-row input[type=color]{width:36px;height:32px;border:none;border-radius:6px;cursor:pointer;background:transparent}
+.color-row label{font-size:11px;color:#888}
+.gen-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+.gen-btn:hover{background:#c73651}
+.qr-result{text-align:center;margin-top:20px;display:none}
+.qr-result canvas{border-radius:12px;background:#fff;padding:12px}
+.dl-btns{display:flex;gap:10px;justify-content:center;margin-top:12px}
+.dl-btn{padding:8px 18px;border-radius:10px;border:2px solid #0f3460;background:transparent;color:#5dade2;cursor:pointer;font-size:12px;font-weight:600;text-decoration:none}
+.dl-btn:hover{border-color:#e94560;color:#e94560}
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
 <div class="login-screen" id="loginScreen">
 <div class="login-box">
-<h1>📋 HectoFlex</h1>
-<p>Liste de tâches</p>
+<h1>🔧 HectoFlex Tools</h1>
+<p>Boîte à outils</p>
 <select class="login-select" id="loginUser">
 <option value="daniel">Daniel</option>
 <option value="marco">Marco</option>
 </select>
-<input type="password" class="pin-input" id="pinInput" placeholder="PIN" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')login()">
-<button class="login-btn" onclick="login()">Connexion</button>
+<input type="password" class="pin-input" id="pinInput" placeholder="PIN" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()">
+<button class="login-btn" onclick="doLogin()">Connexion</button>
 <div class="login-error" id="loginError">PIN incorrect</div>
 </div>
 </div>
 
+<!-- APP -->
 <div class="app" id="app">
-<div class="header">
-<h1>📋 HectoFlex</h1>
-<div class="header-right">
-<span class="user-name" id="userName"></span>
-<button class="logout-btn" onclick="logout()">⏏</button>
-</div>
+<div class="top-bar">
+<div class="top-left"><span class="logo">🔧 HectoFlex</span></div>
+<div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div>
 </div>
 
-<div class="nav"><a href="index.html" class="active">📋 Tâches</a><a href="qr.html">📱 QR Code</a></div>
+<div class="main-tabs">
+<div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div>
+<div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div>
+</div>
+
+<!-- ========== TASKS PAGE ========== -->
+<div class="page active" id="page-tasks">
 <div class="tabs-row" id="userTabs">
-<button class="tab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button>
-<button class="tab" data-list="shared" onclick="switchList('shared',this)">Commun</button>
-<button class="tab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button>
+<button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button>
+<button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button>
+<button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button>
 </div>
-
-<div class="cat-row" id="catRow">
-<button class="cat-chip active" data-cat="all" onclick="setCat('all',this)">Tout</button>
-<button class="cat-add" onclick="addCategory()">+ Dossier</button>
-</div>
-
+<div class="cat-row" id="catRow"></div>
 <div class="container">
 <div class="sync-status" id="syncStatus"></div>
 <div class="stats" id="stats"></div>
@@ -137,16 +178,59 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 </div>
 <div class="add-row2">
 <label>📅</label><input type="date" class="date-input" id="newDue">
-<label>📁</label><select class="cat-select" id="newCat" style="width:auto;padding:6px 8px;font-size:12px"></select>
+<label>📁</label><select class="cat-sel" id="newCat"></select>
 </div>
 </div>
 <div class="filters">
-<button class="filter-btn active" onclick="setFilter('all',this)">Tout</button>
-<button class="filter-btn" onclick="setFilter('todo',this)">À faire</button>
-<button class="filter-btn" onclick="setFilter('done',this)">Fait</button>
-<button class="filter-btn" onclick="setFilter('urgent',this)">Urgent</button>
+<button class="fbtn active" onclick="setFilter('all',this)">Tout</button>
+<button class="fbtn" onclick="setFilter('todo',this)">À faire</button>
+<button class="fbtn" onclick="setFilter('done',this)">Fait</button>
+<button class="fbtn" onclick="setFilter('urgent',this)">Urgent</button>
 </div>
 <ul class="task-list" id="taskList"></ul>
+</div>
+</div>
+
+<!-- ========== QR PAGE ========== -->
+<div class="page" id="page-qr">
+<div class="qr-container">
+<div class="qr-tabs">
+<button class="qtab active" onclick="setQrType('url',this)">🔗 Lien</button>
+<button class="qtab" onclick="setQrType('vcard',this)">👤 vCard</button>
+<button class="qtab" onclick="setQrType('wifi',this)">📶 WiFi</button>
+<button class="qtab" onclick="setQrType('text',this)">📝 Texte</button>
+</div>
+
+<div id="qf-url"><div class="fg"><label>URL</label><input type="url" id="qr-url" placeholder="https://exemple.com"></div></div>
+<div id="qf-vcard" style="display:none">
+<div class="frow"><div class="fg"><label>Prénom</label><input id="vc-fn"></div><div class="fg"><label>Nom</label><input id="vc-ln"></div></div>
+<div class="fg"><label>Entreprise</label><input id="vc-org"></div>
+<div class="fg"><label>Titre</label><input id="vc-title"></div>
+<div class="fg"><label>Téléphone</label><input id="vc-tel" placeholder="+41 79 123 45 67"></div>
+<div class="fg"><label>Email</label><input id="vc-email"></div>
+<div class="fg"><label>Site web</label><input id="vc-url"></div>
+<div class="fg"><label>Adresse</label><input id="vc-adr"></div>
+</div>
+<div id="qf-wifi" style="display:none">
+<div class="fg"><label>SSID</label><input id="wifi-ssid"></div>
+<div class="fg"><label>Mot de passe</label><input id="wifi-pass"></div>
+<div class="fg"><label>Sécurité</label><select id="wifi-enc"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="">Aucune</option></select></div>
+</div>
+<div id="qf-text" style="display:none"><div class="fg"><label>Texte</label><textarea id="qr-text" rows="3"></textarea></div></div>
+
+<div class="qr-section"><h2>Options</h2>
+<div class="color-row"><label>QR :</label><input type="color" id="qr-fg" value="#000000"><label>Fond :</label><input type="color" id="qr-bg" value="#ffffff"></div>
+<div class="fg"><label>Taille (px)</label><input type="number" id="qr-size" value="400" min="100" max="2000" step="50"></div>
+</div>
+<button class="gen-btn" onclick="genQR()">Générer le QR Code</button>
+<div class="qr-result" id="qrResult">
+<canvas id="qrCanvas"></canvas>
+<div class="dl-btns">
+<a class="dl-btn" id="dlPng" download="qrcode.png">⬇ PNG</a>
+<a class="dl-btn" id="dlSvg" download="qrcode.svg">⬇ SVG</a>
+</div>
+</div>
+</div>
 </div>
 </div>
 
@@ -155,131 +239,81 @@ const API='https://hf-tasks-api.hectoflex.workers.dev';
 let token=null,currentUser=null,currentList='personal',currentFilter='all',currentCat='all',tasks=[],categories=['Général'];
 const OTHER={daniel:'marco',marco:'daniel'},NAMES={daniel:'Daniel',marco:'Marco'};
 
-async function api(p,m='GET',b=null){
-  const o={method:m,headers:{'Content-Type':'application/json'}};
-  if(token)o.headers['Authorization']='Bearer '+token;
-  if(b)o.body=JSON.stringify(b);
-  const r=await fetch(API+p,o);return r.json();
-}
+// === NAV ===
+function showPage(p,el){document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');}
 
-async function login(){
-  const u=document.getElementById('loginUser').value,p=document.getElementById('pinInput').value;
-  try{const r=await api('/login','POST',{user:u,pin:p});
-    if(r.ok){token=r.token;currentUser=r.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);showApp();}
-    else{document.getElementById('loginError').style.display='block';document.getElementById('pinInput').value='';setTimeout(()=>document.getElementById('loginError').style.display='none',2000);}
-  }catch(e){document.getElementById('loginError').textContent='Erreur connexion';document.getElementById('loginError').style.display='block';}
-}
+// === API ===
+async function api(p,m='GET',b=null){const o={method:m,headers:{'Content-Type':'application/json'}};if(token)o.headers['Authorization']='Bearer '+token;if(b)o.body=JSON.stringify(b);const r=await fetch(API+p,o);return r.json();}
 
-function logout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token=null;currentUser=null;document.getElementById('app').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';}
+// === AUTH ===
+async function doLogin(){const u=document.getElementById('loginUser').value,p=document.getElementById('pinInput').value;try{const r=await api('/login','POST',{user:u,pin:p});if(r.ok){token=r.token;currentUser=r.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);showApp();}else{document.getElementById('loginError').style.display='block';document.getElementById('pinInput').value='';setTimeout(()=>document.getElementById('loginError').style.display='none',2000);}}catch(e){document.getElementById('loginError').textContent='Erreur';document.getElementById('loginError').style.display='block';}}
+function doLogout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token=null;currentUser=null;document.getElementById('app').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';}
+async function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';document.getElementById('userName').textContent=NAMES[currentUser];document.getElementById('otherTab').textContent=NAMES[OTHER[currentUser]];await loadCategories();await loadTasks();}
+const st=localStorage.getItem('hf_token'),su=localStorage.getItem('hf_user');if(st&&su){token=st;currentUser=su;showApp();}
 
-async function showApp(){
-  document.getElementById('loginScreen').style.display='none';
-  document.getElementById('app').style.display='block';
-  document.getElementById('userName').textContent=NAMES[currentUser];
-  document.getElementById('otherTab').textContent=NAMES[OTHER[currentUser]];
-  await loadCategories();
-  await loadTasks();
-}
-
-const st=localStorage.getItem('hf_token'),su=localStorage.getItem('hf_user');
-if(st&&su){token=st;currentUser=su;showApp();}
-
-function switchList(l,el){currentList=l;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.list===l));document.getElementById('addArea').style.display=l==='other'?'none':'block';loadTasks();}
-
-function setCat(c,el){currentCat=c;document.querySelectorAll('.cat-chip').forEach(b=>b.classList.toggle('active',b.dataset.cat===c));render();}
-
-function setFilter(f,el){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');render();}
-
+// === TASKS ===
+function switchList(l,el){currentList=l;document.querySelectorAll('.stab').forEach(t=>t.classList.toggle('active',t.dataset.list===l));document.getElementById('addArea').style.display=l==='other'?'none':'block';loadTasks();}
+function setCatFilter(c,el){currentCat=c;document.querySelectorAll('.cat-chip').forEach(b=>b.classList.toggle('active',b.dataset.cat===c));render();}
+function setFilter(f,el){currentFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');render();}
 function syncStatus(m,ok=true){const el=document.getElementById('syncStatus');el.textContent=m;el.className='sync-status '+(ok?'ok':'err');if(ok)setTimeout(()=>el.textContent='',2000);}
-
-async function loadCategories(){
-  try{categories=await api('/categories');if(!categories.length)categories=['Général'];}catch(e){categories=['Général'];}
-  renderCats();
-}
-
-function renderCats(){
-  const row=document.getElementById('catRow');
-  const sel=document.getElementById('newCat');
-  row.innerHTML='<button class="cat-chip '+(currentCat==='all'?'active':'')+'" data-cat="all" onclick="setCat(\'all\',this)">Tout</button>';
-  categories.forEach(c=>{
-    row.innerHTML+=`<button class="cat-chip ${currentCat===c?'active':''}" data-cat="${c}" onclick="setCat('${c}',this)">${c}</button>`;
-  });
-  row.innerHTML+='<button class="cat-add" onclick="addCategory()">+ Dossier</button>';
-  sel.innerHTML=categories.map(c=>`<option value="${c}">${c}</option>`).join('');
-}
-
-async function addCategory(){
-  const name=prompt('Nom du dossier :');
-  if(!name||!name.trim())return;
-  try{categories=await api('/categories','POST',{name:name.trim()});renderCats();}catch(e){syncStatus('✗ Erreur',false);}
-}
-
-async function loadTasks(){
-  try{let lp=currentList;if(currentList==='other')lp=OTHER[currentUser];tasks=await api('/tasks?list='+lp);syncStatus('✓ Sync');render();}catch(e){syncStatus('✗ Erreur sync',false);}
-}
-
-async function addTask(){
-  const input=document.getElementById('newTask'),due=document.getElementById('newDue'),cat=document.getElementById('newCat');
-  const text=input.value.trim();if(!text)return;
-  try{await api('/tasks','POST',{text,list:currentList,due_date:due.value||null,category:cat.value||'Général'});input.value='';due.value='';await loadTasks();}catch(e){syncStatus('✗',false);}
-}
-
-async function toggleDone(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{done:!t.done}});await loadTasks();}catch(e){}}
-async function toggleUrgent(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{urgent:!t.urgent}});await loadTasks();}catch(e){}}
-async function deleteTask(id){if(!confirm('Supprimer ?'))return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id+'?list='+l,'DELETE');await loadTasks();}catch(e){}}
-async function editTask(id){const t=tasks.find(t=>t.id===id);if(!t)return;const n=prompt('Modifier :',t.text);if(n!==null&&n.trim()){const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{text:n.trim()}});await loadTasks();}catch(e){}}}
-async function setDueDate(id){const t=tasks.find(t=>t.id===id);if(!t)return;const d=prompt('Échéance (YYYY-MM-DD) :',t.due_date||'');if(d!==null){const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{due_date:d||null}});await loadTasks();}catch(e){}}}
-async function setCatTask(id){const t=tasks.find(t=>t.id===id);if(!t)return;const c=prompt('Dossier :',t.category||'Général');if(c!==null){const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{category:c.trim()||'Général'}});await loadTasks();}catch(e){}}}
-function toggleNote(id){const el=document.getElementById('note-'+id);el.classList.toggle('show');if(el.classList.contains('show'))el.focus();}
-async function saveNote(id){const val=document.getElementById('note-'+id).value;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{note:val}});}catch(e){}}
-
-function formatDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
-function dueStatus(due){if(!due)return{cls:'',label:''};const today=new Date().toISOString().slice(0,10);const diff=Math.round((new Date(due)-new Date(today))/86400000);if(diff<0)return{cls:'overdue',label:'⚠️ Retard'};if(diff===0)return{cls:'today',label:"Auj."};if(diff===1)return{cls:'',label:'Demain'};return{cls:'',label:due.split('-').reverse().join('/')};}
-
+async function loadCategories(){try{categories=await api('/categories');if(!categories.length)categories=['Général'];}catch(e){categories=['Général'];}renderCats();}
+function renderCats(){const row=document.getElementById('catRow'),sel=document.getElementById('newCat');row.innerHTML='<button class="cat-chip '+(currentCat==='all'?'active':'')+'" data-cat="all" onclick="setCatFilter(\'all\',this)">Tout</button>';categories.forEach(c=>{row.innerHTML+=`<button class="cat-chip ${currentCat===c?'active':''}" data-cat="${c}" onclick="setCatFilter('${c}',this)">${c}</button>`;});row.innerHTML+='<button class="cat-add" onclick="addCat()">+ Dossier</button>';sel.innerHTML=categories.map(c=>`<option>${c}</option>`).join('');}
+async function addCat(){const n=prompt('Nom du dossier :');if(!n||!n.trim())return;try{categories=await api('/categories','POST',{name:n.trim()});renderCats();}catch(e){}}
+async function loadTasks(){try{let lp=currentList;if(currentList==='other')lp=OTHER[currentUser];tasks=await api('/tasks?list='+lp);syncStatus('✓');render();}catch(e){syncStatus('✗ Erreur',false);}}
+async function addTask(){const i=document.getElementById('newTask'),d=document.getElementById('newDue'),c=document.getElementById('newCat');const t=i.value.trim();if(!t)return;try{await api('/tasks','POST',{text:t,list:currentList,due_date:d.value||null,category:c.value||'Général'});i.value='';d.value='';await loadTasks();}catch(e){}}
+async function toggleDone(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{done:!t.done}});await loadTasks();}
+async function toggleUrgent(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{urgent:!t.urgent}});await loadTasks();}
+async function deleteTask(id){if(!confirm('Supprimer ?'))return;const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id+'?list='+l,'DELETE');await loadTasks();}
+async function editTask(id){const t=tasks.find(t=>t.id===id);if(!t)return;const n=prompt('Modifier :',t.text);if(n!==null&&n.trim()){const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{text:n.trim()}});await loadTasks();}}
+async function setDue(id){const t=tasks.find(t=>t.id===id);const d=prompt('Échéance (YYYY-MM-DD) :',t?.due_date||'');if(d!==null){const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{due_date:d||null}});await loadTasks();}}
+async function setCatT(id){const t=tasks.find(t=>t.id===id);const c=prompt('Dossier :',t?.category||'Général');if(c!==null){const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{category:c.trim()||'Général'}});await loadTasks();}}
+function toggleNote(id){const el=document.getElementById('n-'+id);el.classList.toggle('show');if(el.classList.contains('show'))el.focus();}
+async function saveNote(id){const v=document.getElementById('n-'+id).value;const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{note:v}});}
+function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
+function dueS(d){if(!d)return{c:'',l:''};const t=new Date().toISOString().slice(0,10),diff=Math.round((new Date(d)-new Date(t))/864e5);if(diff<0)return{c:'overdue',l:'⚠️ Retard'};if(diff===0)return{c:'today',l:"Auj."};if(diff===1)return{c:'',l:'Demain'};return{c:'',l:d.split('-').reverse().join('/')};}
 function render(){
-  let filtered=Array.isArray(tasks)?[...tasks]:[];
-  // Filter by category
-  if(currentCat!=='all')filtered=filtered.filter(t=>(t.category||'Général')===currentCat);
-  const total=filtered.length,done=filtered.filter(t=>t.done).length,urgent=filtered.filter(t=>t.urgent&&!t.done).length;
-  document.getElementById('stats').innerHTML=`<b>${total-done}</b> à faire | <b>${done}</b> faites${urgent?` | <b>${urgent}</b> urgentes`:''}`;
-  if(currentFilter==='todo')filtered=filtered.filter(t=>!t.done);
-  else if(currentFilter==='done')filtered=filtered.filter(t=>t.done);
-  else if(currentFilter==='urgent')filtered=filtered.filter(t=>t.urgent&&!t.done);
-  filtered.sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;if(a.due_date&&b.due_date)return a.due_date.localeCompare(b.due_date);if(a.due_date&&!b.due_date)return-1;if(!a.due_date&&b.due_date)return 1;if(a.urgent!==b.urgent)return a.urgent?-1:1;return b.id-a.id;});
-  const list=document.getElementById('taskList');
-  if(!filtered.length){list.innerHTML='<div class="empty"><span>✨</span>Rien ici !</div>';return;}
-  let html='';
-  if(currentList==='other')html+='<div class="readonly-badge">👁 '+NAMES[OTHER[currentUser]]+'</div>';
-  filtered.forEach(t=>{
-    const ds=dueStatus(t.due_date),od=ds.cls==='overdue'&&!t.done;
-    html+=`<li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''} ${od?'overdue':''}">
-      <div class="task-check" onclick="toggleDone(${t.id})"></div>
-      <div class="task-content">
-        <div class="task-text">${t.text}</div>
-        ${t.note?'<div class="task-note">📝 '+t.note+'</div>':''}
-        <textarea class="note-input" id="note-${t.id}" placeholder="Note..." onblur="saveNote(${t.id})">${t.note||''}</textarea>
-        <div class="task-meta">
-          <span class="task-date">${formatDate(t.created_at)}</span>
-          ${t.due_date?`<span class="task-due ${ds.cls}">📅 ${ds.label}</span>`:''}
-          ${t.category&&t.category!=='Général'?`<span class="task-cat">📁 ${t.category}</span>`:''}
-          ${t.urgent?'<span class="task-tag">Urgent</span>':''}
-          ${t.created_by&&currentList!=='personal'?'<span class="task-owner">'+t.created_by+'</span>':''}
-        </div>
-      </div>
-      <div class="task-actions">
-        <button class="task-btn" onclick="setCatTask(${t.id})" title="Dossier">📁</button>
-        <button class="task-btn" onclick="setDueDate(${t.id})">📅</button>
-        <button class="task-btn" onclick="toggleNote(${t.id})">📝</button>
-        <button class="task-btn" onclick="toggleUrgent(${t.id})">${t.urgent?'🔴':'⚪'}</button>
-        <button class="task-btn" onclick="editTask(${t.id})">✏️</button>
-        <button class="task-btn" onclick="deleteTask(${t.id})">🗑️</button>
-      </div>
-    </li>`;
-  });
-  list.innerHTML=html;
+  let f=Array.isArray(tasks)?[...tasks]:[];
+  if(currentCat!=='all')f=f.filter(t=>(t.category||'Général')===currentCat);
+  const tot=f.length,dn=f.filter(t=>t.done).length,urg=f.filter(t=>t.urgent&&!t.done).length;
+  document.getElementById('stats').innerHTML=`<b>${tot-dn}</b> à faire | <b>${dn}</b> faites${urg?` | <b>${urg}</b> urgentes`:''}`;
+  if(currentFilter==='todo')f=f.filter(t=>!t.done);else if(currentFilter==='done')f=f.filter(t=>t.done);else if(currentFilter==='urgent')f=f.filter(t=>t.urgent&&!t.done);
+  f.sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;if(a.due_date&&b.due_date)return a.due_date.localeCompare(b.due_date);if(a.due_date&&!b.due_date)return-1;if(!a.due_date&&b.due_date)return 1;if(a.urgent!==b.urgent)return a.urgent?-1:1;return b.id-a.id;});
+  const el=document.getElementById('taskList');
+  if(!f.length){el.innerHTML='<div class="empty"><span>✨</span>Rien ici</div>';return;}
+  let h='';if(currentList==='other')h+='<div class="readonly-badge">👁 '+NAMES[OTHER[currentUser]]+'</div>';
+  f.forEach(t=>{const ds=dueS(t.due_date),od=ds.c==='overdue'&&!t.done;
+    h+=`<li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''} ${od?'overdue':''}"><div class="task-check" onclick="toggleDone(${t.id})"></div><div class="task-content"><div class="task-text">${t.text}</div>${t.note?'<div class="task-note">📝 '+t.note+'</div>':''}<textarea class="note-input" id="n-${t.id}" onblur="saveNote(${t.id})">${t.note||''}</textarea><div class="task-meta"><span class="tm tm-date">${fmtDate(t.created_at)}</span>${t.due_date?`<span class="tm tm-due ${ds.c}">📅 ${ds.l}</span>`:''}${t.category&&t.category!=='Général'?`<span class="tm tm-cat">📁 ${t.category}</span>`:''}${t.urgent?'<span class="tm tm-urg">Urgent</span>':''}${t.created_by&&currentList!=='personal'?'<span class="tm tm-own">'+t.created_by+'</span>':''}</div></div><div class="task-actions"><button class="tbtn" onclick="setCatT(${t.id})">📁</button><button class="tbtn" onclick="setDue(${t.id})">📅</button><button class="tbtn" onclick="toggleNote(${t.id})">📝</button><button class="tbtn" onclick="toggleUrgent(${t.id})">${t.urgent?'🔴':'⚪'}</button><button class="tbtn" onclick="editTask(${t.id})">✏️</button><button class="tbtn" onclick="deleteTask(${t.id})">🗑️</button></div></li>`;
+  });el.innerHTML=h;
 }
-
 setInterval(()=>{if(token)loadTasks();},30000);
+
+// === QR CODE ===
+let qrType='url';
+function setQrType(t,el){qrType=t;document.querySelectorAll('.qtab').forEach(b=>b.classList.remove('active'));el.classList.add('active');['url','vcard','wifi','text'].forEach(f=>document.getElementById('qf-'+f).style.display=f===t?'block':'none');}
+function getQrData(){
+  if(qrType==='url')return document.getElementById('qr-url').value;
+  if(qrType==='text')return document.getElementById('qr-text').value;
+  if(qrType==='wifi'){const s=document.getElementById('wifi-ssid').value,p=document.getElementById('wifi-pass').value,e=document.getElementById('wifi-enc').value;return`WIFI:T:${e};S:${s};P:${p};;`;}
+  if(qrType==='vcard'){const fn=document.getElementById('vc-fn').value,ln=document.getElementById('vc-ln').value;let v=`BEGIN:VCARD\nVERSION:3.0\nN:${ln};${fn};;;\nFN:${fn} ${ln}\n`;
+    const f=(id,p)=>{const v=document.getElementById(id).value;if(v)return p+v+'\n';return'';};
+    v+=f('vc-org','ORG:')+f('vc-title','TITLE:')+f('vc-tel','TEL;TYPE=CELL:')+f('vc-email','EMAIL:')+f('vc-url','URL:');
+    const a=document.getElementById('vc-adr').value;if(a)v+=`ADR;TYPE=WORK:;;${a};;;;\n`;
+    return v+'END:VCARD';}
+  return'';
+}
+async function genQR(){
+  const data=getQrData();if(!data){alert('Remplis un champ !');return;}
+  const fg=document.getElementById('qr-fg').value,bg=document.getElementById('qr-bg').value,size=parseInt(document.getElementById('qr-size').value)||400;
+  const canvas=document.getElementById('qrCanvas'),res=document.getElementById('qrResult');
+  try{
+    // Use LOW error correction for simpler/less dense QR codes
+    await QRCode.toCanvas(canvas,data,{width:size,margin:2,color:{dark:fg,light:bg},errorCorrectionLevel:'L'});
+    res.style.display='block';
+    document.getElementById('dlPng').href=canvas.toDataURL('image/png');
+    const svg=await QRCode.toString(data,{type:'svg',width:size,margin:2,color:{dark:fg,light:bg},errorCorrectionLevel:'L'});
+    document.getElementById('dlSvg').href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
+  }catch(e){alert('Erreur: '+e.message);}
+}
 </script>
 </body>
 </html>
