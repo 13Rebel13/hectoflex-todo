@@ -146,7 +146,7 @@ input,select,textarea,button{font-family:inherit}
 </div>
 </div>
 <div class="app" id="app">
-<div class="top-bar"><div><span class="logo">HectoFlex <small style="font-size:10px;color:#48484a;font-weight:400">v22</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
+<div class="top-bar"><div><span class="logo">HectoFlex <small style="font-size:10px;color:#48484a;font-weight:400">v23</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
 <div class="main-tabs"><div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div><div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div></div>
 <div class="page active" id="page-tasks">
 <div class="tabs-row"><button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button><button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button><button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button></div>
@@ -236,7 +236,30 @@ function toggleUrgent(id){var t=tasks.find(function(t){return t.id===id});if(!t)
 function deleteTask(id){if(!confirm('Supprimer ?'))return;var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks/'+id+'?list='+l,'DELETE').then(loadTasks);}
 function editTask(id){var t=tasks.find(function(t){return t.id===id});if(!t)return;var n=prompt('Modifier :',t.text);if(n!==null&&n.trim()){var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks/'+id,'PUT',{list:l,updates:{text:n.trim()}}).then(loadTasks);}}
 function setDue(id){var t=tasks.find(function(t){return t.id===id});var d=prompt('Échéance (YYYY-MM-DD) :',(t&&t.due_date)||'');if(d!==null){var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks/'+id,'PUT',{list:l,updates:{due_date:d||null}}).then(loadTasks);}}
-function setCatT(id){var t=tasks.find(function(t){return t.id===id});var c=prompt('Dossier :',(t&&t.category)||'Général');if(c!==null){var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks/'+id,'PUT',{list:l,updates:{category:c.trim()||'Général'}}).then(loadTasks);}}
+function setCatT(id){
+  var t=tasks.find(function(t){return t.id===id});
+  var cur=(t&&t.category)||'Général';
+  // Build options
+  var opts=categories.map(function(c){return '<option value="'+c+'"'+(c===cur?' selected':'')+'>'+c+'</option>';}).join('');
+  opts+='<option value="__new__">+ Nouveau dossier...</option>';
+  // Create inline dropdown
+  var el=document.getElementById('catsel-'+id);
+  if(el){el.remove();return;}
+  var sel=document.createElement('select');
+  sel.id='catsel-'+id;
+  sel.style.cssText='margin-top:4px;padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;width:100%';
+  sel.innerHTML=opts;
+  sel.onchange=function(){
+    var v=sel.value;
+    if(v==='__new__'){v=prompt('Nom du nouveau dossier:');if(!v){sel.remove();return;}v=v.trim();if(v&&!categories.includes(v)){api2('/categories','POST',{name:v}).then(function(r){categories=r;loadCategories();});}}
+    var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);
+    api2('/tasks/'+id,'PUT',{list:l,updates:{category:v||'Général'}}).then(loadTasks);
+    sel.remove();
+  };
+  var taskEl=document.querySelector('[data-taskid="'+id+'"]')||document.getElementById('n-'+id).parentNode;
+  if(taskEl)taskEl.appendChild(sel);
+  sel.focus();
+}
 function toggleNote(id){var el=document.getElementById('n-'+id);el.classList.toggle('show');if(el.classList.contains('show'))el.focus();}
 function saveNote(id){var v=document.getElementById('n-'+id).value;var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks/'+id,'PUT',{list:l,updates:{note:v}});}
 function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
