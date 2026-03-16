@@ -16,7 +16,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .login-box p{color:#666;margin-bottom:25px;font-size:14px}
 .pin-input{width:100%;padding:14px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:24px;text-align:center;letter-spacing:12px;outline:none;margin-bottom:15px}
 .pin-input:focus{border-color:#e94560}
-.login-select{width:100%;padding:12px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:15px;margin-bottom:12px;outline:none}
+.login-select,.cat-select{width:100%;padding:10px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:14px;outline:none}
+.login-select{margin-bottom:12px;font-size:15px;padding:12px}
 .login-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:16px;font-weight:600;cursor:pointer}
 .login-btn:hover{background:#c73651}
 .login-error{color:#e94560;font-size:13px;margin-top:10px;display:none}
@@ -27,58 +28,65 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .user-name{color:#aaa;font-size:13px}
 .logout-btn{padding:5px 12px;border-radius:8px;border:1px solid #333;background:transparent;color:#666;cursor:pointer;font-size:12px}
 .logout-btn:hover{color:#e94560;border-color:#e94560}
-.user-tabs{display:flex;gap:6px;padding:12px 20px;background:#16213e;flex-wrap:wrap}
-.user-tab{padding:7px 16px;border-radius:18px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
-.user-tab.active{background:#e94560;color:#fff;border-color:#e94560}
-.user-tab:hover{border-color:#e94560}
-.container{max-width:800px;margin:0 auto;padding:15px 20px}
-.add-section{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-.add-section input[type=text]{flex:1;min-width:150px;padding:11px 14px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:14px;outline:none}
+.tabs-row{display:flex;gap:6px;padding:10px 20px;background:#16213e;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:16px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.tab.active{background:#e94560;color:#fff;border-color:#e94560}
+.tab:hover{border-color:#e94560}
+.cat-row{display:flex;gap:6px;padding:6px 20px;background:#121a30;flex-wrap:wrap;align-items:center;border-bottom:1px solid #0f3460}
+.cat-chip{padding:5px 12px;border-radius:14px;border:1px solid #1a3a5c;background:transparent;color:#5dade2;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s}
+.cat-chip.active{background:#1a3a5c;color:#fff}
+.cat-chip:hover{border-color:#5dade2}
+.cat-add{padding:5px 10px;border-radius:14px;border:1px dashed #333;background:transparent;color:#444;cursor:pointer;font-size:11px}
+.cat-add:hover{border-color:#e94560;color:#e94560}
+.container{max-width:800px;margin:0 auto;padding:12px 20px}
+.add-section{display:flex;gap:8px;margin-bottom:6px}
+.add-section input[type=text]{flex:1;min-width:120px;padding:10px 12px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:14px;outline:none}
 .add-section input:focus{border-color:#e94560}
 .add-section input::placeholder{color:#555}
-.date-row{display:flex;gap:8px;margin-bottom:15px;align-items:center}
-.date-row label{color:#666;font-size:12px;white-space:nowrap}
-.date-input{padding:8px 10px;border-radius:8px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:13px;outline:none}
+.add-row2{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.add-row2 label{color:#555;font-size:11px}
+.date-input{padding:7px 8px;border-radius:8px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:12px;outline:none}
 .date-input:focus{border-color:#e94560}
-.add-btn{padding:11px 18px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:14px;cursor:pointer;font-weight:600;white-space:nowrap}
+.add-btn{padding:10px 16px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:14px;cursor:pointer;font-weight:600;white-space:nowrap}
 .add-btn:hover{background:#c73651}
-.filters{display:flex;gap:6px;margin-bottom:12px}
-.filter-btn{padding:4px 12px;border-radius:12px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:12px}
+.filters{display:flex;gap:5px;margin-bottom:10px}
+.filter-btn{padding:3px 10px;border-radius:10px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:11px}
 .filter-btn.active{background:#0f3460;color:#fff;border-color:#0f3460}
 .task-list{list-style:none}
-.task-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;margin-bottom:6px;background:#16213e;border-radius:10px;border-left:4px solid #0f3460;transition:all .2s}
-.task-item.done{opacity:0.45;border-left-color:#2d6a4f}
+.task-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;margin-bottom:5px;background:#16213e;border-radius:10px;border-left:4px solid #0f3460;transition:all .2s}
+.task-item.done{opacity:0.4;border-left-color:#2d6a4f}
 .task-item.done .task-text{text-decoration:line-through;color:#555}
 .task-item.urgent{border-left-color:#e94560}
 .task-item.overdue{border-left-color:#ff6b35}
-.task-check{width:20px;height:20px;border-radius:50%;border:2px solid #444;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.task-check{width:18px;height:18px;border-radius:50%;border:2px solid #444;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
 .task-check:hover{border-color:#e94560}
 .task-item.done .task-check{background:#2d6a4f;border-color:#2d6a4f}
-.task-item.done .task-check::after{content:'✓';color:#fff;font-size:12px}
+.task-item.done .task-check::after{content:'✓';color:#fff;font-size:11px}
 .task-content{flex:1;min-width:0}
-.task-text{font-size:14px;line-height:1.4}
-.task-meta{display:flex;gap:6px;margin-top:4px;align-items:center;flex-wrap:wrap}
-.task-date{font-size:11px;color:#444}
-.task-due{font-size:11px;padding:2px 7px;border-radius:8px;background:#1a3a5c;color:#5dade2}
+.task-text{font-size:13px;line-height:1.3}
+.task-meta{display:flex;gap:5px;margin-top:3px;align-items:center;flex-wrap:wrap}
+.task-date{font-size:10px;color:#333}
+.task-due{font-size:10px;padding:1px 6px;border-radius:6px;background:#1a3a5c;color:#5dade2}
 .task-due.overdue{background:#5c1a1a;color:#ff6b35}
 .task-due.today{background:#5c4a1a;color:#f4d03f}
-.task-tag{font-size:10px;padding:2px 7px;border-radius:8px;background:#5c1a1a;color:#e94560}
-.task-owner{font-size:10px;padding:2px 7px;border-radius:8px;background:#0f3460;color:#aaa}
-.task-actions{display:flex;gap:4px;flex-shrink:0}
-.task-btn{width:26px;height:26px;border-radius:6px;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;background:#1a1a2e;color:#555}
+.task-tag{font-size:9px;padding:1px 6px;border-radius:6px;background:#5c1a1a;color:#e94560}
+.task-cat{font-size:9px;padding:1px 6px;border-radius:6px;background:#1a3a5c;color:#7fb3d8}
+.task-owner{font-size:9px;padding:1px 6px;border-radius:6px;background:#0f3460;color:#aaa}
+.task-actions{display:flex;gap:3px;flex-shrink:0}
+.task-btn{width:24px;height:24px;border-radius:5px;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;background:#1a1a2e;color:#444}
 .task-btn:hover{color:#e94560}
-.task-note{font-size:12px;color:#666;margin-top:3px;font-style:italic}
-.note-input{width:100%;padding:7px 10px;border-radius:8px;border:1px solid #0f3460;background:#1a1a2e;color:#ddd;font-size:12px;margin-top:5px;outline:none;resize:none;display:none}
+.task-note{font-size:11px;color:#555;margin-top:2px;font-style:italic}
+.note-input{width:100%;padding:6px 8px;border-radius:6px;border:1px solid #0f3460;background:#1a1a2e;color:#ddd;font-size:11px;margin-top:4px;outline:none;resize:none;display:none}
 .note-input.show{display:block}
-.empty{text-align:center;padding:50px 20px;color:#333}
-.empty span{font-size:36px;display:block;margin-bottom:8px}
-.stats{display:flex;gap:12px;margin-bottom:12px;font-size:12px;color:#444}
+.empty{text-align:center;padding:40px 20px;color:#333}
+.empty span{font-size:32px;display:block;margin-bottom:8px}
+.stats{display:flex;gap:10px;margin-bottom:8px;font-size:11px;color:#444}
 .stats b{color:#e94560}
-.sync-status{font-size:11px;color:#333;text-align:center;padding:4px}
+.sync-status{font-size:10px;color:#333;text-align:center;padding:3px}
 .sync-status.ok{color:#2d6a4f}
 .sync-status.err{color:#e94560}
-.readonly-badge{font-size:10px;padding:3px 10px;border-radius:10px;background:#333;color:#888;margin-bottom:10px;display:inline-block}
-.date-sep{font-size:12px;color:#e94560;font-weight:600;padding:8px 0 4px;border-bottom:1px solid #222;margin-bottom:6px}
+.date-sep{font-size:11px;color:#e94560;font-weight:600;padding:6px 0 3px;border-bottom:1px solid #222;margin-bottom:5px}
+.readonly-badge{font-size:10px;padding:3px 10px;border-radius:10px;background:#333;color:#888;margin-bottom:8px;display:inline-block}
 </style>
 </head>
 <body>
@@ -105,22 +113,29 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 <button class="logout-btn" onclick="logout()">⏏</button>
 </div>
 </div>
-<div class="user-tabs" id="tabsBar">
-<button class="user-tab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button>
-<button class="user-tab" data-list="shared" onclick="switchList('shared',this)">Commun</button>
-<button class="user-tab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button>
+
+<div class="tabs-row" id="userTabs">
+<button class="tab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button>
+<button class="tab" data-list="shared" onclick="switchList('shared',this)">Commun</button>
+<button class="tab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button>
 </div>
+
+<div class="cat-row" id="catRow">
+<button class="cat-chip active" data-cat="all" onclick="setCat('all',this)">Tout</button>
+<button class="cat-add" onclick="addCategory()">+ Dossier</button>
+</div>
+
 <div class="container">
 <div class="sync-status" id="syncStatus"></div>
 <div class="stats" id="stats"></div>
 <div id="addArea">
 <div class="add-section">
 <input type="text" id="newTask" placeholder="Nouvelle tâche..." onkeydown="if(event.key==='Enter')addTask()">
-<button class="add-btn" onclick="addTask()">+ Ajouter</button>
+<button class="add-btn" onclick="addTask()">+</button>
 </div>
-<div class="date-row">
-<label>📅 Échéance :</label>
-<input type="date" class="date-input" id="newDue">
+<div class="add-row2">
+<label>📅</label><input type="date" class="date-input" id="newDue">
+<label>📁</label><select class="cat-select" id="newCat" style="width:auto;padding:6px 8px;font-size:12px"></select>
 </div>
 </div>
 <div class="filters">
@@ -134,144 +149,108 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 </div>
 
 <script>
-const API = 'https://hf-tasks-api.hectoflex.workers.dev';
-let token=null, currentUser=null, currentList='personal', currentFilter='all', tasks=[];
-const OTHER = { daniel:'marco', marco:'daniel' };
-const NAMES = { daniel:'Daniel', marco:'Marco' };
+const API='https://hf-tasks-api.hectoflex.workers.dev';
+let token=null,currentUser=null,currentList='personal',currentFilter='all',currentCat='all',tasks=[],categories=['Général'];
+const OTHER={daniel:'marco',marco:'daniel'},NAMES={daniel:'Daniel',marco:'Marco'};
 
-async function api(path,method='GET',body=null){
-  const opts={method,headers:{'Content-Type':'application/json'}};
-  if(token) opts.headers['Authorization']='Bearer '+token;
-  if(body) opts.body=JSON.stringify(body);
-  const r=await fetch(API+path,opts);
-  return r.json();
+async function api(p,m='GET',b=null){
+  const o={method:m,headers:{'Content-Type':'application/json'}};
+  if(token)o.headers['Authorization']='Bearer '+token;
+  if(b)o.body=JSON.stringify(b);
+  const r=await fetch(API+p,o);return r.json();
 }
 
 async function login(){
-  const user=document.getElementById('loginUser').value;
-  const pin=document.getElementById('pinInput').value;
-  try{
-    const res=await api('/login','POST',{user,pin});
-    if(res.ok){token=res.token;currentUser=res.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);showApp();}
+  const u=document.getElementById('loginUser').value,p=document.getElementById('pinInput').value;
+  try{const r=await api('/login','POST',{user:u,pin:p});
+    if(r.ok){token=r.token;currentUser=r.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);showApp();}
     else{document.getElementById('loginError').style.display='block';document.getElementById('pinInput').value='';setTimeout(()=>document.getElementById('loginError').style.display='none',2000);}
   }catch(e){document.getElementById('loginError').textContent='Erreur connexion';document.getElementById('loginError').style.display='block';}
 }
 
 function logout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token=null;currentUser=null;document.getElementById('app').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';}
 
-function showApp(){
+async function showApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('userName').textContent=NAMES[currentUser];
   document.getElementById('otherTab').textContent=NAMES[OTHER[currentUser]];
-  loadTasks();
+  await loadCategories();
+  await loadTasks();
 }
 
 const st=localStorage.getItem('hf_token'),su=localStorage.getItem('hf_user');
 if(st&&su){token=st;currentUser=su;showApp();}
 
-function switchList(list,el){
-  currentList=list;
-  document.querySelectorAll('.user-tab').forEach(t=>t.classList.toggle('active',t.dataset.list===list));
-  // Hide add area if viewing other's tasks
-  document.getElementById('addArea').style.display=list==='other'?'none':'block';
-  loadTasks();
-}
+function switchList(l,el){currentList=l;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.list===l));document.getElementById('addArea').style.display=l==='other'?'none':'block';loadTasks();}
+
+function setCat(c,el){currentCat=c;document.querySelectorAll('.cat-chip').forEach(b=>b.classList.toggle('active',b.dataset.cat===c));render();}
 
 function setFilter(f,el){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');render();}
 
-function syncStatus(msg,ok=true){const el=document.getElementById('syncStatus');el.textContent=msg;el.className='sync-status '+(ok?'ok':'err');if(ok)setTimeout(()=>el.textContent='',2000);}
+function syncStatus(m,ok=true){const el=document.getElementById('syncStatus');el.textContent=m;el.className='sync-status '+(ok?'ok':'err');if(ok)setTimeout(()=>el.textContent='',2000);}
+
+async function loadCategories(){
+  try{categories=await api('/categories');if(!categories.length)categories=['Général'];}catch(e){categories=['Général'];}
+  renderCats();
+}
+
+function renderCats(){
+  const row=document.getElementById('catRow');
+  const sel=document.getElementById('newCat');
+  row.innerHTML='<button class="cat-chip '+(currentCat==='all'?'active':'')+'" data-cat="all" onclick="setCat(\'all\',this)">Tout</button>';
+  categories.forEach(c=>{
+    row.innerHTML+=`<button class="cat-chip ${currentCat===c?'active':''}" data-cat="${c}" onclick="setCat('${c}',this)">${c}</button>`;
+  });
+  row.innerHTML+='<button class="cat-add" onclick="addCategory()">+ Dossier</button>';
+  sel.innerHTML=categories.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+async function addCategory(){
+  const name=prompt('Nom du dossier :');
+  if(!name||!name.trim())return;
+  try{categories=await api('/categories','POST',{name:name.trim()});renderCats();}catch(e){syncStatus('✗ Erreur',false);}
+}
 
 async function loadTasks(){
-  try{
-    let listParam=currentList;
-    if(currentList==='other') listParam=OTHER[currentUser];
-    tasks=await api('/tasks?list='+listParam);
-    syncStatus('✓ Synchronisé');
-    render();
-  }catch(e){syncStatus('✗ Erreur de sync',false);}
+  try{let lp=currentList;if(currentList==='other')lp=OTHER[currentUser];tasks=await api('/tasks?list='+lp);syncStatus('✓ Sync');render();}catch(e){syncStatus('✗ Erreur sync',false);}
 }
 
 async function addTask(){
-  const input=document.getElementById('newTask'),due=document.getElementById('newDue');
+  const input=document.getElementById('newTask'),due=document.getElementById('newDue'),cat=document.getElementById('newCat');
   const text=input.value.trim();if(!text)return;
-  try{
-    await api('/tasks','POST',{text,list:currentList,due_date:due.value||null});
-    input.value='';due.value='';await loadTasks();
-  }catch(e){syncStatus('✗ Erreur',false);}
+  try{await api('/tasks','POST',{text,list:currentList,due_date:due.value||null,category:cat.value||'Général'});input.value='';due.value='';await loadTasks();}catch(e){syncStatus('✗',false);}
 }
 
-async function toggleDone(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{done:!t.done,done_at:!t.done?new Date().toISOString():null}});await loadTasks();}catch(e){syncStatus('✗',false);}}
-
-async function toggleUrgent(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{urgent:!t.urgent}});await loadTasks();}catch(e){syncStatus('✗',false);}}
-
-async function deleteTask(id){if(!confirm('Supprimer ?'))return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id+'?list='+l,'DELETE');await loadTasks();}catch(e){syncStatus('✗',false);}}
-
-async function editTask(id){const t=tasks.find(t=>t.id===id);if(!t)return;const n=prompt('Modifier :',t.text);if(n!==null&&n.trim()){const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{text:n.trim()}});await loadTasks();}catch(e){syncStatus('✗',false);}}}
-
-async function setDueDate(id){const t=tasks.find(t=>t.id===id);if(!t)return;const d=prompt('Date échéance (YYYY-MM-DD) :',t.due_date||'');if(d!==null){const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{due_date:d||null}});await loadTasks();}catch(e){syncStatus('✗',false);}}}
-
+async function toggleDone(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{done:!t.done}});await loadTasks();}catch(e){}}
+async function toggleUrgent(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{urgent:!t.urgent}});await loadTasks();}catch(e){}}
+async function deleteTask(id){if(!confirm('Supprimer ?'))return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id+'?list='+l,'DELETE');await loadTasks();}catch(e){}}
+async function editTask(id){const t=tasks.find(t=>t.id===id);if(!t)return;const n=prompt('Modifier :',t.text);if(n!==null&&n.trim()){const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{text:n.trim()}});await loadTasks();}catch(e){}}}
+async function setDueDate(id){const t=tasks.find(t=>t.id===id);if(!t)return;const d=prompt('Échéance (YYYY-MM-DD) :',t.due_date||'');if(d!==null){const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{due_date:d||null}});await loadTasks();}catch(e){}}}
+async function setCatTask(id){const t=tasks.find(t=>t.id===id);if(!t)return;const c=prompt('Dossier :',t.category||'Général');if(c!==null){const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{category:c.trim()||'Général'}});await loadTasks();}catch(e){}}}
 function toggleNote(id){const el=document.getElementById('note-'+id);el.classList.toggle('show');if(el.classList.contains('show'))el.focus();}
 async function saveNote(id){const val=document.getElementById('note-'+id).value;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{note:val}});}catch(e){}}
 
 function formatDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
-
-function dueStatus(due){
-  if(!due)return{cls:'',label:''};
-  const today=new Date().toISOString().slice(0,10);
-  const d=new Date(due),t=new Date(today);
-  const diff=Math.round((d-t)/(86400000));
-  if(diff<0)return{cls:'overdue',label:'⚠️ En retard ('+due+')'};
-  if(diff===0)return{cls:'today',label:"Aujourd'hui"};
-  if(diff===1)return{cls:'',label:'Demain'};
-  return{cls:'',label:due.split('-').reverse().join('/')};
-}
+function dueStatus(due){if(!due)return{cls:'',label:''};const today=new Date().toISOString().slice(0,10);const diff=Math.round((new Date(due)-new Date(today))/86400000);if(diff<0)return{cls:'overdue',label:'⚠️ Retard'};if(diff===0)return{cls:'today',label:"Auj."};if(diff===1)return{cls:'',label:'Demain'};return{cls:'',label:due.split('-').reverse().join('/')};}
 
 function render(){
   let filtered=Array.isArray(tasks)?[...tasks]:[];
+  // Filter by category
+  if(currentCat!=='all')filtered=filtered.filter(t=>(t.category||'Général')===currentCat);
   const total=filtered.length,done=filtered.filter(t=>t.done).length,urgent=filtered.filter(t=>t.urgent&&!t.done).length;
-  document.getElementById('stats').innerHTML=`<b>${total-done}</b> à faire | <b>${done}</b> terminées${urgent?` | <b>${urgent}</b> urgentes`:''}`;
-
+  document.getElementById('stats').innerHTML=`<b>${total-done}</b> à faire | <b>${done}</b> faites${urgent?` | <b>${urgent}</b> urgentes`:''}`;
   if(currentFilter==='todo')filtered=filtered.filter(t=>!t.done);
   else if(currentFilter==='done')filtered=filtered.filter(t=>t.done);
   else if(currentFilter==='urgent')filtered=filtered.filter(t=>t.urgent&&!t.done);
-
-  // Sort: undone first, then by due_date (nulls last), then by urgent, then by id
-  filtered.sort((a,b)=>{
-    if(a.done!==b.done)return a.done?1:-1;
-    // Both have due dates → sort by date
-    if(a.due_date&&b.due_date)return a.due_date.localeCompare(b.due_date);
-    // One has due date → it comes first
-    if(a.due_date&&!b.due_date)return -1;
-    if(!a.due_date&&b.due_date)return 1;
-    if(a.urgent!==b.urgent)return a.urgent?-1:1;
-    return b.id-a.id;
-  });
-
+  filtered.sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;if(a.due_date&&b.due_date)return a.due_date.localeCompare(b.due_date);if(a.due_date&&!b.due_date)return-1;if(!a.due_date&&b.due_date)return 1;if(a.urgent!==b.urgent)return a.urgent?-1:1;return b.id-a.id;});
   const list=document.getElementById('taskList');
-  const isOther=currentList==='other';
-
-  if(!filtered.length){list.innerHTML='<div class="empty"><span>✨</span>Aucune tâche !</div>';return;}
-
+  if(!filtered.length){list.innerHTML='<div class="empty"><span>✨</span>Rien ici !</div>';return;}
   let html='';
-  if(isOther)html+='<div class="readonly-badge">👁 Vue lecture — tâches de '+NAMES[OTHER[currentUser]]+'</div>';
-
-  let lastDateGroup='';
+  if(currentList==='other')html+='<div class="readonly-badge">👁 '+NAMES[OTHER[currentUser]]+'</div>';
   filtered.forEach(t=>{
-    // Date separator
-    if(t.due_date&&!t.done){
-      const ds=dueStatus(t.due_date);
-      const group=t.due_date;
-      if(group!==lastDateGroup){
-        html+=`<div class="date-sep">📅 ${ds.label||group}</div>`;
-        lastDateGroup=group;
-      }
-    }
-
-    const ds=dueStatus(t.due_date);
-    const overdue=ds.cls==='overdue'&&!t.done;
-    html+=`
-    <li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''} ${overdue?'overdue':''}">
+    const ds=dueStatus(t.due_date),od=ds.cls==='overdue'&&!t.done;
+    html+=`<li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''} ${od?'overdue':''}">
       <div class="task-check" onclick="toggleDone(${t.id})"></div>
       <div class="task-content">
         <div class="task-text">${t.text}</div>
@@ -280,12 +259,14 @@ function render(){
         <div class="task-meta">
           <span class="task-date">${formatDate(t.created_at)}</span>
           ${t.due_date?`<span class="task-due ${ds.cls}">📅 ${ds.label}</span>`:''}
+          ${t.category&&t.category!=='Général'?`<span class="task-cat">📁 ${t.category}</span>`:''}
           ${t.urgent?'<span class="task-tag">Urgent</span>':''}
-          ${t.created_by&&currentList!=='personal'?'<span class="task-owner">par '+t.created_by+'</span>':''}
+          ${t.created_by&&currentList!=='personal'?'<span class="task-owner">'+t.created_by+'</span>':''}
         </div>
       </div>
       <div class="task-actions">
-        <button class="task-btn" onclick="setDueDate(${t.id})" title="Date">📅</button>
+        <button class="task-btn" onclick="setCatTask(${t.id})" title="Dossier">📁</button>
+        <button class="task-btn" onclick="setDueDate(${t.id})">📅</button>
         <button class="task-btn" onclick="toggleNote(${t.id})">📝</button>
         <button class="task-btn" onclick="toggleUrgent(${t.id})">${t.urgent?'🔴':'⚪'}</button>
         <button class="task-btn" onclick="editTask(${t.id})">✏️</button>
