@@ -16,7 +16,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .login-box p{color:#666;margin-bottom:25px;font-size:14px}
 .pin-input{width:100%;padding:14px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:24px;text-align:center;letter-spacing:12px;outline:none;margin-bottom:15px}
 .pin-input:focus{border-color:#e94560}
-.pin-input::placeholder{letter-spacing:4px;font-size:16px}
 .login-select{width:100%;padding:12px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:15px;margin-bottom:12px;outline:none}
 .login-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:16px;font-weight:600;cursor:pointer}
 .login-btn:hover{background:#c73651}
@@ -28,15 +27,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .user-name{color:#aaa;font-size:13px}
 .logout-btn{padding:5px 12px;border-radius:8px;border:1px solid #333;background:transparent;color:#666;cursor:pointer;font-size:12px}
 .logout-btn:hover{color:#e94560;border-color:#e94560}
-.user-tabs{display:flex;gap:6px;padding:12px 20px;background:#16213e}
-.user-tab{padding:7px 18px;border-radius:18px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.user-tabs{display:flex;gap:6px;padding:12px 20px;background:#16213e;flex-wrap:wrap}
+.user-tab{padding:7px 16px;border-radius:18px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
 .user-tab.active{background:#e94560;color:#fff;border-color:#e94560}
 .user-tab:hover{border-color:#e94560}
 .container{max-width:800px;margin:0 auto;padding:15px 20px}
-.add-section{display:flex;gap:8px;margin-bottom:15px}
-.add-section input{flex:1;padding:11px 14px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:14px;outline:none}
+.add-section{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.add-section input[type=text]{flex:1;min-width:150px;padding:11px 14px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:14px;outline:none}
 .add-section input:focus{border-color:#e94560}
 .add-section input::placeholder{color:#555}
+.date-row{display:flex;gap:8px;margin-bottom:15px;align-items:center}
+.date-row label{color:#666;font-size:12px;white-space:nowrap}
+.date-input{padding:8px 10px;border-radius:8px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:13px;outline:none}
+.date-input:focus{border-color:#e94560}
 .add-btn{padding:11px 18px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:14px;cursor:pointer;font-weight:600;white-space:nowrap}
 .add-btn:hover{background:#c73651}
 .filters{display:flex;gap:6px;margin-bottom:12px}
@@ -47,6 +50,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .task-item.done{opacity:0.45;border-left-color:#2d6a4f}
 .task-item.done .task-text{text-decoration:line-through;color:#555}
 .task-item.urgent{border-left-color:#e94560}
+.task-item.overdue{border-left-color:#ff6b35}
 .task-check{width:20px;height:20px;border-radius:50%;border:2px solid #444;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
 .task-check:hover{border-color:#e94560}
 .task-item.done .task-check{background:#2d6a4f;border-color:#2d6a4f}
@@ -55,6 +59,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .task-text{font-size:14px;line-height:1.4}
 .task-meta{display:flex;gap:6px;margin-top:4px;align-items:center;flex-wrap:wrap}
 .task-date{font-size:11px;color:#444}
+.task-due{font-size:11px;padding:2px 7px;border-radius:8px;background:#1a3a5c;color:#5dade2}
+.task-due.overdue{background:#5c1a1a;color:#ff6b35}
+.task-due.today{background:#5c4a1a;color:#f4d03f}
 .task-tag{font-size:10px;padding:2px 7px;border-radius:8px;background:#5c1a1a;color:#e94560}
 .task-owner{font-size:10px;padding:2px 7px;border-radius:8px;background:#0f3460;color:#aaa}
 .task-actions{display:flex;gap:4px;flex-shrink:0}
@@ -70,7 +77,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .sync-status{font-size:11px;color:#333;text-align:center;padding:4px}
 .sync-status.ok{color:#2d6a4f}
 .sync-status.err{color:#e94560}
-.loading{text-align:center;padding:40px;color:#444}
+.readonly-badge{font-size:10px;padding:3px 10px;border-radius:10px;background:#333;color:#888;margin-bottom:10px;display:inline-block}
+.date-sep{font-size:12px;color:#e94560;font-weight:600;padding:8px 0 4px;border-bottom:1px solid #222;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -97,16 +105,23 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 <button class="logout-btn" onclick="logout()">⏏</button>
 </div>
 </div>
-<div class="user-tabs">
+<div class="user-tabs" id="tabsBar">
 <button class="user-tab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button>
 <button class="user-tab" data-list="shared" onclick="switchList('shared',this)">Commun</button>
+<button class="user-tab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button>
 </div>
 <div class="container">
 <div class="sync-status" id="syncStatus"></div>
 <div class="stats" id="stats"></div>
+<div id="addArea">
 <div class="add-section">
 <input type="text" id="newTask" placeholder="Nouvelle tâche..." onkeydown="if(event.key==='Enter')addTask()">
 <button class="add-btn" onclick="addTask()">+ Ajouter</button>
+</div>
+<div class="date-row">
+<label>📅 Échéance :</label>
+<input type="date" class="date-input" id="newDue">
+</div>
 </div>
 <div class="filters">
 <button class="filter-btn active" onclick="setFilter('all',this)">Tout</button>
@@ -120,173 +135,143 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 
 <script>
 const API = 'https://hf-tasks-api.hectoflex.workers.dev';
-let token = null, currentUser = null, currentList = 'personal', currentFilter = 'all', tasks = [];
+let token=null, currentUser=null, currentList='personal', currentFilter='all', tasks=[];
+const OTHER = { daniel:'marco', marco:'daniel' };
+const NAMES = { daniel:'Daniel', marco:'Marco' };
 
-async function api(path, method='GET', body=null) {
-  const opts = { method, headers: {'Content-Type':'application/json'} };
-  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
-  if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(API + path, opts);
+async function api(path,method='GET',body=null){
+  const opts={method,headers:{'Content-Type':'application/json'}};
+  if(token) opts.headers['Authorization']='Bearer '+token;
+  if(body) opts.body=JSON.stringify(body);
+  const r=await fetch(API+path,opts);
   return r.json();
 }
 
-async function login() {
-  const user = document.getElementById('loginUser').value;
-  const pin = document.getElementById('pinInput').value;
-  try {
-    const res = await api('/login', 'POST', { user, pin });
-    if (res.ok) {
-      token = res.token; currentUser = res.user;
-      localStorage.setItem('hf_token', token);
-      localStorage.setItem('hf_user', currentUser);
-      showApp();
-    } else {
-      document.getElementById('loginError').style.display = 'block';
-      document.getElementById('pinInput').value = '';
-      setTimeout(() => document.getElementById('loginError').style.display = 'none', 2000);
-    }
-  } catch(e) {
-    document.getElementById('loginError').textContent = 'Erreur de connexion';
-    document.getElementById('loginError').style.display = 'block';
-  }
+async function login(){
+  const user=document.getElementById('loginUser').value;
+  const pin=document.getElementById('pinInput').value;
+  try{
+    const res=await api('/login','POST',{user,pin});
+    if(res.ok){token=res.token;currentUser=res.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);showApp();}
+    else{document.getElementById('loginError').style.display='block';document.getElementById('pinInput').value='';setTimeout(()=>document.getElementById('loginError').style.display='none',2000);}
+  }catch(e){document.getElementById('loginError').textContent='Erreur connexion';document.getElementById('loginError').style.display='block';}
 }
 
-function logout() {
-  localStorage.removeItem('hf_token');
-  localStorage.removeItem('hf_user');
-  token = null; currentUser = null;
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('pinInput').value = '';
-}
+function logout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token=null;currentUser=null;document.getElementById('app').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';}
 
-function showApp() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('userName').textContent = currentUser === 'daniel' ? 'Daniel' : 'Marco';
+function showApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('userName').textContent=NAMES[currentUser];
+  document.getElementById('otherTab').textContent=NAMES[OTHER[currentUser]];
   loadTasks();
 }
 
-// Auto-login
-const savedToken = localStorage.getItem('hf_token');
-const savedUser = localStorage.getItem('hf_user');
-if (savedToken && savedUser) { token = savedToken; currentUser = savedUser; showApp(); }
+const st=localStorage.getItem('hf_token'),su=localStorage.getItem('hf_user');
+if(st&&su){token=st;currentUser=su;showApp();}
 
-function switchList(list, el) {
-  currentList = list;
-  document.querySelectorAll('.user-tab').forEach(t => t.classList.toggle('active', t.dataset.list === list));
+function switchList(list,el){
+  currentList=list;
+  document.querySelectorAll('.user-tab').forEach(t=>t.classList.toggle('active',t.dataset.list===list));
+  // Hide add area if viewing other's tasks
+  document.getElementById('addArea').style.display=list==='other'?'none':'block';
   loadTasks();
 }
 
-function setFilter(f, el) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  render();
-}
+function setFilter(f,el){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');render();}
 
-function syncStatus(msg, ok=true) {
-  const el = document.getElementById('syncStatus');
-  el.textContent = msg; el.className = 'sync-status ' + (ok?'ok':'err');
-  if (ok) setTimeout(() => el.textContent = '', 2000);
-}
+function syncStatus(msg,ok=true){const el=document.getElementById('syncStatus');el.textContent=msg;el.className='sync-status '+(ok?'ok':'err');if(ok)setTimeout(()=>el.textContent='',2000);}
 
-async function loadTasks() {
-  try {
-    tasks = await api('/tasks?list=' + currentList);
+async function loadTasks(){
+  try{
+    let listParam=currentList;
+    if(currentList==='other') listParam=OTHER[currentUser];
+    tasks=await api('/tasks?list='+listParam);
     syncStatus('✓ Synchronisé');
     render();
-  } catch(e) { syncStatus('✗ Erreur de sync', false); }
+  }catch(e){syncStatus('✗ Erreur de sync',false);}
 }
 
-async function addTask() {
-  const input = document.getElementById('newTask');
-  const text = input.value.trim();
-  if (!text) return;
-  try {
-    await api('/tasks', 'POST', { text, list: currentList });
-    input.value = '';
-    await loadTasks();
-  } catch(e) { syncStatus('✗ Erreur', false); }
+async function addTask(){
+  const input=document.getElementById('newTask'),due=document.getElementById('newDue');
+  const text=input.value.trim();if(!text)return;
+  try{
+    await api('/tasks','POST',{text,list:currentList,due_date:due.value||null});
+    input.value='';due.value='';await loadTasks();
+  }catch(e){syncStatus('✗ Erreur',false);}
 }
 
-async function toggleDone(id) {
-  const t = tasks.find(t => t.id === id);
-  if (!t) return;
-  try {
-    await api('/tasks/' + id, 'PUT', { list: currentList, updates: { done: !t.done, done_at: !t.done ? new Date().toISOString() : null } });
-    await loadTasks();
-  } catch(e) { syncStatus('✗ Erreur', false); }
+async function toggleDone(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{done:!t.done,done_at:!t.done?new Date().toISOString():null}});await loadTasks();}catch(e){syncStatus('✗',false);}}
+
+async function toggleUrgent(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{urgent:!t.urgent}});await loadTasks();}catch(e){syncStatus('✗',false);}}
+
+async function deleteTask(id){if(!confirm('Supprimer ?'))return;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id+'?list='+l,'DELETE');await loadTasks();}catch(e){syncStatus('✗',false);}}
+
+async function editTask(id){const t=tasks.find(t=>t.id===id);if(!t)return;const n=prompt('Modifier :',t.text);if(n!==null&&n.trim()){const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{text:n.trim()}});await loadTasks();}catch(e){syncStatus('✗',false);}}}
+
+async function setDueDate(id){const t=tasks.find(t=>t.id===id);if(!t)return;const d=prompt('Date échéance (YYYY-MM-DD) :',t.due_date||'');if(d!==null){const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{due_date:d||null}});await loadTasks();}catch(e){syncStatus('✗',false);}}}
+
+function toggleNote(id){const el=document.getElementById('note-'+id);el.classList.toggle('show');if(el.classList.contains('show'))el.focus();}
+async function saveNote(id){const val=document.getElementById('note-'+id).value;const l=currentList==='other'?OTHER[currentUser]:currentList;try{await api('/tasks/'+id,'PUT',{list:l,updates:{note:val}});}catch(e){}}
+
+function formatDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
+
+function dueStatus(due){
+  if(!due)return{cls:'',label:''};
+  const today=new Date().toISOString().slice(0,10);
+  const d=new Date(due),t=new Date(today);
+  const diff=Math.round((d-t)/(86400000));
+  if(diff<0)return{cls:'overdue',label:'⚠️ En retard ('+due+')'};
+  if(diff===0)return{cls:'today',label:"Aujourd'hui"};
+  if(diff===1)return{cls:'',label:'Demain'};
+  return{cls:'',label:due.split('-').reverse().join('/')};
 }
 
-async function toggleUrgent(id) {
-  const t = tasks.find(t => t.id === id);
-  if (!t) return;
-  try {
-    await api('/tasks/' + id, 'PUT', { list: currentList, updates: { urgent: !t.urgent } });
-    await loadTasks();
-  } catch(e) { syncStatus('✗ Erreur', false); }
-}
+function render(){
+  let filtered=Array.isArray(tasks)?[...tasks]:[];
+  const total=filtered.length,done=filtered.filter(t=>t.done).length,urgent=filtered.filter(t=>t.urgent&&!t.done).length;
+  document.getElementById('stats').innerHTML=`<b>${total-done}</b> à faire | <b>${done}</b> terminées${urgent?` | <b>${urgent}</b> urgentes`:''}`;
 
-async function deleteTask(id) {
-  if (!confirm('Supprimer cette tâche ?')) return;
-  try {
-    await api('/tasks/' + id + '?list=' + currentList, 'DELETE');
-    await loadTasks();
-  } catch(e) { syncStatus('✗ Erreur', false); }
-}
+  if(currentFilter==='todo')filtered=filtered.filter(t=>!t.done);
+  else if(currentFilter==='done')filtered=filtered.filter(t=>t.done);
+  else if(currentFilter==='urgent')filtered=filtered.filter(t=>t.urgent&&!t.done);
 
-async function editTask(id) {
-  const t = tasks.find(t => t.id === id);
-  if (!t) return;
-  const newText = prompt('Modifier :', t.text);
-  if (newText !== null && newText.trim()) {
-    try {
-      await api('/tasks/' + id, 'PUT', { list: currentList, updates: { text: newText.trim() } });
-      await loadTasks();
-    } catch(e) { syncStatus('✗ Erreur', false); }
-  }
-}
-
-function toggleNote(id) {
-  const el = document.getElementById('note-' + id);
-  el.classList.toggle('show');
-  if (el.classList.contains('show')) el.focus();
-}
-
-async function saveNote(id) {
-  const val = document.getElementById('note-' + id).value;
-  try {
-    await api('/tasks/' + id, 'PUT', { list: currentList, updates: { note: val } });
-  } catch(e) {}
-}
-
-function formatDate(iso) {
-  if (!iso) return '';
-  return new Date(iso).toLocaleDateString('fr-CH', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-}
-
-function render() {
-  let filtered = Array.isArray(tasks) ? [...tasks] : [];
-  const total = filtered.length, done = filtered.filter(t=>t.done).length;
-  const urgent = filtered.filter(t=>t.urgent&&!t.done).length;
-  document.getElementById('stats').innerHTML = `<b>${total-done}</b> à faire | <b>${done}</b> terminées${urgent ? ` | <b>${urgent}</b> urgentes` : ''}`;
-
-  if (currentFilter==='todo') filtered=filtered.filter(t=>!t.done);
-  else if (currentFilter==='done') filtered=filtered.filter(t=>t.done);
-  else if (currentFilter==='urgent') filtered=filtered.filter(t=>t.urgent&&!t.done);
-
+  // Sort: undone first, then by due_date (nulls last), then by urgent, then by id
   filtered.sort((a,b)=>{
-    if(a.done!==b.done) return a.done?1:-1;
-    if(a.urgent!==b.urgent) return a.urgent?-1:1;
+    if(a.done!==b.done)return a.done?1:-1;
+    // Both have due dates → sort by date
+    if(a.due_date&&b.due_date)return a.due_date.localeCompare(b.due_date);
+    // One has due date → it comes first
+    if(a.due_date&&!b.due_date)return -1;
+    if(!a.due_date&&b.due_date)return 1;
+    if(a.urgent!==b.urgent)return a.urgent?-1:1;
     return b.id-a.id;
   });
 
-  const list = document.getElementById('taskList');
-  if (!filtered.length) { list.innerHTML='<div class="empty"><span>✨</span>Aucune tâche !</div>'; return; }
+  const list=document.getElementById('taskList');
+  const isOther=currentList==='other';
 
-  list.innerHTML = filtered.map(t=>`
-    <li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''}">
+  if(!filtered.length){list.innerHTML='<div class="empty"><span>✨</span>Aucune tâche !</div>';return;}
+
+  let html='';
+  if(isOther)html+='<div class="readonly-badge">👁 Vue lecture — tâches de '+NAMES[OTHER[currentUser]]+'</div>';
+
+  let lastDateGroup='';
+  filtered.forEach(t=>{
+    // Date separator
+    if(t.due_date&&!t.done){
+      const ds=dueStatus(t.due_date);
+      const group=t.due_date;
+      if(group!==lastDateGroup){
+        html+=`<div class="date-sep">📅 ${ds.label||group}</div>`;
+        lastDateGroup=group;
+      }
+    }
+
+    const ds=dueStatus(t.due_date);
+    const overdue=ds.cls==='overdue'&&!t.done;
+    html+=`
+    <li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''} ${overdue?'overdue':''}">
       <div class="task-check" onclick="toggleDone(${t.id})"></div>
       <div class="task-content">
         <div class="task-text">${t.text}</div>
@@ -294,22 +279,24 @@ function render() {
         <textarea class="note-input" id="note-${t.id}" placeholder="Note..." onblur="saveNote(${t.id})">${t.note||''}</textarea>
         <div class="task-meta">
           <span class="task-date">${formatDate(t.created_at)}</span>
+          ${t.due_date?`<span class="task-due ${ds.cls}">📅 ${ds.label}</span>`:''}
           ${t.urgent?'<span class="task-tag">Urgent</span>':''}
-          ${t.created_by&&currentList==='shared'?'<span class="task-owner">par '+t.created_by+'</span>':''}
+          ${t.created_by&&currentList!=='personal'?'<span class="task-owner">par '+t.created_by+'</span>':''}
         </div>
       </div>
       <div class="task-actions">
+        <button class="task-btn" onclick="setDueDate(${t.id})" title="Date">📅</button>
         <button class="task-btn" onclick="toggleNote(${t.id})">📝</button>
         <button class="task-btn" onclick="toggleUrgent(${t.id})">${t.urgent?'🔴':'⚪'}</button>
         <button class="task-btn" onclick="editTask(${t.id})">✏️</button>
         <button class="task-btn" onclick="deleteTask(${t.id})">🗑️</button>
       </div>
-    </li>
-  `).join('');
+    </li>`;
+  });
+  list.innerHTML=html;
 }
 
-// Auto-refresh every 30s
-setInterval(() => { if (token) loadTasks(); }, 30000);
+setInterval(()=>{if(token)loadTasks();},30000);
 </script>
 </body>
 </html>
