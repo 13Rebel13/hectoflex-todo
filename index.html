@@ -346,16 +346,29 @@ function getQrData(){
     return v+'END:VCARD';}
   return'';
 }
-async function genQR(){
+function genQR(){
   const data=getQrData();if(!data){alert('Remplis un champ !');return;}
   const fg=document.getElementById('qr-fg').value,bg=document.getElementById('qr-bg').value,size=parseInt(document.getElementById('qr-size').value)||400;
   const canvas=document.getElementById('qrCanvas'),res=document.getElementById('qrResult');
   try{
-    // Use LOW error correction for simpler/less dense QR codes
-    await QRCode.toCanvas(canvas,data,{width:size,margin:2,color:{dark:fg,light:bg},errorCorrectionLevel:'L'});
+    // Generate QR with qrcode-generator (L = low error correction = simpler)
+    const qr=qrcode(0,'L');
+    qr.addData(data);
+    qr.make();
+    const mCount=qr.getModuleCount();
+    const cellSize=Math.floor(size/mCount);
+    const realSize=cellSize*mCount;
+    canvas.width=realSize;canvas.height=realSize;
+    const ctx=canvas.getContext('2d');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,realSize,realSize);
+    for(let r=0;r<mCount;r++){for(let c=0;c<mCount;c++){ctx.fillStyle=qr.isDark(r,c)?fg:bg;ctx.fillRect(c*cellSize,r*cellSize,cellSize,cellSize);}}
     res.style.display='block';
     document.getElementById('dlPng').href=canvas.toDataURL('image/png');
-    const svg=await QRCode.toString(data,{type:'svg',width:size,margin:2,color:{dark:fg,light:bg},errorCorrectionLevel:'L'});
+    // SVG
+    let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${realSize}" height="${realSize}" viewBox="0 0 ${mCount} ${mCount}">`;
+    svg+=`<rect width="${mCount}" height="${mCount}" fill="${bg}"/>`;
+    for(let r=0;r<mCount;r++){for(let c=0;c<mCount;c++){if(qr.isDark(r,c))svg+=`<rect x="${c}" y="${r}" width="1" height="1" fill="${fg}"/>`;}}
+    svg+='</svg>';
     document.getElementById('dlSvg').href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
   }catch(e){alert('Erreur: '+e.message);}
 }
