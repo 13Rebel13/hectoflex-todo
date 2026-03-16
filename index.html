@@ -153,144 +153,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-// ===== QR CODE GENERATOR (inline, no external lib) =====
-var QRGen=(function(){
-// Minimal QR Code generator - supports alphanumeric and byte mode
-// Based on public domain QR code algorithms
-function QR(data,ecl){
-  var mode=4,ecLevel={'L':1,'M':0,'Q':3,'H':2}[ecl||'L']||1;
-  var enc=[];
-  for(var i=0;i<data.length;i++) enc.push(data.charCodeAt(i));
-  // Find minimum version
-  var ver=1,totalBits;
-  for(ver=1;ver<=40;ver++){
-    var cap=getCapacity(ver,ecLevel);
-    totalBits=4+8+(ver>=10?16:8)+enc.length*8;
-    if(totalBits<=cap*8) break;
-  }
-  // Build data codewords
-  var bits='0100'; // byte mode
-  var lenBits=ver>=10?16:8;
-  var lenStr=enc.length.toString(2);
-  while(lenStr.length<lenBits) lenStr='0'+lenStr;
-  bits+=lenStr;
-  for(var i=0;i<enc.length;i++){
-    var b=enc[i].toString(2);
-    while(b.length<8) b='0'+b;
-    bits+=b;
-  }
-  // Terminator
-  var cap=getCapacity(ver,ecLevel);
-  while(bits.length<cap*8&&bits.length-totalBits<4) bits+='0';
-  while(bits.length%8!==0) bits+='0';
-  while(bits.length<cap*8){
-    bits+='11101100';
-    if(bits.length<cap*8) bits+='00010001';
-  }
-  var codewords=[];
-  for(var i=0;i<bits.length;i+=8) codewords.push(parseInt(bits.substr(i,8),2));
-  // Error correction
-  var blocks=getECInfo(ver,ecLevel);
-  var ecWords=calcEC(codewords,blocks,ver,ecLevel);
-  // Build matrix
-  var size=ver*4+17;
-  var matrix=[];
-  for(var i=0;i<size;i++){matrix[i]=[];for(var j=0;j<size;j++) matrix[i][j]=-1;}
-  // Finder patterns
-  addFinder(matrix,0,0,size);
-  addFinder(matrix,size-7,0,size);
-  addFinder(matrix,0,size-7,size);
-  // Timing
-  for(var i=8;i<size-8;i++){
-    if(matrix[6][i]===-1) matrix[6][i]=i%2===0?1:0;
-    if(matrix[i][6]===-1) matrix[i][6]=i%2===0?1:0;
-  }
-  // Alignment patterns
-  var align=getAlignPos(ver);
-  for(var i=0;i<align.length;i++){
-    for(var j=0;j<align.length;j++){
-      if(i===0&&j===0) continue;
-      if(i===0&&j===align.length-1) continue;
-      if(i===align.length-1&&j===0) continue;
-      addAlign(matrix,align[i],align[j]);
-    }
-  }
-  // Format info
-  matrix[size-1][8]=1; // dark module
-  // Reserve format areas
-  for(var i=0;i<8;i++){
-    if(matrix[8][i]===-1) matrix[8][i]=-2;
-    if(matrix[i][8]===-1) matrix[i][8]=-2;
-    if(matrix[8][size-1-i]===-1) matrix[8][size-1-i]=-2;
-    if(matrix[size-1-i][8]===-1) matrix[size-1-i][8]=-2;
-  }
-  if(matrix[8][8]===-1) matrix[8][8]=-2;
-  // Version info
-  if(ver>=7){
-    var vInfo=getVersionInfo(ver);
-    for(var i=0;i<6;i++) for(var j=0;j<3;j++){
-      var bit=(vInfo>>((5-i)*3+(2-j)))&1;
-      if(matrix[i][size-11+j]===-1) matrix[i][size-11+j]=bit;
-      if(matrix[size-11+j][i]===-1) matrix[size-11+j][i]=bit;
-    }
-  }
-  // Place data
-  placeData(matrix,ecWords,size);
-  // Mask (use mask 0 for simplicity)
-  var bestMask=0,bestPen=Infinity;
-  for(var m=0;m<8;m++){
-    var tmp=copyMatrix(matrix);
-    applyMask(tmp,m,size);
-    addFormatInfo(tmp,ecLevel,m,size);
-    var pen=calcPenalty(tmp,size);
-    if(pen<bestPen){bestPen=pen;bestMask=m;}
-  }
-  applyMask(matrix,bestMask,size);
-  addFormatInfo(matrix,ecLevel,bestMask,size);
-  return{modules:matrix,size:size};
-}
-function getCapacity(v,ec){
-  // Simplified capacity table for versions 1-40, EC level L
-  var caps=[[0],[26,19,16,13],[44,34,28,22],[70,55,44,34],[100,80,64,48],[134,108,86,62],[172,136,108,76],[196,156,124,88],[242,194,154,110],[292,232,182,132],[346,274,216,154],[404,324,254,180],[466,370,290,208],[532,428,334,242],[581,461,365,261],[655,523,415,295],[733,589,453,325],[815,647,507,367],[901,721,563,397],[991,795,627,445],[1085,861,669,485],[1156,932,714,512],[1258,1006,782,568],[1364,1094,860,614],[1474,1174,914,664],[1588,1276,1000,718],[1706,1370,1062,754],[1828,1468,1128,808],[1921,1531,1193,871],[2051,1631,1267,911],[2185,1735,1373,985],[2323,1843,1455,1033],[2465,1955,1541,1115],[2611,2071,1631,1171],[2761,2191,1725,1231],[2876,2306,1812,1286],[3034,2434,1914,1354],[3196,2566,1992,1426],[3362,2702,2102,1502],[3532,2812,2216,1582]];
-  if(v<1||v>40) return 0;
-  return caps[v][ec];
-}
-function getECInfo(v,ec){return{dcCount:getCapacity(v,ec),ver:v,ec:ec};}
-function calcEC(data,info,ver,ecLevel){
-  // Simplified: just return data + EC placeholder
-  // For a real implementation we'd compute RS error correction
-  // Using a simplified approach that works for display
-  var result=data.slice();
-  var ecCount=getTotalCodewords(ver)-info.dcCount;
-  var gen=getGeneratorPoly(ecCount);
-  var msg=data.slice();
-  for(var i=0;i<ecCount;i++) msg.push(0);
-  for(var i=0;i<data.length;i++){
-    var coef=msg[i];
-    if(coef!==0) for(var j=0;j<gen.length;j++) msg[i+j]^=gfMul(gen[j],coef);
-  }
-  for(var i=0;i<ecCount;i++) result.push(msg[data.length+i]);
-  return result;
-}
-function getTotalCodewords(v){var s=v*4+17;return Math.floor((s*s-64*3-31-2*(s-16)-(v>=2?25*Math.pow(Math.floor(v/7)+1,2)-10:0)-(v>=7?36:0))/8);}
-var GF_EXP=new Array(512),GF_LOG=new Array(256);
-(function(){var x=1;for(var i=0;i<255;i++){GF_EXP[i]=x;GF_LOG[x]=i;x<<=1;if(x>=256) x^=285;}for(var i=255;i<512;i++) GF_EXP[i]=GF_EXP[i-255];})();
-function gfMul(a,b){if(a===0||b===0)return 0;return GF_EXP[GF_LOG[a]+GF_LOG[b]];}
-function getGeneratorPoly(n){var g=[1];for(var i=0;i<n;i++){var p=[1,GF_EXP[i]];var ng=new Array(g.length+1).fill(0);for(var j=0;j<g.length;j++) for(var k=0;k<p.length;k++) ng[j+k]^=gfMul(g[j],p[k]);g=ng;}return g;}
-function addFinder(m,r,c,s){for(var i=-1;i<=7;i++) for(var j=-1;j<=7;j++){var ri=r+i,ci=c+j;if(ri<0||ri>=s||ci<0||ci>=s) continue;if((i>=0&&i<=6&&(j===0||j===6))||(j>=0&&j<=6&&(i===0||i===6))||(i>=2&&i<=4&&j>=2&&j<=4)) m[ri][ci]=1;else m[ri][ci]=0;}}
-function addAlign(m,r,c){for(var i=-2;i<=2;i++) for(var j=-2;j<=2;j++){if(m[r+i][c+j]!==-1) continue;m[r+i][c+j]=(Math.abs(i)===2||Math.abs(j)===2||i===0&&j===0)?1:0;}}
-function getAlignPos(v){if(v===1) return[];var n=Math.floor(v/7)+2,first=6,last=v*4+10,step=Math.ceil((last-first)/(n-1));if(step%2) step++;var pos=[first];for(var i=1;i<n-1;i++) pos.push(last-step*(n-1-i));pos.push(last);return pos;}
-function placeData(m,data,s){var bitIdx=0;for(var right=s-1;right>=1;right-=2){if(right===6) right=5;for(var vert=0;vert<s;vert++){for(var j=0;j<2;j++){var col=right-j;var row=((Math.floor((s-1-right+((right<6)?1:0))/2))%2===0)?(s-1-vert):vert;if(m[row][col]!==-1) continue;var dark=false;if(bitIdx<data.length*8) dark=((data[Math.floor(bitIdx/8)]>>(7-bitIdx%8))&1)===1;m[row][col]=dark?1:0;bitIdx++;}}}}
-function copyMatrix(m){return m.map(function(r){return r.slice();});}
-function applyMask(m,mask,s){for(var i=0;i<s;i++) for(var j=0;j<s;j++){if(m[i][j]<0) continue;var swap=false;switch(mask){case 0:swap=(i+j)%2===0;break;case 1:swap=i%2===0;break;case 2:swap=j%3===0;break;case 3:swap=(i+j)%3===0;break;case 4:swap=(Math.floor(i/2)+Math.floor(j/3))%2===0;break;case 5:swap=(i*j)%2+(i*j)%3===0;break;case 6:swap=((i*j)%2+(i*j)%3)%2===0;break;case 7:swap=((i+j)%2+(i*j)%3)%2===0;break;}if(swap) m[i][j]^=1;}}
-function addFormatInfo(m,ec,mask,s){var data=(ec<<3)|mask;var bits=data;for(var i=0;i<10;i++){if(bits>=(1<<(14-i))) bits^=(0x537<<(9-i));}bits=(data<<10)|bits;bits^=0x5412;for(var i=0;i<15;i++){var bit=(bits>>(14-i))&1;if(i<6) m[i][8]=bit;else if(i===6) m[7][8]=bit;else if(i===7) m[8][8]=bit;else m[8][14-i]=bit;if(i<8) m[8][s-1-i]=bit;else m[s-15+i][8]=bit;}}
-function getVersionInfo(v){if(v<7) return 0;var d=v;for(var i=0;i<12;i++){if(d>=(1<<(17-i))) d^=(0x1F25<<(11-i));}return(v<<12)|d;}
-function calcPenalty(m,s){return 0;} // simplified
-return{generate:QR};
-})();
-// ===== END QR GENERATOR =====
-
 var API='https://hf-tasks-api.hectoflex.workers.dev';
 var token=null,currentUser=null,currentList='personal',currentFilter='all',currentCat='all',tasks=[],categories=['Général'];
 var OTHER={daniel:'marco',marco:'daniel'},NAMES={daniel:'Daniel',marco:'Marco'};
@@ -376,20 +241,25 @@ function genQR(){
   var data=getQrData();if(!data){alert('Remplis un champ !');return;}
   var fg=document.getElementById('qr-fg').value,bg=document.getElementById('qr-bg').value,size=parseInt(document.getElementById('qr-size').value)||400;
   try{
-    var qr=QRGen.generate(data,'L');
+    var qr=qrcode(0,'L');
+    qr.addData(data);
+    qr.make();
+    var mCount=qr.getModuleCount();
     var canvas=document.getElementById('qrCanvas');
-    var mCount=qr.size;
-    var cellSize=Math.floor(size/mCount);
+    var cellSize=Math.max(1,Math.floor(size/mCount));
     var realSize=cellSize*mCount;
     canvas.width=realSize;canvas.height=realSize;
     var ctx=canvas.getContext('2d');
     ctx.fillStyle=bg;ctx.fillRect(0,0,realSize,realSize);
-    for(var r=0;r<mCount;r++) for(var c=0;c<mCount;c++){ctx.fillStyle=qr.modules[r][c]===1?fg:bg;ctx.fillRect(c*cellSize,r*cellSize,cellSize,cellSize);}
+    for(var r=0;r<mCount;r++) for(var c=0;c<mCount;c++){
+      ctx.fillStyle=qr.isDark(r,c)?fg:bg;
+      ctx.fillRect(c*cellSize,r*cellSize,cellSize,cellSize);
+    }
     document.getElementById('qrResult').style.display='block';
     document.getElementById('dlPng').href=canvas.toDataURL('image/png');
-    // SVG
-    var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+realSize+'" height="'+realSize+'" viewBox="0 0 '+mCount+' '+mCount+'"><rect width="'+mCount+'" height="'+mCount+'" fill="'+bg+'"/>';
-    for(var r=0;r<mCount;r++) for(var c=0;c<mCount;c++) if(qr.modules[r][c]===1) svg+='<rect x="'+c+'" y="'+r+'" width="1" height="1" fill="'+fg+'"/>';
+    var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+realSize+'" height="'+realSize+'" viewBox="0 0 '+mCount+' '+mCount+'">';
+    svg+='<rect width="'+mCount+'" height="'+mCount+'" fill="'+bg+'"/>';
+    for(var r=0;r<mCount;r++) for(var c=0;c<mCount;c++){if(qr.isDark(r,c)) svg+='<rect x="'+c+'" y="'+r+'" width="1" height="1" fill="'+fg+'"/>';}
     svg+='</svg>';
     document.getElementById('dlSvg').href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
   }catch(e){alert('Erreur: '+e.message);}
