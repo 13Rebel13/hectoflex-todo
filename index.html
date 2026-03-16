@@ -121,7 +121,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 </div>
 </div>
 <div class="app" id="app">
-<div class="top-bar"><div><span class="logo">🔧 HectoFlex <small style="font-size:10px;color:#444;font-weight:400">v14</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
+<div class="top-bar"><div><span class="logo">🔧 HectoFlex <small style="font-size:10px;color:#444;font-weight:400">v15</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
 <div class="main-tabs"><div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div><div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div></div>
 <div class="page active" id="page-tasks">
 <div class="tabs-row"><button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button><button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button><button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button></div>
@@ -308,7 +308,12 @@ function doGenQR(data){
           var logoSize=maxLogo;
           // White background behind logo
           ctx.fillStyle='#ffffff';
-          ctx.fillRect(lx-4,ly-4,lw+8,lh+8);
+          // Cercle blanc derrière le logo
+          var cr=Math.max(lw,lh)/2+6;
+          ctx.beginPath();
+          ctx.arc(realSize/2,realSize/2,cr,0,Math.PI*2);
+          ctx.fillStyle='#ffffff';
+          ctx.fill();
           ctx.drawImage(img,lx,ly,lw,lh);
           // Update PNG download
           document.getElementById('dlPng').href=canvas.toDataURL('image/png');
