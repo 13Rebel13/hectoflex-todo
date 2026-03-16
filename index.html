@@ -96,7 +96,7 @@ input,select,textarea,button{font-family:inherit}
 .tm-own{background:var(--surface2);color:var(--text3)}
 .task-actions{display:flex;gap:2px;flex-shrink:0;opacity:0.3;transition:opacity .2s}
 .task-item:hover .task-actions{opacity:1}
-.tbtn{width:26px;height:26px;border-radius:6px;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;background:transparent;color:var(--text3);transition:all .15s}
+.tbtn{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;background:transparent;color:var(--text3);transition:all .15s}
 .tbtn:hover{color:var(--accent);background:var(--surface2)}.tbtn.del:hover{color:var(--red)}
 .task-note{font-size:12px;color:var(--text2);margin-top:3px;font-style:italic}
 .task-attachments{margin-top:3px;display:flex;gap:6px;flex-wrap:wrap}
@@ -158,7 +158,7 @@ input,select,textarea,button{font-family:inherit}
 </div>
 </div>
 <div class="app" id="app">
-<div class="top-bar"><div><span class="logo">HectoFlex <small style="font-size:10px;color:#48484a;font-weight:400">v24</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
+<div class="top-bar"><div><span class="logo">HectoFlex <small style="font-size:10px;color:#48484a;font-weight:400">v25</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
 <div class="main-tabs"><div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div><div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div></div>
 <div class="page active" id="page-tasks">
 <div class="tabs-row"><button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button><button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button><button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button></div>
