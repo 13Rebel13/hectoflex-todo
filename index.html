@@ -121,7 +121,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 </div>
 </div>
 <div class="app" id="app">
-<div class="top-bar"><div><span class="logo">🔧 HectoFlex <small style="font-size:10px;color:#444;font-weight:400">v12</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
+<div class="top-bar"><div><span class="logo">🔧 HectoFlex <small style="font-size:10px;color:#444;font-weight:400">v13</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
 <div class="main-tabs"><div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div><div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div></div>
 <div class="page active" id="page-tasks">
 <div class="tabs-row"><button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button><button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button><button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button></div>
@@ -145,6 +145,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 <div id="qf-wifi" style="display:none"><div class="fg"><label>SSID</label><input id="wifi-ssid"></div><div class="fg"><label>Mot de passe</label><input id="wifi-pass"></div><div class="fg"><label>Sécurité</label><select id="wifi-enc"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="">Aucune</option></select></div></div>
 <div id="qf-text" style="display:none"><div class="fg"><label>Texte</label><textarea id="qr-text" rows="3"></textarea></div></div>
 <h3 style="font-size:13px;color:#e94560;margin:15px 0 8px">Options</h3>
+<div class="fg"><label>Logo au centre (optionnel)</label><input type="file" id="qr-logo" accept="image/*" style="padding:6px;font-size:12px"></div>
 <div class="color-row"><label>QR :</label><input type="color" id="qr-fg" value="#000000"><label>Fond :</label><input type="color" id="qr-bg" value="#ffffff"></div>
 <div class="fg"><label>Taille (px)</label><input type="number" id="qr-size" value="400" min="100" max="2000" step="50"></div>
 <button class="gen-btn" onclick="genQR()">Générer le QR Code</button>
@@ -259,6 +260,15 @@ function genQR(){
           }).catch(function(){doGenQR(r.short);});
       } else doGenQR(data);
     }).catch(function(){doGenQR(data);});
+  } else if(qrType==='text' && data.length > 30){
+    api2('/text','POST',{text:data}).then(function(r){
+      if(r.short){
+        fetch('https://is.gd/create.php?format=json&url='+encodeURIComponent(r.short))
+          .then(function(r2){return r2.json();})
+          .then(function(r2){doGenQR(r2.shorturl||r.short);})
+          .catch(function(){doGenQR(r.short);});
+      } else doGenQR(data);
+    }).catch(function(){doGenQR(data);});
   } else {
     doGenQR(data);
   }
@@ -280,6 +290,27 @@ function doGenQR(data){
     for(var r=0;r<mCount;r++) for(var c=0;c<mCount;c++){
       ctx.fillStyle=qr.isDark(r,c)?fg:bg;
       ctx.fillRect(c*cellSize,r*cellSize,cellSize,cellSize);
+    }
+    // Overlay logo if selected
+    var logoFile=document.getElementById('qr-logo').files[0];
+    if(logoFile){
+      var reader=new FileReader();
+      reader.onload=function(e){
+        var img=new Image();
+        img.onload=function(){
+          var logoSize=Math.floor(realSize*0.22);
+          var lx=Math.floor((realSize-logoSize)/2);
+          var ly=Math.floor((realSize-logoSize)/2);
+          // White background behind logo
+          ctx.fillStyle='#ffffff';
+          ctx.fillRect(lx-4,ly-4,logoSize+8,logoSize+8);
+          ctx.drawImage(img,lx,ly,logoSize,logoSize);
+          // Update PNG download
+          document.getElementById('dlPng').href=canvas.toDataURL('image/png');
+        };
+        img.src=e.target.result;
+      };
+      reader.readAsDataURL(logoFile);
     }
     document.getElementById('qrResult').style.display='block';
     document.getElementById('dlPng').href=canvas.toDataURL('image/png');
