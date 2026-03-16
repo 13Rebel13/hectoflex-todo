@@ -7,7 +7,51 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a1a2e">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+async function dlPDF(){
+  const canvas=document.getElementById('qrCanvas');
+  const imgData=canvas.toDataURL('image/png');
+  const {jsPDF}=window.jspdf;
+  const size=canvas.width;
+  // A4 centered or fit
+  const mmPx=0.264583;
+  const mmSize=Math.min(size*mmPx,180);
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const x=(210-mmSize)/2,y=(297-mmSize)/2;
+  pdf.addImage(imgData,'PNG',x,y,mmSize,mmSize);
+  pdf.save('qrcode.pdf');
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js">
+async function dlPDF(){
+  const canvas=document.getElementById('qrCanvas');
+  const imgData=canvas.toDataURL('image/png');
+  const {jsPDF}=window.jspdf;
+  const size=canvas.width;
+  // A4 centered or fit
+  const mmPx=0.264583;
+  const mmSize=Math.min(size*mmPx,180);
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const x=(210-mmSize)/2,y=(297-mmSize)/2;
+  pdf.addImage(imgData,'PNG',x,y,mmSize,mmSize);
+  pdf.save('qrcode.pdf');
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+async function dlPDF(){
+  const canvas=document.getElementById('qrCanvas');
+  const imgData=canvas.toDataURL('image/png');
+  const {jsPDF}=window.jspdf;
+  const size=canvas.width;
+  // A4 centered or fit
+  const mmPx=0.264583;
+  const mmSize=Math.min(size*mmPx,180);
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const x=(210-mmSize)/2,y=(297-mmSize)/2;
+  pdf.addImage(imgData,'PNG',x,y,mmSize,mmSize);
+  pdf.save('qrcode.pdf');
+}
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;min-height:100vh}
@@ -228,6 +272,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 <div class="dl-btns">
 <a class="dl-btn" id="dlPng" download="qrcode.png">⬇ PNG</a>
 <a class="dl-btn" id="dlSvg" download="qrcode.svg">⬇ SVG</a>
+<button class="dl-btn" onclick="dlPDF()">⬇ PDF</button>
 </div>
 </div>
 </div>
@@ -313,6 +358,20 @@ async function genQR(){
     const svg=await QRCode.toString(data,{type:'svg',width:size,margin:2,color:{dark:fg,light:bg},errorCorrectionLevel:'L'});
     document.getElementById('dlSvg').href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
   }catch(e){alert('Erreur: '+e.message);}
+}
+
+async function dlPDF(){
+  const canvas=document.getElementById('qrCanvas');
+  const imgData=canvas.toDataURL('image/png');
+  const {jsPDF}=window.jspdf;
+  const size=canvas.width;
+  // A4 centered or fit
+  const mmPx=0.264583;
+  const mmSize=Math.min(size*mmPx,180);
+  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const x=(210-mmSize)/2,y=(297-mmSize)/2;
+  pdf.addImage(imgData,'PNG',x,y,mmSize,mmSize);
+  pdf.save('qrcode.pdf');
 }
 </script>
 </body>
