@@ -62,7 +62,7 @@ input,select,textarea,button{font-family:inherit}
 .add-section input[type=text]{flex:1;min-width:120px;padding:11px 14px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;transition:border .2s}
 .add-section input:focus{border-color:var(--accent)}
 .add-section input::placeholder{color:var(--text3)}
-.add-row2{display:flex;gap:10px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.add-row2{display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap;padding:0 2px}
 .add-row2 label{color:var(--text3);font-size:12px}
 .date-input,.cat-sel{padding:7px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;outline:none}
 .add-btn{padding:10px 18px;border-radius:var(--radius);border:none;background:var(--accent);color:#fff;font-size:14px;cursor:pointer;font-weight:600;transition:background .2s}
@@ -97,7 +97,7 @@ input,select,textarea,button{font-family:inherit}
 .task-actions{display:flex;gap:2px;flex-shrink:0;opacity:0.3;transition:opacity .2s}
 .task-item:hover .task-actions{opacity:1}
 .tbtn{width:26px;height:26px;border-radius:6px;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;background:transparent;color:var(--text3);transition:all .15s}
-.tbtn:hover{color:var(--accent);background:var(--surface2)}
+.tbtn:hover{color:var(--accent);background:var(--surface2)}.tbtn.del:hover{color:var(--red)}
 .task-note{font-size:12px;color:var(--text2);margin-top:3px;font-style:italic}
 .task-attachments{margin-top:3px;display:flex;gap:6px;flex-wrap:wrap}
 .task-attach{font-size:10px;color:var(--accent);text-decoration:none;padding:2px 6px;border-radius:6px;background:var(--surface2)}
@@ -105,7 +105,7 @@ input,select,textarea,button{font-family:inherit}
 .note-input.show{display:block}
 .empty{text-align:center;padding:48px 20px;color:var(--text3)}
 .empty span{font-size:28px;display:block;margin-bottom:8px}
-.stats{display:flex;gap:12px;margin-bottom:10px;font-size:12px;color:var(--text3);font-weight:500}
+.stats{display:flex;gap:12px;margin-bottom:6px;font-size:13px;color:var(--text2);font-weight:500}
 .stats b{color:var(--accent)}
 .sync-status{font-size:10px;text-align:center;padding:2px;color:var(--text3)}
 .sync-status.ok{color:var(--green)}
@@ -132,6 +132,18 @@ input,select,textarea,button{font-family:inherit}
 .dl-btns{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 .dl-btn{padding:8px 18px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s}
 .dl-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+@media(min-width:768px){
+  .container{max-width:900px;padding:24px 40px}
+  .qr-container{max-width:700px;padding:24px 40px}
+  .task-actions{opacity:0.5}
+  .task-item:hover .task-actions{opacity:1}
+  .task-item{padding:14px 18px}
+  .add-section input[type=text]{font-size:15px;padding:13px 16px}
+}
+@media(min-width:1200px){
+  .container{max-width:1000px}
+}
 </style>
 </head>
 <body>
@@ -146,7 +158,7 @@ input,select,textarea,button{font-family:inherit}
 </div>
 </div>
 <div class="app" id="app">
-<div class="top-bar"><div><span class="logo">HectoFlex <small style="font-size:10px;color:#48484a;font-weight:400">v23</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
+<div class="top-bar"><div><span class="logo">HectoFlex <small style="font-size:10px;color:#48484a;font-weight:400">v24</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
 <div class="main-tabs"><div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div><div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div></div>
 <div class="page active" id="page-tasks">
 <div class="tabs-row"><button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button><button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button><button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button></div>
