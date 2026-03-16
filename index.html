@@ -87,6 +87,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .sync-status.err{color:#e94560}
 .date-sep{font-size:11px;color:#e94560;font-weight:600;padding:6px 0 3px;border-bottom:1px solid #222;margin-bottom:5px}
 .readonly-badge{font-size:10px;padding:3px 10px;border-radius:10px;background:#333;color:#888;margin-bottom:8px;display:inline-block}
+.nav{display:flex;gap:0;background:#16213e;border-bottom:2px solid #0f3460}.nav a{flex:1;text-align:center;padding:10px;color:#666;text-decoration:none;font-size:13px;font-weight:600;border-bottom:3px solid transparent}.nav a:hover{color:#aaa}.nav a.active{color:#e94560;border-bottom-color:#e94560}
 </style>
 </head>
 <body>
@@ -114,6 +115,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 </div>
 </div>
 
+<div class="nav"><a href="index.html" class="active">📋 Tâches</a><a href="qr.html">📱 QR Code</a></div>
 <div class="tabs-row" id="userTabs">
 <button class="tab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button>
 <button class="tab" data-list="shared" onclick="switchList('shared',this)">Commun</button>
