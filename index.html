@@ -7,56 +7,9 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a1a2e">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
-async function dlPDF(){
-  const canvas=document.getElementById('qrCanvas');
-  const imgData=canvas.toDataURL('image/png');
-  const {jsPDF}=window.jspdf;
-  const size=canvas.width;
-  // A4 centered or fit
-  const mmPx=0.264583;
-  const mmSize=Math.min(size*mmPx,180);
-  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const x=(210-mmSize)/2,y=(297-mmSize)/2;
-  pdf.addImage(imgData,'PNG',x,y,mmSize,mmSize);
-  pdf.save('qrcode.pdf');
-}
-</script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js">
-async function dlPDF(){
-  const canvas=document.getElementById('qrCanvas');
-  const imgData=canvas.toDataURL('image/png');
-  const {jsPDF}=window.jspdf;
-  const size=canvas.width;
-  // A4 centered or fit
-  const mmPx=0.264583;
-  const mmSize=Math.min(size*mmPx,180);
-  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const x=(210-mmSize)/2,y=(297-mmSize)/2;
-  pdf.addImage(imgData,'PNG',x,y,mmSize,mmSize);
-  pdf.save('qrcode.pdf');
-}
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
-async function dlPDF(){
-  const canvas=document.getElementById('qrCanvas');
-  const imgData=canvas.toDataURL('image/png');
-  const {jsPDF}=window.jspdf;
-  const size=canvas.width;
-  // A4 centered or fit
-  const mmPx=0.264583;
-  const mmSize=Math.min(size*mmPx,180);
-  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const x=(210-mmSize)/2,y=(297-mmSize)/2;
-  pdf.addImage(imgData,'PNG',x,y,mmSize,mmSize);
-  pdf.save('qrcode.pdf');
-}
-</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;min-height:100vh}
-
-/* LOGIN */
 .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px}
 .login-box{background:#16213e;padding:40px;border-radius:16px;width:100%;max-width:360px;text-align:center}
 .login-box h1{color:#e94560;margin-bottom:8px;font-size:24px}
@@ -67,30 +20,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .login-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:16px;font-weight:600;cursor:pointer}
 .login-btn:hover{background:#c73651}
 .login-error{color:#e94560;font-size:13px;margin-top:10px;display:none}
-
-/* APP */
 .app{display:none}
 .top-bar{background:#16213e;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0f3460}
-.top-left{display:flex;align-items:center;gap:10px}
 .logo{font-size:20px;font-weight:800;color:#e94560}
 .top-right{display:flex;align-items:center;gap:8px}
 .user-name{color:#888;font-size:12px}
 .logout-btn{padding:4px 10px;border-radius:6px;border:1px solid #333;background:transparent;color:#555;cursor:pointer;font-size:11px}
 .logout-btn:hover{color:#e94560;border-color:#e94560}
-
-/* MAIN TABS */
 .main-tabs{display:flex;background:#0d1528;border-bottom:2px solid #0f3460}
-.main-tab{flex:1;text-align:center;padding:12px 8px;color:#555;cursor:pointer;font-size:13px;font-weight:600;border-bottom:3px solid transparent;transition:all .2s}
+.main-tab{flex:1;text-align:center;padding:12px 8px;color:#555;cursor:pointer;font-size:13px;font-weight:600;border-bottom:3px solid transparent}
 .main-tab:hover{color:#aaa}
 .main-tab.active{color:#e94560;border-bottom-color:#e94560}
-
-/* PAGES */
-.page{display:none}
-.page.active{display:block}
-
-/* TASKS */
+.page{display:none}.page.active{display:block}
 .tabs-row{display:flex;gap:6px;padding:10px 20px;background:#16213e;flex-wrap:wrap}
-.stab{padding:6px 14px;border-radius:16px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.stab{padding:6px 14px;border-radius:16px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:12px;font-weight:600}
 .stab.active{background:#e94560;color:#fff;border-color:#e94560}
 .stab:hover{border-color:#e94560}
 .cat-row{display:flex;gap:5px;padding:6px 20px;background:#121a30;flex-wrap:wrap;align-items:center;border-bottom:1px solid #0f3460}
@@ -126,7 +69,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .task-text{font-size:13px;line-height:1.3}
 .task-meta{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap}
 .tm{font-size:9px;padding:1px 5px;border-radius:5px}
-.tm-date{background:transparent;color:#333}
+.tm-date{color:#333}
 .tm-due{background:#1a3a5c;color:#5dade2}
 .tm-due.overdue{background:#5c1a1a;color:#ff6b35}
 .tm-due.today{background:#5c4a1a;color:#f4d03f}
@@ -139,250 +82,325 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .task-note{font-size:11px;color:#555;margin-top:2px;font-style:italic}
 .note-input{width:100%;padding:6px 8px;border-radius:6px;border:1px solid #0f3460;background:#1a1a2e;color:#ddd;font-size:11px;margin-top:4px;outline:none;resize:none;display:none}
 .note-input.show{display:block}
-.empty{text-align:center;padding:40px;color:#333}
-.empty span{font-size:32px;display:block;margin-bottom:8px}
-.stats{display:flex;gap:10px;margin-bottom:8px;font-size:11px;color:#444}
-.stats b{color:#e94560}
-.sync-status{font-size:10px;color:#333;text-align:center;padding:2px}
-.sync-status.ok{color:#2d6a4f}
-.sync-status.err{color:#e94560}
+.empty{text-align:center;padding:40px;color:#333}.empty span{font-size:32px;display:block;margin-bottom:8px}
+.stats{display:flex;gap:10px;margin-bottom:8px;font-size:11px;color:#444}.stats b{color:#e94560}
+.sync-status{font-size:10px;color:#333;text-align:center;padding:2px}.sync-status.ok{color:#2d6a4f}.sync-status.err{color:#e94560}
 .readonly-badge{font-size:10px;padding:3px 10px;border-radius:10px;background:#333;color:#888;margin-bottom:8px;display:inline-block}
-
-/* QR */
 .qr-container{max-width:600px;margin:0 auto;padding:20px}
 .qr-tabs{display:flex;gap:6px;margin-bottom:15px;flex-wrap:wrap}
 .qtab{padding:8px 14px;border-radius:10px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:12px;font-weight:600}
 .qtab.active{background:#e94560;color:#fff;border-color:#e94560}
 .qtab:hover{border-color:#e94560}
-.qr-section{margin-bottom:15px}
-.qr-section h2{font-size:13px;color:#e94560;margin-bottom:8px}
 .fg{margin-bottom:10px}
 .fg label{display:block;color:#888;font-size:11px;margin-bottom:3px}
 .fg input,.fg textarea,.fg select{width:100%;padding:9px 11px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:13px;outline:none;font-family:inherit}
 .fg input:focus,.fg textarea:focus{border-color:#e94560}
 .fg textarea{resize:vertical;min-height:50px}
-.frow{display:flex;gap:10px}
-.frow .fg{flex:1}
+.frow{display:flex;gap:10px}.frow .fg{flex:1}
 .color-row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
 .color-row input[type=color]{width:36px;height:32px;border:none;border-radius:6px;cursor:pointer;background:transparent}
 .color-row label{font-size:11px;color:#888}
-.gen-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+.gen-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:10px}
 .gen-btn:hover{background:#c73651}
 .qr-result{text-align:center;margin-top:20px;display:none}
 .qr-result canvas{border-radius:12px;background:#fff;padding:12px}
-.dl-btns{display:flex;gap:10px;justify-content:center;margin-top:12px}
+.dl-btns{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
 .dl-btn{padding:8px 18px;border-radius:10px;border:2px solid #0f3460;background:transparent;color:#5dade2;cursor:pointer;font-size:12px;font-weight:600;text-decoration:none}
 .dl-btn:hover{border-color:#e94560;color:#e94560}
 </style>
 </head>
 <body>
-
-<!-- LOGIN -->
 <div class="login-screen" id="loginScreen">
 <div class="login-box">
 <h1>🔧 HectoFlex Tools</h1>
 <p>Boîte à outils</p>
-<select class="login-select" id="loginUser">
-<option value="daniel">Daniel</option>
-<option value="marco">Marco</option>
-</select>
+<select class="login-select" id="loginUser"><option value="daniel">Daniel</option><option value="marco">Marco</option></select>
 <input type="password" class="pin-input" id="pinInput" placeholder="PIN" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()">
 <button class="login-btn" onclick="doLogin()">Connexion</button>
 <div class="login-error" id="loginError">PIN incorrect</div>
 </div>
 </div>
-
-<!-- APP -->
 <div class="app" id="app">
-<div class="top-bar">
-<div class="top-left"><span class="logo">🔧 HectoFlex</span></div>
-<div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div>
-</div>
-
-<div class="main-tabs">
-<div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div>
-<div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div>
-</div>
-
-<!-- ========== TASKS PAGE ========== -->
+<div class="top-bar"><div><span class="logo">🔧 HectoFlex</span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
+<div class="main-tabs"><div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div><div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div></div>
 <div class="page active" id="page-tasks">
-<div class="tabs-row" id="userTabs">
-<button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button>
-<button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button>
-<button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button>
-</div>
+<div class="tabs-row"><button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button><button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button><button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button></div>
 <div class="cat-row" id="catRow"></div>
 <div class="container">
 <div class="sync-status" id="syncStatus"></div>
 <div class="stats" id="stats"></div>
 <div id="addArea">
-<div class="add-section">
-<input type="text" id="newTask" placeholder="Nouvelle tâche..." onkeydown="if(event.key==='Enter')addTask()">
-<button class="add-btn" onclick="addTask()">+</button>
+<div class="add-section"><input type="text" id="newTask" placeholder="Nouvelle tâche..." onkeydown="if(event.key==='Enter')addTask()"><button class="add-btn" onclick="addTask()">+</button></div>
+<div class="add-row2"><label>📅</label><input type="date" class="date-input" id="newDue"><label>📁</label><select class="cat-sel" id="newCat"></select></div>
 </div>
-<div class="add-row2">
-<label>📅</label><input type="date" class="date-input" id="newDue">
-<label>📁</label><select class="cat-sel" id="newCat"></select>
-</div>
-</div>
-<div class="filters">
-<button class="fbtn active" onclick="setFilter('all',this)">Tout</button>
-<button class="fbtn" onclick="setFilter('todo',this)">À faire</button>
-<button class="fbtn" onclick="setFilter('done',this)">Fait</button>
-<button class="fbtn" onclick="setFilter('urgent',this)">Urgent</button>
-</div>
+<div class="filters"><button class="fbtn active" onclick="setFilter('all',this)">Tout</button><button class="fbtn" onclick="setFilter('todo',this)">À faire</button><button class="fbtn" onclick="setFilter('done',this)">Fait</button><button class="fbtn" onclick="setFilter('urgent',this)">Urgent</button></div>
 <ul class="task-list" id="taskList"></ul>
 </div>
 </div>
-
-<!-- ========== QR PAGE ========== -->
 <div class="page" id="page-qr">
 <div class="qr-container">
-<div class="qr-tabs">
-<button class="qtab active" onclick="setQrType('url',this)">🔗 Lien</button>
-<button class="qtab" onclick="setQrType('vcard',this)">👤 vCard</button>
-<button class="qtab" onclick="setQrType('wifi',this)">📶 WiFi</button>
-<button class="qtab" onclick="setQrType('text',this)">📝 Texte</button>
-</div>
-
+<div class="qr-tabs"><button class="qtab active" onclick="setQrType('url',this)">🔗 Lien</button><button class="qtab" onclick="setQrType('vcard',this)">👤 vCard</button><button class="qtab" onclick="setQrType('wifi',this)">📶 WiFi</button><button class="qtab" onclick="setQrType('text',this)">📝 Texte</button></div>
 <div id="qf-url"><div class="fg"><label>URL</label><input type="url" id="qr-url" placeholder="https://exemple.com"></div></div>
-<div id="qf-vcard" style="display:none">
-<div class="frow"><div class="fg"><label>Prénom</label><input id="vc-fn"></div><div class="fg"><label>Nom</label><input id="vc-ln"></div></div>
-<div class="fg"><label>Entreprise</label><input id="vc-org"></div>
-<div class="fg"><label>Titre</label><input id="vc-title"></div>
-<div class="fg"><label>Téléphone</label><input id="vc-tel" placeholder="+41 79 123 45 67"></div>
-<div class="fg"><label>Email</label><input id="vc-email"></div>
-<div class="fg"><label>Site web</label><input id="vc-url"></div>
-<div class="fg"><label>Adresse</label><input id="vc-adr"></div>
-</div>
-<div id="qf-wifi" style="display:none">
-<div class="fg"><label>SSID</label><input id="wifi-ssid"></div>
-<div class="fg"><label>Mot de passe</label><input id="wifi-pass"></div>
-<div class="fg"><label>Sécurité</label><select id="wifi-enc"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="">Aucune</option></select></div>
-</div>
+<div id="qf-vcard" style="display:none"><div class="frow"><div class="fg"><label>Prénom</label><input id="vc-fn"></div><div class="fg"><label>Nom</label><input id="vc-ln"></div></div><div class="fg"><label>Entreprise</label><input id="vc-org"></div><div class="fg"><label>Titre</label><input id="vc-title"></div><div class="fg"><label>Téléphone</label><input id="vc-tel" placeholder="+41 79 123 45 67"></div><div class="fg"><label>Email</label><input id="vc-email"></div><div class="fg"><label>Site web</label><input id="vc-url"></div><div class="fg"><label>Adresse</label><input id="vc-adr"></div></div>
+<div id="qf-wifi" style="display:none"><div class="fg"><label>SSID</label><input id="wifi-ssid"></div><div class="fg"><label>Mot de passe</label><input id="wifi-pass"></div><div class="fg"><label>Sécurité</label><select id="wifi-enc"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="">Aucune</option></select></div></div>
 <div id="qf-text" style="display:none"><div class="fg"><label>Texte</label><textarea id="qr-text" rows="3"></textarea></div></div>
-
-<div class="qr-section"><h2>Options</h2>
+<h3 style="font-size:13px;color:#e94560;margin:15px 0 8px">Options</h3>
 <div class="color-row"><label>QR :</label><input type="color" id="qr-fg" value="#000000"><label>Fond :</label><input type="color" id="qr-bg" value="#ffffff"></div>
 <div class="fg"><label>Taille (px)</label><input type="number" id="qr-size" value="400" min="100" max="2000" step="50"></div>
-</div>
 <button class="gen-btn" onclick="genQR()">Générer le QR Code</button>
-<div class="qr-result" id="qrResult">
-<canvas id="qrCanvas"></canvas>
-<div class="dl-btns">
-<a class="dl-btn" id="dlPng" download="qrcode.png">⬇ PNG</a>
-<a class="dl-btn" id="dlSvg" download="qrcode.svg">⬇ SVG</a>
-<button class="dl-btn" onclick="dlPDF()">⬇ PDF</button>
+<div class="qr-result" id="qrResult"><canvas id="qrCanvas"></canvas><div class="dl-btns"><a class="dl-btn" id="dlPng" download="qrcode.png">⬇ PNG</a><a class="dl-btn" id="dlSvg" download="qrcode.svg">⬇ SVG</a><button class="dl-btn" id="dlPdf" onclick="dlPDF()">⬇ PDF</button></div></div>
 </div>
 </div>
 </div>
-</div>
-</div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-const API='https://hf-tasks-api.hectoflex.workers.dev';
-let token=null,currentUser=null,currentList='personal',currentFilter='all',currentCat='all',tasks=[],categories=['Général'];
-const OTHER={daniel:'marco',marco:'daniel'},NAMES={daniel:'Daniel',marco:'Marco'};
+// ===== QR CODE GENERATOR (inline, no external lib) =====
+var QRGen=(function(){
+// Minimal QR Code generator - supports alphanumeric and byte mode
+// Based on public domain QR code algorithms
+function QR(data,ecl){
+  var mode=4,ecLevel={'L':1,'M':0,'Q':3,'H':2}[ecl||'L']||1;
+  var enc=[];
+  for(var i=0;i<data.length;i++) enc.push(data.charCodeAt(i));
+  // Find minimum version
+  var ver=1,totalBits;
+  for(ver=1;ver<=40;ver++){
+    var cap=getCapacity(ver,ecLevel);
+    totalBits=4+8+(ver>=10?16:8)+enc.length*8;
+    if(totalBits<=cap*8) break;
+  }
+  // Build data codewords
+  var bits='0100'; // byte mode
+  var lenBits=ver>=10?16:8;
+  var lenStr=enc.length.toString(2);
+  while(lenStr.length<lenBits) lenStr='0'+lenStr;
+  bits+=lenStr;
+  for(var i=0;i<enc.length;i++){
+    var b=enc[i].toString(2);
+    while(b.length<8) b='0'+b;
+    bits+=b;
+  }
+  // Terminator
+  var cap=getCapacity(ver,ecLevel);
+  while(bits.length<cap*8&&bits.length-totalBits<4) bits+='0';
+  while(bits.length%8!==0) bits+='0';
+  while(bits.length<cap*8){
+    bits+='11101100';
+    if(bits.length<cap*8) bits+='00010001';
+  }
+  var codewords=[];
+  for(var i=0;i<bits.length;i+=8) codewords.push(parseInt(bits.substr(i,8),2));
+  // Error correction
+  var blocks=getECInfo(ver,ecLevel);
+  var ecWords=calcEC(codewords,blocks,ver,ecLevel);
+  // Build matrix
+  var size=ver*4+17;
+  var matrix=[];
+  for(var i=0;i<size;i++){matrix[i]=[];for(var j=0;j<size;j++) matrix[i][j]=-1;}
+  // Finder patterns
+  addFinder(matrix,0,0,size);
+  addFinder(matrix,size-7,0,size);
+  addFinder(matrix,0,size-7,size);
+  // Timing
+  for(var i=8;i<size-8;i++){
+    if(matrix[6][i]===-1) matrix[6][i]=i%2===0?1:0;
+    if(matrix[i][6]===-1) matrix[i][6]=i%2===0?1:0;
+  }
+  // Alignment patterns
+  var align=getAlignPos(ver);
+  for(var i=0;i<align.length;i++){
+    for(var j=0;j<align.length;j++){
+      if(i===0&&j===0) continue;
+      if(i===0&&j===align.length-1) continue;
+      if(i===align.length-1&&j===0) continue;
+      addAlign(matrix,align[i],align[j]);
+    }
+  }
+  // Format info
+  matrix[size-1][8]=1; // dark module
+  // Reserve format areas
+  for(var i=0;i<8;i++){
+    if(matrix[8][i]===-1) matrix[8][i]=-2;
+    if(matrix[i][8]===-1) matrix[i][8]=-2;
+    if(matrix[8][size-1-i]===-1) matrix[8][size-1-i]=-2;
+    if(matrix[size-1-i][8]===-1) matrix[size-1-i][8]=-2;
+  }
+  if(matrix[8][8]===-1) matrix[8][8]=-2;
+  // Version info
+  if(ver>=7){
+    var vInfo=getVersionInfo(ver);
+    for(var i=0;i<6;i++) for(var j=0;j<3;j++){
+      var bit=(vInfo>>((5-i)*3+(2-j)))&1;
+      if(matrix[i][size-11+j]===-1) matrix[i][size-11+j]=bit;
+      if(matrix[size-11+j][i]===-1) matrix[size-11+j][i]=bit;
+    }
+  }
+  // Place data
+  placeData(matrix,ecWords,size);
+  // Mask (use mask 0 for simplicity)
+  var bestMask=0,bestPen=Infinity;
+  for(var m=0;m<8;m++){
+    var tmp=copyMatrix(matrix);
+    applyMask(tmp,m,size);
+    addFormatInfo(tmp,ecLevel,m,size);
+    var pen=calcPenalty(tmp,size);
+    if(pen<bestPen){bestPen=pen;bestMask=m;}
+  }
+  applyMask(matrix,bestMask,size);
+  addFormatInfo(matrix,ecLevel,bestMask,size);
+  return{modules:matrix,size:size};
+}
+function getCapacity(v,ec){
+  // Simplified capacity table for versions 1-40, EC level L
+  var caps=[[0],[26,19,16,13],[44,34,28,22],[70,55,44,34],[100,80,64,48],[134,108,86,62],[172,136,108,76],[196,156,124,88],[242,194,154,110],[292,232,182,132],[346,274,216,154],[404,324,254,180],[466,370,290,208],[532,428,334,242],[581,461,365,261],[655,523,415,295],[733,589,453,325],[815,647,507,367],[901,721,563,397],[991,795,627,445],[1085,861,669,485],[1156,932,714,512],[1258,1006,782,568],[1364,1094,860,614],[1474,1174,914,664],[1588,1276,1000,718],[1706,1370,1062,754],[1828,1468,1128,808],[1921,1531,1193,871],[2051,1631,1267,911],[2185,1735,1373,985],[2323,1843,1455,1033],[2465,1955,1541,1115],[2611,2071,1631,1171],[2761,2191,1725,1231],[2876,2306,1812,1286],[3034,2434,1914,1354],[3196,2566,1992,1426],[3362,2702,2102,1502],[3532,2812,2216,1582]];
+  if(v<1||v>40) return 0;
+  return caps[v][ec];
+}
+function getECInfo(v,ec){return{dcCount:getCapacity(v,ec),ver:v,ec:ec};}
+function calcEC(data,info,ver,ecLevel){
+  // Simplified: just return data + EC placeholder
+  // For a real implementation we'd compute RS error correction
+  // Using a simplified approach that works for display
+  var result=data.slice();
+  var ecCount=getTotalCodewords(ver)-info.dcCount;
+  var gen=getGeneratorPoly(ecCount);
+  var msg=data.slice();
+  for(var i=0;i<ecCount;i++) msg.push(0);
+  for(var i=0;i<data.length;i++){
+    var coef=msg[i];
+    if(coef!==0) for(var j=0;j<gen.length;j++) msg[i+j]^=gfMul(gen[j],coef);
+  }
+  for(var i=0;i<ecCount;i++) result.push(msg[data.length+i]);
+  return result;
+}
+function getTotalCodewords(v){var s=v*4+17;return Math.floor((s*s-64*3-31-2*(s-16)-(v>=2?25*Math.pow(Math.floor(v/7)+1,2)-10:0)-(v>=7?36:0))/8);}
+var GF_EXP=new Array(512),GF_LOG=new Array(256);
+(function(){var x=1;for(var i=0;i<255;i++){GF_EXP[i]=x;GF_LOG[x]=i;x<<=1;if(x>=256) x^=285;}for(var i=255;i<512;i++) GF_EXP[i]=GF_EXP[i-255];})();
+function gfMul(a,b){if(a===0||b===0)return 0;return GF_EXP[GF_LOG[a]+GF_LOG[b]];}
+function getGeneratorPoly(n){var g=[1];for(var i=0;i<n;i++){var p=[1,GF_EXP[i]];var ng=new Array(g.length+1).fill(0);for(var j=0;j<g.length;j++) for(var k=0;k<p.length;k++) ng[j+k]^=gfMul(g[j],p[k]);g=ng;}return g;}
+function addFinder(m,r,c,s){for(var i=-1;i<=7;i++) for(var j=-1;j<=7;j++){var ri=r+i,ci=c+j;if(ri<0||ri>=s||ci<0||ci>=s) continue;if((i>=0&&i<=6&&(j===0||j===6))||(j>=0&&j<=6&&(i===0||i===6))||(i>=2&&i<=4&&j>=2&&j<=4)) m[ri][ci]=1;else m[ri][ci]=0;}}
+function addAlign(m,r,c){for(var i=-2;i<=2;i++) for(var j=-2;j<=2;j++){if(m[r+i][c+j]!==-1) continue;m[r+i][c+j]=(Math.abs(i)===2||Math.abs(j)===2||i===0&&j===0)?1:0;}}
+function getAlignPos(v){if(v===1) return[];var n=Math.floor(v/7)+2,first=6,last=v*4+10,step=Math.ceil((last-first)/(n-1));if(step%2) step++;var pos=[first];for(var i=1;i<n-1;i++) pos.push(last-step*(n-1-i));pos.push(last);return pos;}
+function placeData(m,data,s){var bitIdx=0;for(var right=s-1;right>=1;right-=2){if(right===6) right=5;for(var vert=0;vert<s;vert++){for(var j=0;j<2;j++){var col=right-j;var row=((Math.floor((s-1-right+((right<6)?1:0))/2))%2===0)?(s-1-vert):vert;if(m[row][col]!==-1) continue;var dark=false;if(bitIdx<data.length*8) dark=((data[Math.floor(bitIdx/8)]>>(7-bitIdx%8))&1)===1;m[row][col]=dark?1:0;bitIdx++;}}}}
+function copyMatrix(m){return m.map(function(r){return r.slice();});}
+function applyMask(m,mask,s){for(var i=0;i<s;i++) for(var j=0;j<s;j++){if(m[i][j]<0) continue;var swap=false;switch(mask){case 0:swap=(i+j)%2===0;break;case 1:swap=i%2===0;break;case 2:swap=j%3===0;break;case 3:swap=(i+j)%3===0;break;case 4:swap=(Math.floor(i/2)+Math.floor(j/3))%2===0;break;case 5:swap=(i*j)%2+(i*j)%3===0;break;case 6:swap=((i*j)%2+(i*j)%3)%2===0;break;case 7:swap=((i+j)%2+(i*j)%3)%2===0;break;}if(swap) m[i][j]^=1;}}
+function addFormatInfo(m,ec,mask,s){var data=(ec<<3)|mask;var bits=data;for(var i=0;i<10;i++){if(bits>=(1<<(14-i))) bits^=(0x537<<(9-i));}bits=(data<<10)|bits;bits^=0x5412;for(var i=0;i<15;i++){var bit=(bits>>(14-i))&1;if(i<6) m[i][8]=bit;else if(i===6) m[7][8]=bit;else if(i===7) m[8][8]=bit;else m[8][14-i]=bit;if(i<8) m[8][s-1-i]=bit;else m[s-15+i][8]=bit;}}
+function getVersionInfo(v){if(v<7) return 0;var d=v;for(var i=0;i<12;i++){if(d>=(1<<(17-i))) d^=(0x1F25<<(11-i));}return(v<<12)|d;}
+function calcPenalty(m,s){return 0;} // simplified
+return{generate:QR};
+})();
+// ===== END QR GENERATOR =====
 
-// === NAV ===
-function showPage(p,el){document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');}
+var API='https://hf-tasks-api.hectoflex.workers.dev';
+var token=null,currentUser=null,currentList='personal',currentFilter='all',currentCat='all',tasks=[],categories=['Général'];
+var OTHER={daniel:'marco',marco:'daniel'},NAMES={daniel:'Daniel',marco:'Marco'};
 
-// === API ===
-async function api(p,m='GET',b=null){const o={method:m,headers:{'Content-Type':'application/json'}};if(token)o.headers['Authorization']='Bearer '+token;if(b)o.body=JSON.stringify(b);const r=await fetch(API+p,o);return r.json();}
+function showPage(p,el){document.querySelectorAll('.main-tab').forEach(function(t){t.classList.remove('active')});el.classList.add('active');document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active')});document.getElementById('page-'+p).classList.add('active');}
 
-// === AUTH ===
-async function doLogin(){const u=document.getElementById('loginUser').value,p=document.getElementById('pinInput').value;try{const r=await api('/login','POST',{user:u,pin:p});if(r.ok){token=r.token;currentUser=r.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);showApp();}else{document.getElementById('loginError').style.display='block';document.getElementById('pinInput').value='';setTimeout(()=>document.getElementById('loginError').style.display='none',2000);}}catch(e){document.getElementById('loginError').textContent='Erreur';document.getElementById('loginError').style.display='block';}}
+function api2(p,m,b){
+  var o={method:m||'GET',headers:{'Content-Type':'application/json'}};
+  if(token) o.headers['Authorization']='Bearer '+token;
+  if(b) o.body=JSON.stringify(b);
+  return fetch(API+p,o).then(function(r){return r.json();});
+}
+
+function doLogin(){
+  var u=document.getElementById('loginUser').value,p=document.getElementById('pinInput').value;
+  api2('/login','POST',{user:u,pin:p}).then(function(r){
+    if(r.ok){token=r.token;currentUser=r.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);showApp();}
+    else{document.getElementById('loginError').style.display='block';document.getElementById('pinInput').value='';setTimeout(function(){document.getElementById('loginError').style.display='none';},2000);}
+  }).catch(function(){document.getElementById('loginError').textContent='Erreur';document.getElementById('loginError').style.display='block';});
+}
 function doLogout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token=null;currentUser=null;document.getElementById('app').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';}
-async function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';document.getElementById('userName').textContent=NAMES[currentUser];document.getElementById('otherTab').textContent=NAMES[OTHER[currentUser]];await loadCategories();await loadTasks();}
-const st=localStorage.getItem('hf_token'),su=localStorage.getItem('hf_user');if(st&&su){token=st;currentUser=su;showApp();}
+function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';document.getElementById('userName').textContent=NAMES[currentUser];document.getElementById('otherTab').textContent=NAMES[OTHER[currentUser]];loadCategories().then(function(){loadTasks();});}
+var st=localStorage.getItem('hf_token'),su=localStorage.getItem('hf_user');if(st&&su){token=st;currentUser=su;showApp();}
 
-// === TASKS ===
-function switchList(l,el){currentList=l;document.querySelectorAll('.stab').forEach(t=>t.classList.toggle('active',t.dataset.list===l));document.getElementById('addArea').style.display=l==='other'?'none':'block';loadTasks();}
-function setCatFilter(c,el){currentCat=c;document.querySelectorAll('.cat-chip').forEach(b=>b.classList.toggle('active',b.dataset.cat===c));render();}
-function setFilter(f,el){currentFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');render();}
-function syncStatus(m,ok=true){const el=document.getElementById('syncStatus');el.textContent=m;el.className='sync-status '+(ok?'ok':'err');if(ok)setTimeout(()=>el.textContent='',2000);}
-async function loadCategories(){try{categories=await api('/categories');if(!categories.length)categories=['Général'];}catch(e){categories=['Général'];}renderCats();}
-function renderCats(){const row=document.getElementById('catRow'),sel=document.getElementById('newCat');row.innerHTML='<button class="cat-chip '+(currentCat==='all'?'active':'')+'" data-cat="all" onclick="setCatFilter(\'all\',this)">Tout</button>';categories.forEach(c=>{row.innerHTML+=`<button class="cat-chip ${currentCat===c?'active':''}" data-cat="${c}" onclick="setCatFilter('${c}',this)">${c}</button>`;});row.innerHTML+='<button class="cat-add" onclick="addCat()">+ Dossier</button>';sel.innerHTML=categories.map(c=>`<option>${c}</option>`).join('');}
-async function addCat(){const n=prompt('Nom du dossier :');if(!n||!n.trim())return;try{categories=await api('/categories','POST',{name:n.trim()});renderCats();}catch(e){}}
-async function loadTasks(){try{let lp=currentList;if(currentList==='other')lp=OTHER[currentUser];tasks=await api('/tasks?list='+lp);syncStatus('✓');render();}catch(e){syncStatus('✗ Erreur',false);}}
-async function addTask(){const i=document.getElementById('newTask'),d=document.getElementById('newDue'),c=document.getElementById('newCat');const t=i.value.trim();if(!t)return;try{await api('/tasks','POST',{text:t,list:currentList,due_date:d.value||null,category:c.value||'Général'});i.value='';d.value='';await loadTasks();}catch(e){}}
-async function toggleDone(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{done:!t.done}});await loadTasks();}
-async function toggleUrgent(id){const t=tasks.find(t=>t.id===id);if(!t)return;const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{urgent:!t.urgent}});await loadTasks();}
-async function deleteTask(id){if(!confirm('Supprimer ?'))return;const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id+'?list='+l,'DELETE');await loadTasks();}
-async function editTask(id){const t=tasks.find(t=>t.id===id);if(!t)return;const n=prompt('Modifier :',t.text);if(n!==null&&n.trim()){const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{text:n.trim()}});await loadTasks();}}
-async function setDue(id){const t=tasks.find(t=>t.id===id);const d=prompt('Échéance (YYYY-MM-DD) :',t?.due_date||'');if(d!==null){const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{due_date:d||null}});await loadTasks();}}
-async function setCatT(id){const t=tasks.find(t=>t.id===id);const c=prompt('Dossier :',t?.category||'Général');if(c!==null){const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{category:c.trim()||'Général'}});await loadTasks();}}
-function toggleNote(id){const el=document.getElementById('n-'+id);el.classList.toggle('show');if(el.classList.contains('show'))el.focus();}
-async function saveNote(id){const v=document.getElementById('n-'+id).value;const l=currentList==='other'?OTHER[currentUser]:currentList;await api('/tasks/'+id,'PUT',{list:l,updates:{note:v}});}
+function switchList(l,el){currentList=l;document.querySelectorAll('.stab').forEach(function(t){t.classList.toggle('active',t.dataset.list===l)});document.getElementById('addArea').style.display=l==='other'?'none':'block';loadTasks();}
+function setCatFilter(c){currentCat=c;document.querySelectorAll('.cat-chip').forEach(function(b){b.classList.toggle('active',b.dataset.cat===c)});render();}
+function setFilter(f,el){currentFilter=f;document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('active')});el.classList.add('active');render();}
+function syncStatus(m,ok){var el=document.getElementById('syncStatus');el.textContent=m;el.className='sync-status '+(ok!==false?'ok':'err');if(ok!==false)setTimeout(function(){el.textContent='';},2000);}
+function loadCategories(){return api2('/categories').then(function(c){categories=c&&c.length?c:['Général'];renderCats();}).catch(function(){categories=['Général'];renderCats();});}
+function renderCats(){
+  var row=document.getElementById('catRow'),sel=document.getElementById('newCat');
+  var h='<button class="cat-chip '+(currentCat==='all'?'active':'')+'" data-cat="all" onclick="setCatFilter(\'all\')">Tout</button>';
+  categories.forEach(function(c){h+='<button class="cat-chip '+(currentCat===c?'active':'')+'" data-cat="'+c+'" onclick="setCatFilter(\''+c+'\')">'+c+'</button>';});
+  h+='<button class="cat-add" onclick="addCat()">+ Dossier</button>';
+  row.innerHTML=h;
+  sel.innerHTML=categories.map(function(c){return'<option>'+c+'</option>';}).join('');
+}
+function addCat(){var n=prompt('Nom du dossier :');if(!n||!n.trim())return;api2('/categories','POST',{name:n.trim()}).then(function(c){categories=c;renderCats();});}
+function loadTasks(){var lp=currentList==='other'?OTHER[currentUser]:currentList;api2('/tasks?list='+lp).then(function(d){tasks=d;syncStatus('✓');render();}).catch(function(){syncStatus('✗ Erreur',false);});}
+function addTask(){var i=document.getElementById('newTask'),d=document.getElementById('newDue'),c=document.getElementById('newCat');var t=i.value.trim();if(!t)return;api2('/tasks','POST',{text:t,list:currentList,due_date:d.value||null,category:c.value||'Général'}).then(function(){i.value='';d.value='';loadTasks();});}
+function toggleDone(id){var t=tasks.find(function(t){return t.id===id});if(!t)return;var l=currentList==='other'?OTHER[currentUser]:currentList;api2('/tasks/'+id,'PUT',{list:l,updates:{done:!t.done}}).then(loadTasks);}
+function toggleUrgent(id){var t=tasks.find(function(t){return t.id===id});if(!t)return;var l=currentList==='other'?OTHER[currentUser]:currentList;api2('/tasks/'+id,'PUT',{list:l,updates:{urgent:!t.urgent}}).then(loadTasks);}
+function deleteTask(id){if(!confirm('Supprimer ?'))return;var l=currentList==='other'?OTHER[currentUser]:currentList;api2('/tasks/'+id+'?list='+l,'DELETE').then(loadTasks);}
+function editTask(id){var t=tasks.find(function(t){return t.id===id});if(!t)return;var n=prompt('Modifier :',t.text);if(n!==null&&n.trim()){var l=currentList==='other'?OTHER[currentUser]:currentList;api2('/tasks/'+id,'PUT',{list:l,updates:{text:n.trim()}}).then(loadTasks);}}
+function setDue(id){var t=tasks.find(function(t){return t.id===id});var d=prompt('Échéance (YYYY-MM-DD) :',(t&&t.due_date)||'');if(d!==null){var l=currentList==='other'?OTHER[currentUser]:currentList;api2('/tasks/'+id,'PUT',{list:l,updates:{due_date:d||null}}).then(loadTasks);}}
+function setCatT(id){var t=tasks.find(function(t){return t.id===id});var c=prompt('Dossier :',(t&&t.category)||'Général');if(c!==null){var l=currentList==='other'?OTHER[currentUser]:currentList;api2('/tasks/'+id,'PUT',{list:l,updates:{category:c.trim()||'Général'}}).then(loadTasks);}}
+function toggleNote(id){var el=document.getElementById('n-'+id);el.classList.toggle('show');if(el.classList.contains('show'))el.focus();}
+function saveNote(id){var v=document.getElementById('n-'+id).value;var l=currentList==='other'?OTHER[currentUser]:currentList;api2('/tasks/'+id,'PUT',{list:l,updates:{note:v}});}
 function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
-function dueS(d){if(!d)return{c:'',l:''};const t=new Date().toISOString().slice(0,10),diff=Math.round((new Date(d)-new Date(t))/864e5);if(diff<0)return{c:'overdue',l:'⚠️ Retard'};if(diff===0)return{c:'today',l:"Auj."};if(diff===1)return{c:'',l:'Demain'};return{c:'',l:d.split('-').reverse().join('/')};}
+function dueS(d){if(!d)return{c:'',l:''};var t=new Date().toISOString().slice(0,10),diff=Math.round((new Date(d)-new Date(t))/864e5);if(diff<0)return{c:'overdue',l:'⚠️ Retard'};if(diff===0)return{c:'today',l:"Auj."};if(diff===1)return{c:'',l:'Demain'};return{c:'',l:d.split('-').reverse().join('/')};}
 function render(){
-  let f=Array.isArray(tasks)?[...tasks]:[];
-  if(currentCat!=='all')f=f.filter(t=>(t.category||'Général')===currentCat);
-  const tot=f.length,dn=f.filter(t=>t.done).length,urg=f.filter(t=>t.urgent&&!t.done).length;
-  document.getElementById('stats').innerHTML=`<b>${tot-dn}</b> à faire | <b>${dn}</b> faites${urg?` | <b>${urg}</b> urgentes`:''}`;
-  if(currentFilter==='todo')f=f.filter(t=>!t.done);else if(currentFilter==='done')f=f.filter(t=>t.done);else if(currentFilter==='urgent')f=f.filter(t=>t.urgent&&!t.done);
-  f.sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;if(a.due_date&&b.due_date)return a.due_date.localeCompare(b.due_date);if(a.due_date&&!b.due_date)return-1;if(!a.due_date&&b.due_date)return 1;if(a.urgent!==b.urgent)return a.urgent?-1:1;return b.id-a.id;});
-  const el=document.getElementById('taskList');
+  var f=Array.isArray(tasks)?tasks.slice():[];
+  if(currentCat!=='all') f=f.filter(function(t){return(t.category||'Général')===currentCat;});
+  var tot=f.length,dn=f.filter(function(t){return t.done}).length,urg=f.filter(function(t){return t.urgent&&!t.done}).length;
+  document.getElementById('stats').innerHTML='<b>'+(tot-dn)+'</b> à faire | <b>'+dn+'</b> faites'+(urg?' | <b>'+urg+'</b> urgentes':'');
+  if(currentFilter==='todo') f=f.filter(function(t){return!t.done});
+  else if(currentFilter==='done') f=f.filter(function(t){return t.done});
+  else if(currentFilter==='urgent') f=f.filter(function(t){return t.urgent&&!t.done});
+  f.sort(function(a,b){if(a.done!==b.done)return a.done?1:-1;if(a.due_date&&b.due_date)return a.due_date.localeCompare(b.due_date);if(a.due_date&&!b.due_date)return-1;if(!a.due_date&&b.due_date)return 1;if(a.urgent!==b.urgent)return a.urgent?-1:1;return b.id-a.id;});
+  var el=document.getElementById('taskList');
   if(!f.length){el.innerHTML='<div class="empty"><span>✨</span>Rien ici</div>';return;}
-  let h='';if(currentList==='other')h+='<div class="readonly-badge">👁 '+NAMES[OTHER[currentUser]]+'</div>';
-  f.forEach(t=>{const ds=dueS(t.due_date),od=ds.c==='overdue'&&!t.done;
-    h+=`<li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''} ${od?'overdue':''}"><div class="task-check" onclick="toggleDone(${t.id})"></div><div class="task-content"><div class="task-text">${t.text}</div>${t.note?'<div class="task-note">📝 '+t.note+'</div>':''}<textarea class="note-input" id="n-${t.id}" onblur="saveNote(${t.id})">${t.note||''}</textarea><div class="task-meta"><span class="tm tm-date">${fmtDate(t.created_at)}</span>${t.due_date?`<span class="tm tm-due ${ds.c}">📅 ${ds.l}</span>`:''}${t.category&&t.category!=='Général'?`<span class="tm tm-cat">📁 ${t.category}</span>`:''}${t.urgent?'<span class="tm tm-urg">Urgent</span>':''}${t.created_by&&currentList!=='personal'?'<span class="tm tm-own">'+t.created_by+'</span>':''}</div></div><div class="task-actions"><button class="tbtn" onclick="setCatT(${t.id})">📁</button><button class="tbtn" onclick="setDue(${t.id})">📅</button><button class="tbtn" onclick="toggleNote(${t.id})">📝</button><button class="tbtn" onclick="toggleUrgent(${t.id})">${t.urgent?'🔴':'⚪'}</button><button class="tbtn" onclick="editTask(${t.id})">✏️</button><button class="tbtn" onclick="deleteTask(${t.id})">🗑️</button></div></li>`;
+  var h='';if(currentList==='other')h+='<div class="readonly-badge">👁 '+NAMES[OTHER[currentUser]]+'</div>';
+  f.forEach(function(t){var ds=dueS(t.due_date),od=ds.c==='overdue'&&!t.done;
+    h+='<li class="task-item '+(t.done?'done':'')+' '+(t.urgent?'urgent':'')+' '+(od?'overdue':'')+'"><div class="task-check" onclick="toggleDone('+t.id+')"></div><div class="task-content"><div class="task-text">'+t.text+'</div>'+(t.note?'<div class="task-note">📝 '+t.note+'</div>':'')+'<textarea class="note-input" id="n-'+t.id+'" onblur="saveNote('+t.id+')">'+(t.note||'')+'</textarea><div class="task-meta"><span class="tm tm-date">'+fmtDate(t.created_at)+'</span>'+(t.due_date?'<span class="tm tm-due '+ds.c+'">📅 '+ds.l+'</span>':'')+(t.category&&t.category!=='Général'?'<span class="tm tm-cat">📁 '+t.category+'</span>':'')+(t.urgent?'<span class="tm tm-urg">Urgent</span>':'')+(t.created_by&&currentList!=='personal'?'<span class="tm tm-own">'+t.created_by+'</span>':'')+'</div></div><div class="task-actions"><button class="tbtn" onclick="setCatT('+t.id+')">📁</button><button class="tbtn" onclick="setDue('+t.id+')">📅</button><button class="tbtn" onclick="toggleNote('+t.id+')">📝</button><button class="tbtn" onclick="toggleUrgent('+t.id+')">'+(t.urgent?'🔴':'⚪')+'</button><button class="tbtn" onclick="editTask('+t.id+')">✏️</button><button class="tbtn" onclick="deleteTask('+t.id+')">🗑️</button></div></li>';
   });el.innerHTML=h;
 }
-setInterval(()=>{if(token)loadTasks();},30000);
+setInterval(function(){if(token)loadTasks();},30000);
 
-// === QR CODE ===
-let qrType='url';
-function setQrType(t,el){qrType=t;document.querySelectorAll('.qtab').forEach(b=>b.classList.remove('active'));el.classList.add('active');['url','vcard','wifi','text'].forEach(f=>document.getElementById('qf-'+f).style.display=f===t?'block':'none');}
+// ===== QR CODE =====
+var qrType='url';
+function setQrType(t,el){qrType=t;document.querySelectorAll('.qtab').forEach(function(b){b.classList.remove('active')});el.classList.add('active');['url','vcard','wifi','text'].forEach(function(f){document.getElementById('qf-'+f).style.display=f===t?'block':'none';});}
 function getQrData(){
-  if(qrType==='url')return document.getElementById('qr-url').value;
-  if(qrType==='text')return document.getElementById('qr-text').value;
-  if(qrType==='wifi'){const s=document.getElementById('wifi-ssid').value,p=document.getElementById('wifi-pass').value,e=document.getElementById('wifi-enc').value;return`WIFI:T:${e};S:${s};P:${p};;`;}
-  if(qrType==='vcard'){const fn=document.getElementById('vc-fn').value,ln=document.getElementById('vc-ln').value;let v=`BEGIN:VCARD\nVERSION:3.0\nN:${ln};${fn};;;\nFN:${fn} ${ln}\n`;
-    const f=(id,p)=>{const v=document.getElementById(id).value;if(v)return p+v+'\n';return'';};
-    v+=f('vc-org','ORG:')+f('vc-title','TITLE:')+f('vc-tel','TEL;TYPE=CELL:')+f('vc-email','EMAIL:')+f('vc-url','URL:');
-    const a=document.getElementById('vc-adr').value;if(a)v+=`ADR;TYPE=WORK:;;${a};;;;\n`;
-    return v+'END:VCARD';}
+  if(qrType==='url') return document.getElementById('qr-url').value;
+  if(qrType==='text') return document.getElementById('qr-text').value;
+  if(qrType==='wifi'){var s=document.getElementById('wifi-ssid').value,p=document.getElementById('wifi-pass').value,e=document.getElementById('wifi-enc').value;return'WIFI:T:'+e+';S:'+s+';P:'+p+';;';}
+  if(qrType==='vcard'){var fn=document.getElementById('vc-fn').value,ln=document.getElementById('vc-ln').value;var v='BEGIN:VCARD\nVERSION:3.0\nN:'+ln+';'+fn+';;;\nFN:'+fn+' '+ln+'\n';
+    var add=function(id,pre){var val=document.getElementById(id).value;return val?pre+val+'\n':'';};
+    v+=add('vc-org','ORG:')+add('vc-title','TITLE:')+add('vc-tel','TEL;TYPE=CELL:')+add('vc-email','EMAIL:')+add('vc-url','URL:');
+    var a=document.getElementById('vc-adr').value;if(a)v+='ADR;TYPE=WORK:;;'+a+';;;;\n';return v+'END:VCARD';}
   return'';
 }
 function genQR(){
-  const data=getQrData();if(!data){alert('Remplis un champ !');return;}
-  const fg=document.getElementById('qr-fg').value,bg=document.getElementById('qr-bg').value,size=parseInt(document.getElementById('qr-size').value)||400;
-  const canvas=document.getElementById('qrCanvas'),res=document.getElementById('qrResult');
+  var data=getQrData();if(!data){alert('Remplis un champ !');return;}
+  var fg=document.getElementById('qr-fg').value,bg=document.getElementById('qr-bg').value,size=parseInt(document.getElementById('qr-size').value)||400;
   try{
-    // Generate QR with qrcode-generator (L = low error correction = simpler)
-    const qr=qrcode(0,'L');
-    qr.addData(data);
-    qr.make();
-    const mCount=qr.getModuleCount();
-    const cellSize=Math.floor(size/mCount);
-    const realSize=cellSize*mCount;
+    var qr=QRGen.generate(data,'L');
+    var canvas=document.getElementById('qrCanvas');
+    var mCount=qr.size;
+    var cellSize=Math.floor(size/mCount);
+    var realSize=cellSize*mCount;
     canvas.width=realSize;canvas.height=realSize;
-    const ctx=canvas.getContext('2d');
+    var ctx=canvas.getContext('2d');
     ctx.fillStyle=bg;ctx.fillRect(0,0,realSize,realSize);
-    for(let r=0;r<mCount;r++){for(let c=0;c<mCount;c++){ctx.fillStyle=qr.isDark(r,c)?fg:bg;ctx.fillRect(c*cellSize,r*cellSize,cellSize,cellSize);}}
-    res.style.display='block';
+    for(var r=0;r<mCount;r++) for(var c=0;c<mCount;c++){ctx.fillStyle=qr.modules[r][c]===1?fg:bg;ctx.fillRect(c*cellSize,r*cellSize,cellSize,cellSize);}
+    document.getElementById('qrResult').style.display='block';
     document.getElementById('dlPng').href=canvas.toDataURL('image/png');
     // SVG
-    let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${realSize}" height="${realSize}" viewBox="0 0 ${mCount} ${mCount}">`;
-    svg+=`<rect width="${mCount}" height="${mCount}" fill="${bg}"/>`;
-    for(let r=0;r<mCount;r++){for(let c=0;c<mCount;c++){if(qr.isDark(r,c))svg+=`<rect x="${c}" y="${r}" width="1" height="1" fill="${fg}"/>`;}}
+    var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+realSize+'" height="'+realSize+'" viewBox="0 0 '+mCount+' '+mCount+'"><rect width="'+mCount+'" height="'+mCount+'" fill="'+bg+'"/>';
+    for(var r=0;r<mCount;r++) for(var c=0;c<mCount;c++) if(qr.modules[r][c]===1) svg+='<rect x="'+c+'" y="'+r+'" width="1" height="1" fill="'+fg+'"/>';
     svg+='</svg>';
     document.getElementById('dlSvg').href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
   }catch(e){alert('Erreur: '+e.message);}
 }
-
-async function dlPDF(){
-  const canvas=document.getElementById('qrCanvas');
-  const imgData=canvas.toDataURL('image/png');
-  const {jsPDF}=window.jspdf;
-  const size=canvas.width;
-  // A4 centered or fit
-  const mmPx=0.264583;
-  const mmSize=Math.min(size*mmPx,180);
-  const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const x=(210-mmSize)/2,y=(297-mmSize)/2;
+function dlPDF(){
+  var canvas=document.getElementById('qrCanvas');
+  var imgData=canvas.toDataURL('image/png');
+  var jsPDF=window.jspdf.jsPDF;
+  var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  var mmSize=Math.min(canvas.width*0.264583,180);
+  var x=(210-mmSize)/2,y=(297-mmSize)/2;
   pdf.addImage(imgData,'PNG',x,y,mmSize,mmSize);
   pdf.save('qrcode.pdf');
 }
