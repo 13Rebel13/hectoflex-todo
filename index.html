@@ -140,7 +140,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 <div class="page" id="page-qr">
 <div class="qr-container">
 <div class="qr-tabs"><button class="qtab active" onclick="setQrType('url',this)">🔗 Lien</button><button class="qtab" onclick="setQrType('vcard',this)">👤 vCard</button><button class="qtab" onclick="setQrType('wifi',this)">📶 WiFi</button><button class="qtab" onclick="setQrType('text',this)">📝 Texte</button></div>
-<div id="qf-url"><div class="fg"><label>URL</label><input type="url" id="qr-url" placeholder="https://exemple.com"></div></div>
+<div id="qf-url"><div class="fg"><label>URL</label><input type="url" id="qr-url" placeholder="https://exemple.com"></div><div style="margin-top:6px"><label style="display:flex;align-items:center;gap:8px;color:#5dade2;font-size:12px;cursor:pointer"><input type="checkbox" id="qr-shorten" checked style="width:16px;height:16px;accent-color:#e94560"> Raccourcir l'URL (QR plus simple)</label></div></div>
 <div id="qf-vcard" style="display:none"><div class="frow"><div class="fg"><label>Prénom</label><input id="vc-fn"></div><div class="fg"><label>Nom</label><input id="vc-ln"></div></div><div class="fg"><label>Entreprise</label><input id="vc-org"></div><div class="fg"><label>Titre</label><input id="vc-title"></div><div class="fg"><label>Téléphone</label><input id="vc-tel" placeholder="+41 79 123 45 67"></div><div class="fg"><label>Email</label><input id="vc-email"></div><div class="fg"><label>Site web</label><input id="vc-url"></div><div class="fg"><label>Adresse</label><input id="vc-adr"></div></div>
 <div id="qf-wifi" style="display:none"><div class="fg"><label>SSID</label><input id="wifi-ssid"></div><div class="fg"><label>Mot de passe</label><input id="wifi-pass"></div><div class="fg"><label>Sécurité</label><select id="wifi-enc"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="">Aucune</option></select></div></div>
 <div id="qf-text" style="display:none"><div class="fg"><label>Texte</label><textarea id="qr-text" rows="3"></textarea></div></div>
@@ -239,6 +239,21 @@ function getQrData(){
 }
 function genQR(){
   var data=getQrData();if(!data){alert('Remplis un champ !');return;}
+  var shorten=document.getElementById('qr-shorten');
+  if(qrType==='url' && shorten && shorten.checked && data.startsWith('http')){
+    // Shorten URL first, then generate QR
+    api2('/shorten','POST',{target:data}).then(function(r){
+      if(r.short){
+        document.getElementById('qr-url').setAttribute('data-short',r.short);
+        doGenQR(r.short);
+      } else doGenQR(data);
+    }).catch(function(){doGenQR(data);});
+  } else {
+    doGenQR(data);
+  }
+}
+function doGenQR(data){
+  
   var fg=document.getElementById('qr-fg').value,bg=document.getElementById('qr-bg').value,size=parseInt(document.getElementById('qr-size').value)||400;
   try{
     var qr=qrcode(0,'L');
