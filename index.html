@@ -5,115 +5,115 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HectoFlex Tools</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1a1a2e">
+<meta name="theme-color" content="#1c1c1e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;min-height:100vh}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#1c1c1e;color:#eee;min-height:100vh}
 .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.login-box{background:#16213e;padding:40px;border-radius:16px;width:100%;max-width:360px;text-align:center}
-.login-box h1{color:#e94560;margin-bottom:8px;font-size:24px}
-.login-box p{color:#666;margin-bottom:25px;font-size:14px}
-.pin-input{width:100%;padding:14px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:24px;text-align:center;letter-spacing:12px;outline:none;margin-bottom:15px}
-.pin-input:focus{border-color:#e94560}
-.login-select{width:100%;padding:12px;border-radius:10px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:15px;margin-bottom:12px;outline:none}
-.login-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:16px;font-weight:600;cursor:pointer}
-.login-btn:hover{background:#c73651}
-.login-error{color:#e94560;font-size:13px;margin-top:10px;display:none}
+.login-box{background:#2c2c2e;padding:40px;border-radius:16px;width:100%;max-width:360px;text-align:center}
+.login-box h1{color:#007AFF;margin-bottom:8px;font-size:24px}
+.login-box p{color:#8e8e93;margin-bottom:25px;font-size:14px}
+.pin-input{width:100%;padding:14px;border-radius:10px;border:2px solid #3a3a3c;background:#1c1c1e;color:#eee;font-size:24px;text-align:center;letter-spacing:12px;outline:none;margin-bottom:15px}
+.pin-input:focus{border-color:#007AFF}
+.login-select{width:100%;padding:12px;border-radius:10px;border:2px solid #3a3a3c;background:#1c1c1e;color:#eee;font-size:15px;margin-bottom:12px;outline:none}
+.login-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#007AFF;color:#fff;font-size:16px;font-weight:600;cursor:pointer}
+.login-btn:hover{background:#0066DD}
+.login-error{color:#007AFF;font-size:13px;margin-top:10px;display:none}
 .app{display:none}
-.top-bar{background:#16213e;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0f3460}
-.logo{font-size:20px;font-weight:800;color:#e94560}
+.top-bar{background:#2c2c2e;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #3a3a3c}
+.logo{font-size:20px;font-weight:800;color:#007AFF}
 .top-right{display:flex;align-items:center;gap:8px}
-.user-name{color:#888;font-size:12px}
-.logout-btn{padding:4px 10px;border-radius:6px;border:1px solid #333;background:transparent;color:#555;cursor:pointer;font-size:11px}
-.logout-btn:hover{color:#e94560;border-color:#e94560}
-.main-tabs{display:flex;background:#0d1528;border-bottom:2px solid #0f3460}
-.main-tab{flex:1;text-align:center;padding:12px 8px;color:#555;cursor:pointer;font-size:13px;font-weight:600;border-bottom:3px solid transparent}
-.main-tab:hover{color:#aaa}
-.main-tab.active{color:#e94560;border-bottom-color:#e94560}
+.user-name{color:#8e8e93;font-size:12px}
+.logout-btn{padding:4px 10px;border-radius:6px;border:1px solid #333;background:transparent;color:#636366;cursor:pointer;font-size:11px}
+.logout-btn:hover{color:#007AFF;border-color:#007AFF}
+.main-tabs{display:flex;background:#232325;border-bottom:2px solid #3a3a3c}
+.main-tab{flex:1;text-align:center;padding:12px 8px;color:#636366;cursor:pointer;font-size:13px;font-weight:600;border-bottom:3px solid transparent}
+.main-tab:hover{color:#98989d}
+.main-tab.active{color:#007AFF;border-bottom-color:#007AFF}
 .page{display:none}.page.active{display:block}
-.tabs-row{display:flex;gap:6px;padding:10px 20px;background:#16213e;flex-wrap:wrap}
-.stab{padding:6px 14px;border-radius:16px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:12px;font-weight:600}
-.stab.active{background:#e94560;color:#fff;border-color:#e94560}
-.stab:hover{border-color:#e94560}
-.cat-row{display:flex;gap:5px;padding:6px 20px;background:#121a30;flex-wrap:wrap;align-items:center;border-bottom:1px solid #0f3460}
-.cat-chip{padding:4px 10px;border-radius:12px;border:1px solid #1a3a5c;background:transparent;color:#5dade2;cursor:pointer;font-size:11px;font-weight:600}
-.cat-chip.active{background:#1a3a5c;color:#fff}
-.cat-chip:hover{border-color:#5dade2}
-.cat-add{padding:4px 8px;border-radius:12px;border:1px dashed #333;background:transparent;color:#444;cursor:pointer;font-size:11px}
-.cat-add:hover{border-color:#e94560;color:#e94560}
+.tabs-row{display:flex;gap:6px;padding:10px 20px;background:#2c2c2e;flex-wrap:wrap}
+.stab{padding:6px 14px;border-radius:16px;border:2px solid #3a3a3c;background:transparent;color:#98989d;cursor:pointer;font-size:12px;font-weight:600}
+.stab.active{background:#007AFF;color:#fff;border-color:#007AFF}
+.stab:hover{border-color:#007AFF}
+.cat-row{display:flex;gap:5px;padding:6px 20px;background:#232325;flex-wrap:wrap;align-items:center;border-bottom:1px solid #3a3a3c}
+.cat-chip{padding:4px 10px;border-radius:12px;border:1px solid #363638;background:transparent;color:#86868b;cursor:pointer;font-size:11px;font-weight:600}
+.cat-chip.active{background:#363638;color:#fff}
+.cat-chip:hover{border-color:#86868b}
+.cat-add{padding:4px 8px;border-radius:12px;border:1px dashed #333;background:transparent;color:#48484a;cursor:pointer;font-size:11px}
+.cat-add:hover{border-color:#007AFF;color:#007AFF}
 .container{max-width:800px;margin:0 auto;padding:12px 20px}
 .add-section{display:flex;gap:8px;margin-bottom:6px}
-.add-section input[type=text]{flex:1;min-width:120px;padding:10px 12px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:14px;outline:none}
-.add-section input:focus{border-color:#e94560}
-.add-section input::placeholder{color:#555}
+.add-section input[type=text]{flex:1;min-width:120px;padding:10px 12px;border-radius:10px;border:2px solid #3a3a3c;background:#2c2c2e;color:#eee;font-size:14px;outline:none}
+.add-section input:focus{border-color:#007AFF}
+.add-section input::placeholder{color:#636366}
 .add-row2{display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
-.add-row2 label{color:#555;font-size:11px}
-.date-input,.cat-sel{padding:7px 8px;border-radius:8px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:12px;outline:none}
-.add-btn{padding:10px 16px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:14px;cursor:pointer;font-weight:600}
-.add-btn:hover{background:#c73651}
+.add-row2 label{color:#636366;font-size:11px}
+.date-input,.cat-sel{padding:7px 8px;border-radius:8px;border:2px solid #3a3a3c;background:#1c1c1e;color:#eee;font-size:12px;outline:none}
+.add-btn{padding:10px 16px;border-radius:10px;border:none;background:#007AFF;color:#fff;font-size:14px;cursor:pointer;font-weight:600}
+.add-btn:hover{background:#0066DD}
 .filters{display:flex;gap:5px;margin-bottom:10px}
-.fbtn{padding:3px 10px;border-radius:10px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:11px}
-.fbtn.active{background:#0f3460;color:#fff;border-color:#0f3460}
+.fbtn{padding:3px 10px;border-radius:10px;border:1px solid #333;background:transparent;color:#8e8e93;cursor:pointer;font-size:11px}
+.fbtn.active{background:#3a3a3c;color:#fff;border-color:#3a3a3c}
 .task-list{list-style:none}
-.task-item{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;margin-bottom:5px;background:#16213e;border-radius:10px;border-left:4px solid #0f3460}
-.task-item.done{opacity:0.4;border-left-color:#2d6a4f}
-.task-item.done .task-text{text-decoration:line-through;color:#555}
-.task-item.urgent{border-left-color:#e94560}
-.task-item.overdue{border-left-color:#ff6b35}
+.task-item{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;margin-bottom:5px;background:#2c2c2e;border-radius:10px;border-left:4px solid #3a3a3c}
+.task-item.done{opacity:0.4;border-left-color:#30D158}
+.task-item.done .task-text{text-decoration:line-through;color:#636366}
+.task-item.urgent{border-left-color:#007AFF}
+.task-item.overdue{border-left-color:#FF9F0A}
 .task-check{width:18px;height:18px;border-radius:50%;border:2px solid #444;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
-.task-check:hover{border-color:#e94560}
-.task-item.done .task-check{background:#2d6a4f;border-color:#2d6a4f}
+.task-check:hover{border-color:#007AFF}
+.task-item.done .task-check{background:#30D158;border-color:#30D158}
 .task-item.done .task-check::after{content:'✓';color:#fff;font-size:11px}
 .task-content{flex:1;min-width:0}
 .task-text{font-size:13px;line-height:1.3}
 .task-meta{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap}
 .tm{font-size:9px;padding:1px 5px;border-radius:5px}
-.tm-date{color:#333}
-.tm-due{background:#1a3a5c;color:#5dade2}
-.tm-due.overdue{background:#5c1a1a;color:#ff6b35}
-.tm-due.today{background:#5c4a1a;color:#f4d03f}
-.tm-cat{background:#1a3a5c;color:#7fb3d8}
-.tm-urg{background:#5c1a1a;color:#e94560}
-.tm-own{background:#0f3460;color:#aaa}
+.tm-date{color:#3a3a3c}
+.tm-due{background:#363638;color:#86868b}
+.tm-due.overdue{background:#3a2020;color:#FF9F0A}
+.tm-due.today{background:#3a3520;color:#FFD60A}
+.tm-cat{background:#363638;color:#98989d}
+.tm-urg{background:#3a2020;color:#007AFF}
+.tm-own{background:#3a3a3c;color:#98989d}
 .task-actions{display:flex;gap:3px;flex-shrink:0}
-.tbtn{width:24px;height:24px;border-radius:5px;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;background:#1a1a2e;color:#444}
-.tbtn:hover{color:#e94560}
-.task-note{font-size:11px;color:#555;margin-top:2px;font-style:italic}
-.task-attachments{margin-top:3px;display:flex;gap:6px;flex-wrap:wrap}.task-attach{font-size:10px;color:#5dade2;text-decoration:none;padding:2px 6px;border-radius:6px;background:#1a3a5c}
-.note-input{width:100%;padding:6px 8px;border-radius:6px;border:1px solid #0f3460;background:#1a1a2e;color:#ddd;font-size:11px;margin-top:4px;outline:none;resize:none;display:none}
+.tbtn{width:24px;height:24px;border-radius:5px;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;background:#1c1c1e;color:#48484a}
+.tbtn:hover{color:#007AFF}
+.task-note{font-size:11px;color:#636366;margin-top:2px;font-style:italic}
+.task-attachments{margin-top:3px;display:flex;gap:6px;flex-wrap:wrap}.task-attach{font-size:10px;color:#86868b;text-decoration:none;padding:2px 6px;border-radius:6px;background:#363638}
+.note-input{width:100%;padding:6px 8px;border-radius:6px;border:1px solid #3a3a3c;background:#1c1c1e;color:#ddd;font-size:11px;margin-top:4px;outline:none;resize:none;display:none}
 .note-input.show{display:block}
-.empty{text-align:center;padding:40px;color:#333}.empty span{font-size:32px;display:block;margin-bottom:8px}
-.stats{display:flex;gap:10px;margin-bottom:8px;font-size:11px;color:#444}.stats b{color:#e94560}
-.sync-status{font-size:10px;color:#333;text-align:center;padding:2px}.sync-status.ok{color:#2d6a4f}.sync-status.err{color:#e94560}
-.readonly-badge{font-size:10px;padding:3px 10px;border-radius:10px;background:#333;color:#888;margin-bottom:8px;display:inline-block}
+.empty{text-align:center;padding:40px;color:#3a3a3c}.empty span{font-size:32px;display:block;margin-bottom:8px}
+.stats{display:flex;gap:10px;margin-bottom:8px;font-size:11px;color:#48484a}.stats b{color:#007AFF}
+.sync-status{font-size:10px;color:#3a3a3c;text-align:center;padding:2px}.sync-status.ok{color:#30D158}.sync-status.err{color:#007AFF}
+.readonly-badge{font-size:10px;padding:3px 10px;border-radius:10px;background:#333;color:#8e8e93;margin-bottom:8px;display:inline-block}
 .qr-container{max-width:600px;margin:0 auto;padding:20px}
 .qr-tabs{display:flex;gap:6px;margin-bottom:15px;flex-wrap:wrap}
-.qtab{padding:8px 14px;border-radius:10px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:12px;font-weight:600}
-.qtab.active{background:#e94560;color:#fff;border-color:#e94560}
-.qtab:hover{border-color:#e94560}
+.qtab{padding:8px 14px;border-radius:10px;border:2px solid #3a3a3c;background:transparent;color:#98989d;cursor:pointer;font-size:12px;font-weight:600}
+.qtab.active{background:#007AFF;color:#fff;border-color:#007AFF}
+.qtab:hover{border-color:#007AFF}
 .fg{margin-bottom:10px}
-.fg label{display:block;color:#888;font-size:11px;margin-bottom:3px}
-.fg input,.fg textarea,.fg select{width:100%;padding:9px 11px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:13px;outline:none;font-family:inherit}
-.fg input:focus,.fg textarea:focus{border-color:#e94560}
+.fg label{display:block;color:#8e8e93;font-size:11px;margin-bottom:3px}
+.fg input,.fg textarea,.fg select{width:100%;padding:9px 11px;border-radius:10px;border:2px solid #3a3a3c;background:#2c2c2e;color:#eee;font-size:13px;outline:none;font-family:inherit}
+.fg input:focus,.fg textarea:focus{border-color:#007AFF}
 .fg textarea{resize:vertical;min-height:50px}
 .frow{display:flex;gap:10px}.frow .fg{flex:1}
 .color-row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
 .color-row input[type=color]{width:36px;height:32px;border:none;border-radius:6px;cursor:pointer;background:transparent}
-.color-row label{font-size:11px;color:#888}
-.gen-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:10px}
-.gen-btn:hover{background:#c73651}
+.color-row label{font-size:11px;color:#8e8e93}
+.gen-btn{width:100%;padding:12px;border-radius:10px;border:none;background:#007AFF;color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:10px}
+.gen-btn:hover{background:#0066DD}
 .qr-result{text-align:center;margin-top:20px;display:none}
 .qr-result canvas{border-radius:12px;background:#fff;padding:12px;max-width:100%;height:auto!important;aspect-ratio:1/1}
 .dl-btns{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
-.dl-btn{padding:8px 18px;border-radius:10px;border:2px solid #0f3460;background:transparent;color:#5dade2;cursor:pointer;font-size:12px;font-weight:600;text-decoration:none}
-.dl-btn:hover{border-color:#e94560;color:#e94560}
+.dl-btn{padding:8px 18px;border-radius:10px;border:2px solid #3a3a3c;background:transparent;color:#86868b;cursor:pointer;font-size:12px;font-weight:600;text-decoration:none}
+.dl-btn:hover{border-color:#007AFF;color:#007AFF}
 </style>
 </head>
 <body>
 <div class="login-screen" id="loginScreen">
 <div class="login-box">
-<h1>🔧 HectoFlex Tools</h1>
+<h1>HectoFlex Tools</h1>
 <p>Boîte à outils</p>
 <select class="login-select" id="loginUser"><option value="daniel">Daniel</option><option value="marco">Marco</option></select>
 <input type="password" class="pin-input" id="pinInput" placeholder="PIN" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()">
@@ -122,7 +122,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 </div>
 </div>
 <div class="app" id="app">
-<div class="top-bar"><div><span class="logo">🔧 HectoFlex <small style="font-size:10px;color:#444;font-weight:400">v19</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
+<div class="top-bar"><div><span class="logo">HectoFlex <small style="font-size:10px;color:#48484a;font-weight:400">v20</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
 <div class="main-tabs"><div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div><div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div></div>
 <div class="page active" id="page-tasks">
 <div class="tabs-row"><button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button><button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button><button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button></div>
@@ -141,12 +141,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 <div class="page" id="page-qr">
 <div class="qr-container">
 <div class="qr-tabs"><button class="qtab active" onclick="setQrType('url',this)">🔗 Lien</button><button class="qtab" onclick="setQrType('vcard',this)">👤 vCard</button><button class="qtab" onclick="setQrType('wifi',this)">📶 WiFi</button><button class="qtab" onclick="setQrType('text',this)">📝 Texte</button></div>
-<div id="qf-url"><div class="fg"><label>URL</label><input type="url" id="qr-url" placeholder="https://exemple.com"></div><div style="margin-top:6px"><label style="display:flex;align-items:center;gap:8px;color:#5dade2;font-size:12px;cursor:pointer"><input type="checkbox" id="qr-shorten" checked style="width:16px;height:16px;accent-color:#e94560"> Raccourcir l'URL (QR plus simple)</label></div></div>
+<div id="qf-url"><div class="fg"><label>URL</label><input type="url" id="qr-url" placeholder="https://exemple.com"></div><div style="margin-top:6px"><label style="display:flex;align-items:center;gap:8px;color:#86868b;font-size:12px;cursor:pointer"><input type="checkbox" id="qr-shorten" checked style="width:16px;height:16px;accent-color:#007AFF"> Raccourcir l'URL (QR plus simple)</label></div></div>
 <div id="qf-vcard" style="display:none"><div class="frow"><div class="fg"><label>Prénom</label><input id="vc-fn"></div><div class="fg"><label>Nom</label><input id="vc-ln"></div></div><div class="fg"><label>Entreprise</label><input id="vc-org"></div><div class="fg"><label>Titre</label><input id="vc-title"></div><div class="fg"><label>Téléphone</label><input id="vc-tel" placeholder="+41 79 123 45 67"></div><div class="fg"><label>Email</label><input id="vc-email"></div><div class="fg"><label>Site web</label><input id="vc-url"></div><div class="fg"><label>Adresse</label><input id="vc-adr"></div></div>
 <div id="qf-wifi" style="display:none"><div class="fg"><label>SSID</label><input id="wifi-ssid"></div><div class="fg"><label>Mot de passe</label><input id="wifi-pass"></div><div class="fg"><label>Sécurité</label><select id="wifi-enc"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="">Aucune</option></select></div></div>
 <div id="qf-text" style="display:none"><div class="fg"><label>Texte</label><textarea id="qr-text" rows="3"></textarea></div></div>
-<h3 style="font-size:13px;color:#e94560;margin:15px 0 8px">Options</h3>
-<div class="fg"><label>Logo au centre (optionnel)</label><div style="display:flex;gap:8px;align-items:center"><input type="file" id="qr-logo" accept="image/*" onchange="document.getElementById('clearLogo').style.display=this.files.length?'block':'none'" style="padding:6px;font-size:12px;flex:1"><button onclick="document.getElementById('qr-logo').value='';this.style.display='none'" style="padding:4px 10px;border-radius:6px;border:1px solid #e94560;background:transparent;color:#e94560;cursor:pointer;font-size:11px;display:none" id="clearLogo">✕ Supprimer</button></div></div>
+<h3 style="font-size:13px;color:#007AFF;margin:15px 0 8px">Options</h3>
+<div class="fg"><label>Logo au centre (optionnel)</label><div style="display:flex;gap:8px;align-items:center"><input type="file" id="qr-logo" accept="image/*" onchange="document.getElementById('clearLogo').style.display=this.files.length?'block':'none'" style="padding:6px;font-size:12px;flex:1"><button onclick="document.getElementById('qr-logo').value='';this.style.display='none'" style="padding:4px 10px;border-radius:6px;border:1px solid #007AFF;background:transparent;color:#007AFF;cursor:pointer;font-size:11px;display:none" id="clearLogo">✕ Supprimer</button></div></div>
 <div class="color-row"><label>QR :</label><input type="color" id="qr-fg" value="#000000"><label>Fond :</label><input type="color" id="qr-bg" value="#ffffff"></div>
 <div class="fg"><label>Taille (px)</label><input type="number" id="qr-size" value="400" min="100" max="2000" step="50"></div>
 <button class="gen-btn" onclick="genQR()">Générer le QR Code</button>
