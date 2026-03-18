@@ -19,10 +19,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .logout-btn{padding:5px 12px;border-radius:8px;border:1px solid #444;background:transparent;color:#888;cursor:pointer;font-size:12px}
 .logout-btn:hover{border-color:#e94560;color:#e94560}
-.user-tabs{display:flex;gap:8px;margin-bottom:15px}
-.user-tab{padding:8px 20px;border-radius:20px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s}
-.user-tab.active{background:#e94560;color:#fff;border-color:#e94560}
-.user-tab:hover{border-color:#e94560}
+.list-tabs{display:flex;gap:8px;margin-bottom:12px}
+.list-tab{padding:8px 20px;border-radius:20px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s}
+.list-tab.active{background:#e94560;color:#fff;border-color:#e94560}
+.list-tab:hover{border-color:#e94560}
+.cat-tabs{display:flex;gap:6px;margin-bottom:15px;flex-wrap:wrap}
+.cat-tab{padding:4px 12px;border-radius:12px;border:1px solid #333;background:transparent;color:#777;cursor:pointer;font-size:12px;transition:all .2s}
+.cat-tab.active{background:#0f3460;color:#fff;border-color:#0f3460}
+.cat-tab:hover{border-color:#e94560}
 .container{max-width:800px;margin:0 auto;padding:20px}
 .add-section{display:flex;gap:10px;margin-bottom:20px}
 .add-section input{flex:1;padding:12px 15px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:15px;outline:none}
@@ -53,7 +57,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .task-btn.del:hover{color:#ff4444}
 .empty{text-align:center;padding:60px 20px;color:#444}
 .empty span{font-size:40px;display:block;margin-bottom:10px}
-.stats{display:flex;gap:15px;margin-bottom:20px;font-size:13px;color:#555}
+.stats{display:flex;gap:15px;margin-bottom:15px;font-size:13px;color:#555}
 .stats span{color:#e94560;font-weight:600}
 .note-input{width:100%;padding:8px 12px;border-radius:8px;border:1px solid #0f3460;background:#1a1a2e;color:#ddd;font-size:13px;margin-top:6px;outline:none;resize:none;display:none}
 .note-input.show{display:block}
@@ -67,7 +71,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .login-box button{padding:14px 24px;border-radius:12px;border:none;background:#e94560;color:#fff;font-size:16px;cursor:pointer;font-weight:600}
 .login-box button:hover{background:#c73651}
 .login-error{color:#e94560;font-size:13px;min-height:20px}
-.category-select{padding:8px;border-radius:8px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:13px;outline:none}
+.cat-badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:6px;margin-left:6px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -86,21 +90,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 <div class="header-right">
 <div class="sync-indicator" id="syncDot" title="Sync status"></div>
 <span id="userName" style="font-size:13px;color:#888"></span>
-<button class="logout-btn" onclick="doLogout()">Déconnexion</button>
+<button class="logout-btn" onclick="doLogout()">⏻</button>
 </div>
 </div>
 <div class="container">
-<div class="user-tabs">
-<button class="user-tab active" id="tabPersonal" onclick="switchList('personal')">Mes tâches</button>
-<button class="user-tab" id="tabShared" onclick="switchList('shared')">Commun</button>
+<div class="list-tabs">
+<button class="list-tab active" id="tabPersonal" onclick="switchList('personal')">Mes tâches</button>
+<button class="list-tab" id="tabShared" onclick="switchList('shared')">Commun</button>
 </div>
+<div class="cat-tabs" id="catTabs"></div>
 <div class="stats" id="stats"></div>
 <div class="add-section">
 <input type="text" id="newTask" placeholder="Nouvelle tâche..." onkeydown="if(event.key==='Enter')addTask()">
-<select class="category-select" id="newCategory">
-<option value="">Catégorie...</option>
-<option>Général</option><option>Marketing</option><option>Affaires</option><option>Production</option><option>Admin</option><option>Planning</option>
-</select>
 <button class="add-btn" onclick="addTask()">+</button>
 </div>
 <div class="filters">
@@ -114,26 +115,85 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 </div>
 <script>
 const API='https://hf-tasks-api.hectoflex.workers.dev';
-let token=localStorage.getItem('hf_token')||'',currentUser=localStorage.getItem('hf_user')||'',currentList='personal',currentFilter='all',tasks=[],syncTimer=null;
+const CATEGORIES=['Tout','Général','Marketing','Affaires','Production','Admin','Planning'];
+let token=localStorage.getItem('hf_token')||'',currentUser=localStorage.getItem('hf_user')||'',currentList='personal',currentFilter='all',currentCat='Tout',tasks=[],syncTimer=null;
+
 if(token&&currentUser){showApp()}else{document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').focus()}
+
 async function doLogin(){const pin=document.getElementById('pinInput').value;const errEl=document.getElementById('loginError');errEl.textContent='';for(const user of['daniel','marco']){try{const res=await fetch(API+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,pin})});const data=await res.json();if(data.ok){token=data.token;currentUser=data.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);showApp();return}}catch(e){}}errEl.textContent='PIN incorrect';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
+
 function doLogout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token='';currentUser='';clearInterval(syncTimer);document.getElementById('appScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
-function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';document.getElementById('userName').textContent=currentUser.charAt(0).toUpperCase()+currentUser.slice(1);loadTasks();clearInterval(syncTimer);syncTimer=setInterval(loadTasks,30000)}
+
+function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';document.getElementById('userName').textContent=currentUser.charAt(0).toUpperCase()+currentUser.slice(1);renderCatTabs();loadTasks();clearInterval(syncTimer);syncTimer=setInterval(loadTasks,30000)}
+
+function renderCatTabs(){document.getElementById('catTabs').innerHTML=CATEGORIES.map(c=>`<button class="cat-tab${currentCat===c?' active':''}" onclick="switchCat('${c}',this)">${c}</button>`).join('')}
+
+function switchCat(cat,btn){currentCat=cat;document.querySelectorAll('.cat-tab').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');const input=document.getElementById('newTask');input.placeholder=cat==='Tout'?'Nouvelle tâche...':'Nouvelle tâche '+cat+'...';render()}
+
 function setSyncState(s){document.getElementById('syncDot').className='sync-indicator'+(s==='ok'?'':s==='syncing'?' syncing':' error')}
+
 async function apiFetch(path,opts={}){setSyncState('syncing');try{const res=await fetch(API+path,{...opts,headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json',...(opts.headers||{})}});if(res.status===401){doLogout();return null}const data=await res.json();setSyncState('ok');return data}catch(e){setSyncState('error');return null}}
+
 async function loadTasks(){const data=await apiFetch('/tasks?list='+currentList);if(data&&Array.isArray(data)){tasks=data;render()}}
+
 function switchList(list){currentList=list;document.getElementById('tabPersonal').classList.toggle('active',list==='personal');document.getElementById('tabShared').classList.toggle('active',list==='shared');loadTasks()}
+
 function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');render()}
-async function addTask(){const input=document.getElementById('newTask');const catSel=document.getElementById('newCategory');const text=input.value.trim();if(!text)return;const body={text,list:currentList};if(catSel.value)body.category=catSel.value;const result=await apiFetch('/tasks',{method:'POST',body:JSON.stringify(body)});if(result){input.value='';catSel.selectedIndex=0;await loadTasks()}input.focus()}
+
+async function addTask(){const input=document.getElementById('newTask');const text=input.value.trim();if(!text)return;const body={text,list:currentList};if(currentCat!=='Tout')body.category=currentCat;const result=await apiFetch('/tasks',{method:'POST',body:JSON.stringify(body)});if(result){input.value='';await loadTasks()}input.focus()}
+
 async function toggleDone(id){const t=tasks.find(t=>t.id===id);if(!t)return;await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{done:!t.done,doneAt:!t.done?new Date().toISOString():null}})});await loadTasks()}
+
 async function toggleUrgent(id){const t=tasks.find(t=>t.id===id);if(!t)return;await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{urgent:!t.urgent}})});await loadTasks()}
+
 async function deleteTask(id){if(!confirm('Supprimer cette tâche ?'))return;await apiFetch('/tasks/'+id+'?list='+currentList,{method:'DELETE'});await loadTasks()}
+
 async function editTask(id){const t=tasks.find(t=>t.id===id);if(!t)return;const newText=prompt('Modifier la tâche :',t.text);if(newText!==null&&newText.trim()){await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{text:newText.trim()}})});await loadTasks()}}
+
 function toggleNote(id){const el=document.getElementById('note-'+id);el.classList.toggle('show');if(el.classList.contains('show'))el.focus()}
+
 async function saveNote(id){const note=document.getElementById('note-'+id).value;await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{note}})})}
+
 function formatDate(iso){if(!iso)return'';const d=new Date(iso);return d.toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}
 function escHtml(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
-function render(){const total=tasks.length,done=tasks.filter(t=>t.done).length,urgent=tasks.filter(t=>t.urgent&&!t.done).length;document.getElementById('stats').innerHTML=`<span>${total-done}</span> à faire | <span>${done}</span> terminées${urgent?` | <span>${urgent}</span> urgentes`:''}`;let filtered=[...tasks];if(currentFilter==='todo')filtered=filtered.filter(t=>!t.done);else if(currentFilter==='done')filtered=filtered.filter(t=>t.done);else if(currentFilter==='urgent')filtered=filtered.filter(t=>t.urgent&&!t.done);filtered.sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;if(a.urgent!==b.urgent)return a.urgent?-1:1;return b.id-a.id});const list=document.getElementById('taskList');if(filtered.length===0){list.innerHTML='<div class="empty"><span>✨</span>Aucune tâche !</div>';return}list.innerHTML=filtered.map(t=>`<li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''}"><div class="task-check" onclick="toggleDone(${t.id})"></div><div class="task-content"><div class="task-text">${escHtml(t.text)}</div>${t.note?'<div class="task-note">📝 '+escHtml(t.note)+'</div>':''}<textarea class="note-input" id="note-${t.id}" placeholder="Ajouter une note..." onblur="saveNote(${t.id})">${t.note||''}</textarea><div class="task-meta"><span class="task-date">${formatDate(t.created_at||t.created)}</span>${t.category?'<span class="task-tag">'+escHtml(t.category)+'</span>':''}${t.urgent?'<span class="task-tag" style="background:#5c1a1a;color:#e94560">🔴 Urgent</span>':''}${t.created_by&&t.created_by!==currentUser?'<span class="task-tag" style="background:#1a3a5c;color:#6ab0de">👤 '+escHtml(t.created_by)+'</span>':''}</div></div><div class="task-actions"><button class="task-btn" onclick="toggleNote(${t.id})" title="Note">📝</button><button class="task-btn" onclick="toggleUrgent(${t.id})" title="Urgent">${t.urgent?'🔴':'⚪'}</button><button class="task-btn" onclick="editTask(${t.id})" title="Modifier">✏️</button><button class="task-btn del" onclick="deleteTask(${t.id})" title="Supprimer">🗑️</button></div></li>`).join('')}
+
+function render(){
+  const total=tasks.length,done=tasks.filter(t=>t.done).length,urgent=tasks.filter(t=>t.urgent&&!t.done).length;
+  document.getElementById('stats').innerHTML=`<span>${total-done}</span> à faire | <span>${done}</span> terminées${urgent?` | <span>${urgent}</span> urgentes`:''}`;
+  
+  let filtered=[...tasks];
+  // Category filter
+  if(currentCat!=='Tout')filtered=filtered.filter(t=>(t.category||'Général')===currentCat);
+  // Status filter
+  if(currentFilter==='todo')filtered=filtered.filter(t=>!t.done);
+  else if(currentFilter==='done')filtered=filtered.filter(t=>t.done);
+  else if(currentFilter==='urgent')filtered=filtered.filter(t=>t.urgent&&!t.done);
+  
+  filtered.sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;if(a.urgent!==b.urgent)return a.urgent?-1:1;return b.id-a.id});
+  
+  const list=document.getElementById('taskList');
+  if(filtered.length===0){list.innerHTML='<div class="empty"><span>✨</span>Aucune tâche !</div>';return}
+  
+  list.innerHTML=filtered.map(t=>`<li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''}">
+    <div class="task-check" onclick="toggleDone(${t.id})"></div>
+    <div class="task-content">
+      <div class="task-text">${escHtml(t.text)}</div>
+      ${t.note?'<div class="task-note">📝 '+escHtml(t.note)+'</div>':''}
+      <textarea class="note-input" id="note-${t.id}" placeholder="Ajouter une note..." onblur="saveNote(${t.id})">${t.note||''}</textarea>
+      <div class="task-meta">
+        <span class="task-date">${formatDate(t.created_at||t.created)}</span>
+        ${t.category?'<span class="task-tag">'+escHtml(t.category)+'</span>':''}
+        ${t.urgent?'<span class="task-tag" style="background:#5c1a1a;color:#e94560">🔴 Urgent</span>':''}
+        ${t.created_by&&t.created_by!==currentUser?'<span class="task-tag" style="background:#1a3a5c;color:#6ab0de">👤 '+escHtml(t.created_by)+'</span>':''}
+      </div>
+    </div>
+    <div class="task-actions">
+      <button class="task-btn" onclick="toggleNote(${t.id})" title="Note">📝</button>
+      <button class="task-btn" onclick="toggleUrgent(${t.id})" title="Urgent">${t.urgent?'🔴':'⚪'}</button>
+      <button class="task-btn" onclick="editTask(${t.id})" title="Modifier">✏️</button>
+      <button class="task-btn del" onclick="deleteTask(${t.id})" title="Supprimer">🗑️</button>
+    </div>
+  </li>`).join('')}
 </script>
 </body>
 </html>
