@@ -5,434 +5,135 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HectoFlex Tools</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1c1c1e">
+<meta name="theme-color" content="#1a1a2e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
-:root{
-  --bg:#f5f5f7;--surface:#fff;--surface2:#f0f0f2;--border:#e5e5e7;
-  --text:#1d1d1f;--text2:#6e6e73;--text3:#aeaeb2;
-  --accent:#2563eb;--accent-hover:#1d4ed8;
-  --green:#22c55e;--red:#ef4444;--orange:#f59e0b;--yellow:#eab308;
-  --radius:12px;
-}
-.dark{
-  --bg:#161618;--surface:#1e1e20;--surface2:#28282a;--border:#333336;
-  --text:#f5f5f7;--text2:#a1a1a6;--text3:#636366;
-  --accent:#3b82f6;--accent-hover:#2563eb;
-}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
-::selection{background:var(--accent);color:#fff}
-input,select,textarea,button{font-family:inherit}
-.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.login-box{background:var(--surface);padding:48px 36px;border-radius:20px;width:100%;max-width:340px;text-align:center;box-shadow:0 2px 20px rgba(0,0,0,.08)}
-.login-box h1{color:var(--text);margin-bottom:4px;font-size:22px;font-weight:700;letter-spacing:-.3px}
-.login-box p{color:var(--text3);margin-bottom:28px;font-size:14px;font-weight:400}
-.pin-input{width:100%;padding:14px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:22px;text-align:center;letter-spacing:10px;outline:none;margin-bottom:14px;transition:border .2s}
-.pin-input:focus{border-color:var(--accent)}
-.login-select{width:100%;padding:12px 14px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;margin-bottom:12px;outline:none}
-.login-btn{width:100%;padding:13px;border-radius:var(--radius);border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s}
-.login-btn:hover{background:var(--accent-hover)}
-.login-error{color:var(--red);font-size:13px;margin-top:10px;display:none}
-.app{display:none}
-.top-bar{background:var(--surface);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.logo{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px}
-.top-right{display:flex;align-items:center;gap:12px}
-.user-name{color:var(--text2);font-size:13px;font-weight:500}
-.logout-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-size:12px;transition:all .2s}
-.logout-btn:hover{color:var(--red);border-color:var(--red)}
-.theme-btn{padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-size:14px}
-.main-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border)}
-.main-tab{flex:1;text-align:center;padding:11px 8px;color:var(--text3);cursor:pointer;font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:all .2s}
-.main-tab:hover{color:var(--text2)}
-.main-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.page{display:none}.page.active{display:block}
-.tabs-row{display:flex;gap:6px;padding:12px 24px;background:var(--surface);flex-wrap:wrap}
-.stab{padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
-.stab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.stab:hover{border-color:var(--accent)}
-.cat-row{display:flex;gap:5px;padding:8px 24px;background:var(--surface2);flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border)}
-.cat-chip{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:11px;font-weight:600;transition:all .15s}
-.cat-chip.active{background:var(--text);color:var(--bg)}
-.cat-chip:hover{border-color:var(--text3)}
-.cat-add{padding:4px 10px;border-radius:20px;border:1px dashed var(--border);background:transparent;color:var(--text3);cursor:pointer;font-size:11px}
-.cat-add:hover{border-color:var(--accent);color:var(--accent)}
-.container{max-width:720px;margin:0 auto;padding:16px 24px}
-.add-section{display:flex;gap:8px;margin-bottom:8px}
-.add-section input[type=text]{flex:1;min-width:120px;padding:11px 14px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;outline:none;transition:border .2s}
-.add-section input:focus{border-color:var(--accent)}
-.add-section input::placeholder{color:var(--text3)}
-.add-row2{display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap;padding:0 2px}
-.add-row2 label{color:var(--text3);font-size:12px}
-.date-input,.cat-sel{padding:7px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;outline:none}
-.add-btn{padding:10px 18px;border-radius:var(--radius);border:none;background:var(--accent);color:#fff;font-size:14px;cursor:pointer;font-weight:600;transition:background .2s}
-.add-btn:hover{background:var(--accent-hover)}
-.filters{display:flex;gap:6px;margin-bottom:12px}
-.fbtn{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-size:11px;font-weight:500;transition:all .15s}
-.fbtn.active{background:var(--text);color:var(--bg)}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;min-height:100vh}
+.header{background:#16213e;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0f3460}
+.header h1{font-size:20px;color:#e94560}
+.header-right{display:flex;align-items:center;gap:10px}
+.sync-indicator{width:10px;height:10px;border-radius:50%;background:#2d6a4f;transition:background .3s}
+.sync-indicator.syncing{background:#e9c46a;animation:pulse .8s infinite}
+.sync-indicator.error{background:#e94560}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.logout-btn{padding:5px 12px;border-radius:8px;border:1px solid #444;background:transparent;color:#888;cursor:pointer;font-size:12px}
+.logout-btn:hover{border-color:#e94560;color:#e94560}
+.user-tabs{display:flex;gap:8px;margin-bottom:15px}
+.user-tab{padding:8px 20px;border-radius:20px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s}
+.user-tab.active{background:#e94560;color:#fff;border-color:#e94560}
+.user-tab:hover{border-color:#e94560}
+.container{max-width:800px;margin:0 auto;padding:20px}
+.add-section{display:flex;gap:10px;margin-bottom:20px}
+.add-section input{flex:1;padding:12px 15px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:15px;outline:none}
+.add-section input:focus{border-color:#e94560}
+.add-section input::placeholder{color:#555}
+.add-btn{padding:12px 20px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:15px;cursor:pointer;font-weight:600;white-space:nowrap}
+.add-btn:hover{background:#c73651}
+.filters{display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.filter-btn{padding:5px 14px;border-radius:15px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:12px}
+.filter-btn.active{background:#0f3460;color:#fff;border-color:#0f3460}
 .task-list{list-style:none}
-.task-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;margin-bottom:4px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);transition:all .15s}
-.task-item:hover{border-color:var(--text3)}
-.task-item.done{opacity:0.45}
-.task-item.done .task-text{text-decoration:line-through;color:var(--text3)}
-.task-item.urgent{border-left:3px solid var(--red)}
-.task-item.overdue{border-left:3px solid var(--orange)}
-.task-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s}
-.task-check:hover{border-color:var(--accent)}
-.task-item.done .task-check{background:var(--green);border-color:var(--green)}
-.task-item.done .task-check::after{content:'✓';color:#fff;font-size:11px;font-weight:700}
+.task-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;margin-bottom:8px;background:#16213e;border-radius:10px;border-left:4px solid #0f3460;transition:all .2s}
+.task-item.done{opacity:0.5;border-left-color:#2d6a4f}
+.task-item.done .task-text{text-decoration:line-through;color:#666}
+.task-item.urgent{border-left-color:#e94560}
+.task-check{width:22px;height:22px;border-radius:50%;border:2px solid #444;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .2s}
+.task-check:hover{border-color:#e94560}
+.task-item.done .task-check{background:#2d6a4f;border-color:#2d6a4f}
+.task-item.done .task-check::after{content:'✓';color:#fff;font-size:13px}
 .task-content{flex:1;min-width:0}
-.task-text{font-size:14px;line-height:1.4;font-weight:400}
-.task-meta{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap}
-.tm{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:500}
-.tm-date{color:var(--text3)}
-.tm-due{background:var(--surface2);color:var(--accent)}
-.tm-due.overdue{background:#fef2f2;color:var(--red)}
-.tm-due.today{background:#fefce8;color:#a16207}
-.dark .tm-due.overdue{background:#3a2020;color:#fca5a5}
-.dark .tm-due.today{background:#3a3520;color:#fde047}
-.tm-cat{background:var(--surface2);color:var(--text2)}
-.tm-urg{background:#fef2f2;color:var(--red)}.dark .tm-urg{background:#3a2020;color:#fca5a5}
-.tm-own{background:var(--surface2);color:var(--text3)}
-.task-actions{display:flex;gap:2px;flex-shrink:0;opacity:0.3;transition:opacity .2s}
-.task-item:hover .task-actions{opacity:1}
-.tbtn{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;background:transparent;color:var(--text3);transition:all .15s}
-.tbtn:hover{color:var(--accent);background:var(--surface2)}.tbtn.del:hover{color:var(--red)}
-.task-note{font-size:12px;color:var(--text2);margin-top:3px;font-style:italic}
-.task-attachments{margin-top:3px;display:flex;gap:6px;flex-wrap:wrap}
-.task-attach{font-size:10px;color:var(--accent);text-decoration:none;padding:2px 6px;border-radius:6px;background:var(--surface2)}
-.note-input{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;margin-top:4px;outline:none;resize:none;display:none}
+.task-text{font-size:15px;line-height:1.4;word-break:break-word}
+.task-meta{display:flex;gap:8px;margin-top:5px;align-items:center;flex-wrap:wrap}
+.task-date{font-size:11px;color:#555}
+.task-tag{font-size:11px;padding:2px 8px;border-radius:8px;background:#0f3460;color:#aaa}
+.task-actions{display:flex;gap:6px;flex-shrink:0}
+.task-btn{width:28px;height:28px;border-radius:6px;border:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;background:#1a1a2e;color:#666;transition:all .2s}
+.task-btn:hover{color:#e94560}
+.task-btn.del:hover{color:#ff4444}
+.empty{text-align:center;padding:60px 20px;color:#444}
+.empty span{font-size:40px;display:block;margin-bottom:10px}
+.stats{display:flex;gap:15px;margin-bottom:20px;font-size:13px;color:#555}
+.stats span{color:#e94560;font-weight:600}
+.note-input{width:100%;padding:8px 12px;border-radius:8px;border:1px solid #0f3460;background:#1a1a2e;color:#ddd;font-size:13px;margin-top:6px;outline:none;resize:none;display:none}
 .note-input.show{display:block}
-.empty{text-align:center;padding:48px 20px;color:var(--text3)}
-.empty span{font-size:28px;display:block;margin-bottom:8px}
-.stats{display:flex;gap:12px;margin-bottom:6px;font-size:13px;color:var(--text2);font-weight:500}
-.stats b{color:var(--accent)}
-.sync-status{font-size:10px;text-align:center;padding:2px;color:var(--text3)}
-.sync-status.ok{color:var(--green)}
-.sync-status.err{color:var(--red)}
-.readonly-badge{font-size:11px;padding:4px 12px;border-radius:20px;background:var(--surface2);color:var(--text3);margin-bottom:10px;display:inline-block}
-.qr-container{max-width:560px;margin:0 auto;padding:24px}
-.qr-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
-.qtab{padding:8px 16px;border-radius:var(--radius);border:1.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
-.qtab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.qtab:hover{border-color:var(--accent)}
-.fg{margin-bottom:12px}
-.fg label{display:block;color:var(--text2);font-size:12px;margin-bottom:4px;font-weight:500}
-.fg input,.fg textarea,.fg select{width:100%;padding:10px 12px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;outline:none;font-family:inherit;transition:border .2s}
-.fg input:focus,.fg textarea:focus{border-color:var(--accent)}
-.fg textarea{resize:vertical;min-height:50px}
-.frow{display:flex;gap:10px}.frow .fg{flex:1}
-.color-row{display:flex;gap:12px;align-items:center;margin-bottom:12px}
-.color-row input[type=color]{width:36px;height:32px;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:var(--surface)}
-.color-row label{font-size:12px;color:var(--text2)}
-.gen-btn{width:100%;padding:13px;border-radius:var(--radius);border:none;background:var(--accent);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;transition:background .2s}
-.gen-btn:hover{background:var(--accent-hover)}
-.qr-result{text-align:center;margin-top:24px;display:none}
-.qr-result canvas{border-radius:16px;background:#fff;padding:16px;max-width:100%;height:auto!important;aspect-ratio:1/1;box-shadow:0 2px 12px rgba(0,0,0,.06)}
-.dl-btns{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
-.dl-btn{padding:8px 18px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s}
-.dl-btn:hover{border-color:var(--accent);color:var(--accent)}
-
-@media(min-width:768px){
-  .container{max-width:900px;padding:24px 40px}
-  .qr-container{max-width:700px;padding:24px 40px}
-  .task-actions{opacity:0.5}
-  .task-item:hover .task-actions{opacity:1}
-  .task-item{padding:14px 18px}
-  .add-section input[type=text]{font-size:15px;padding:13px 16px}
-}
-@media(min-width:1200px){
-  .container{max-width:1000px}
-}
+.task-note{font-size:12px;color:#777;margin-top:4px;font-style:italic}
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px}
+.login-screen h1{color:#e94560;font-size:28px}
+.login-screen p{color:#666;font-size:14px}
+.login-box{display:flex;gap:10px}
+.login-box input{padding:14px 18px;border-radius:12px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:20px;text-align:center;width:160px;outline:none;letter-spacing:8px}
+.login-box input:focus{border-color:#e94560}
+.login-box button{padding:14px 24px;border-radius:12px;border:none;background:#e94560;color:#fff;font-size:16px;cursor:pointer;font-weight:600}
+.login-box button:hover{background:#c73651}
+.login-error{color:#e94560;font-size:13px;min-height:20px}
+.category-select{padding:8px;border-radius:8px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:13px;outline:none}
 </style>
 </head>
 <body>
-<div class="login-screen" id="loginScreen">
+<div id="loginScreen" class="login-screen">
+<h1>📋 HectoFlex Tools</h1>
+<p>Entrez votre code PIN</p>
 <div class="login-box">
-<h1>HectoFlex Tools</h1>
-<p>Boîte à outils</p>
-<select class="login-select" id="loginUser"><option value="daniel">Daniel</option><option value="marco">Marco</option></select>
-<input type="password" class="pin-input" id="pinInput" placeholder="PIN" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()">
-<button class="login-btn" onclick="doLogin()">Connexion</button>
-<div class="login-error" id="loginError">PIN incorrect</div>
+<input type="password" id="pinInput" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter')doLogin()">
+<button onclick="doLogin()">→</button>
+</div>
+<div class="login-error" id="loginError"></div>
+</div>
+<div id="appScreen" style="display:none">
+<div class="header">
+<h1>📋 HectoFlex</h1>
+<div class="header-right">
+<div class="sync-indicator" id="syncDot" title="Sync status"></div>
+<span id="userName" style="font-size:13px;color:#888"></span>
+<button class="logout-btn" onclick="doLogout()">Déconnexion</button>
 </div>
 </div>
-<div class="app" id="app">
-<div class="top-bar"><div><span class="logo">HectoFlex <small style="font-size:10px;color:#48484a;font-weight:400">v26</small></span></div><div class="top-right"><span class="user-name" id="userName"></span><button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button><button class="logout-btn" onclick="doLogout()">⏏</button></div></div>
-<div class="main-tabs"><div class="main-tab active" onclick="showPage('tasks',this)">📋 Tâches</div><div class="main-tab" onclick="showPage('qr',this)">📱 QR Code</div></div>
-<div class="page active" id="page-tasks">
-<div class="tabs-row"><button class="stab active" data-list="personal" onclick="switchList('personal',this)">Mes tâches</button><button class="stab" data-list="shared" onclick="switchList('shared',this)">Commun</button><button class="stab" data-list="other" onclick="switchList('other',this)" id="otherTab">—</button></div>
-<div class="cat-row" id="catRow"></div>
 <div class="container">
-<div class="sync-status" id="syncStatus"></div>
-<div class="stats" id="stats"></div>
-<div id="addArea">
-<div class="add-section"><input type="text" id="newTask" placeholder="Nouvelle tâche..." onkeydown="if(event.key==='Enter')addTask()"><button class="add-btn" onclick="addTask()">+</button></div>
-<div class="add-row2"><label>📅</label><input type="date" class="date-input" id="newDue"><label>📁</label><select class="cat-sel" id="newCat"></select></div>
+<div class="user-tabs">
+<button class="user-tab active" id="tabPersonal" onclick="switchList('personal')">Mes tâches</button>
+<button class="user-tab" id="tabShared" onclick="switchList('shared')">Commun</button>
 </div>
-<div class="filters"><button class="fbtn active" onclick="setFilter('all',this)">Tout</button><button class="fbtn" onclick="setFilter('todo',this)">À faire</button><button class="fbtn" onclick="setFilter('done',this)">Fait</button><button class="fbtn" onclick="setFilter('urgent',this)">Urgent</button></div>
+<div class="stats" id="stats"></div>
+<div class="add-section">
+<input type="text" id="newTask" placeholder="Nouvelle tâche..." onkeydown="if(event.key==='Enter')addTask()">
+<select class="category-select" id="newCategory">
+<option value="">Catégorie...</option>
+<option>Général</option><option>Marketing</option><option>Affaires</option><option>Production</option><option>Admin</option><option>Planning</option>
+</select>
+<button class="add-btn" onclick="addTask()">+</button>
+</div>
+<div class="filters">
+<button class="filter-btn active" onclick="setFilter('all',this)">Tout</button>
+<button class="filter-btn" onclick="setFilter('todo',this)">À faire</button>
+<button class="filter-btn" onclick="setFilter('done',this)">Fait</button>
+<button class="filter-btn" onclick="setFilter('urgent',this)">Urgent</button>
+</div>
 <ul class="task-list" id="taskList"></ul>
 </div>
 </div>
-<div class="page" id="page-qr">
-<div class="qr-container">
-<div class="qr-tabs"><button class="qtab active" onclick="setQrType('url',this)">🔗 Lien</button><button class="qtab" onclick="setQrType('vcard',this)">👤 vCard</button><button class="qtab" onclick="setQrType('wifi',this)">📶 WiFi</button><button class="qtab" onclick="setQrType('text',this)">📝 Texte</button></div>
-<div id="qf-url"><div class="fg"><label>URL</label><input type="url" id="qr-url" placeholder="https://exemple.com"></div><div style="margin-top:6px"><label style="display:flex;align-items:center;gap:8px;color:#86868b;font-size:12px;cursor:pointer"><input type="checkbox" id="qr-shorten" checked style="width:16px;height:16px;accent-color:#007AFF"> Raccourcir l'URL (QR plus simple)</label></div></div>
-<div id="qf-vcard" style="display:none"><div class="frow"><div class="fg"><label>Prénom</label><input id="vc-fn"></div><div class="fg"><label>Nom</label><input id="vc-ln"></div></div><div class="fg"><label>Entreprise</label><input id="vc-org"></div><div class="fg"><label>Titre</label><input id="vc-title"></div><div class="fg"><label>Téléphone</label><input id="vc-tel" placeholder="+41 79 123 45 67"></div><div class="fg"><label>Email</label><input id="vc-email"></div><div class="fg"><label>Site web</label><input id="vc-url"></div><div class="fg"><label>Adresse</label><input id="vc-adr"></div></div>
-<div id="qf-wifi" style="display:none"><div class="fg"><label>SSID</label><input id="wifi-ssid"></div><div class="fg"><label>Mot de passe</label><input id="wifi-pass"></div><div class="fg"><label>Sécurité</label><select id="wifi-enc"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="">Aucune</option></select></div></div>
-<div id="qf-text" style="display:none"><div class="fg"><label>Texte</label><textarea id="qr-text" rows="3"></textarea></div></div>
-<h3 style="font-size:13px;color:#007AFF;margin:15px 0 8px">Options</h3>
-<div class="fg"><label>Logo au centre (optionnel)</label><div style="display:flex;gap:8px;align-items:center"><input type="file" id="qr-logo" accept="image/*" onchange="document.getElementById('clearLogo').style.display=this.files.length?'block':'none'" style="padding:6px;font-size:12px;flex:1"><button onclick="document.getElementById('qr-logo').value='';this.style.display='none'" style="padding:4px 10px;border-radius:6px;border:1px solid #007AFF;background:transparent;color:#007AFF;cursor:pointer;font-size:11px;display:none" id="clearLogo">✕ Supprimer</button></div></div>
-<div class="color-row"><label>QR :</label><input type="color" id="qr-fg" value="#000000"><label>Fond :</label><input type="color" id="qr-bg" value="#ffffff"></div>
-<div class="fg"><label>Taille (px)</label><input type="number" id="qr-size" value="400" min="100" max="2000" step="50"></div>
-<button class="gen-btn" onclick="genQR()">Générer le QR Code</button>
-<div class="qr-result" id="qrResult"><canvas id="qrCanvas"></canvas><div class="dl-btns"><a class="dl-btn" id="dlPng" download="qrcode.png">⬇ PNG</a><a class="dl-btn" id="dlSvg" download="qrcode.svg">⬇ SVG</a><button class="dl-btn" id="dlPdf" onclick="dlPDF()">⬇ PDF</button></div></div>
-</div>
-</div>
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-function toggleTheme(){
-  document.documentElement.classList.toggle('dark');
-  var isDark=document.documentElement.classList.contains('dark');
-  localStorage.setItem('hf_theme',isDark?'dark':'light');
-  document.getElementById('themeBtn').textContent=isDark?'☀️':'🌙';
-}
-// Load saved theme
-if(localStorage.getItem('hf_theme')==='dark'){document.documentElement.classList.add('dark');document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('themeBtn');if(b)b.textContent='☀️';});}
-
-var API='https://hf-tasks-api.hectoflex.workers.dev';
-var token=null,currentUser=null,currentList='personal',currentFilter='all',currentCat='all',tasks=[],categories=['Général'];
-var OTHER={daniel:'marco',marco:'daniel'},NAMES={daniel:'Daniel',marco:'Marco'};
-
-function showPage(p,el){document.querySelectorAll('.main-tab').forEach(function(t){t.classList.remove('active')});el.classList.add('active');document.querySelectorAll('.page').forEach(function(pg){pg.classList.remove('active')});document.getElementById('page-'+p).classList.add('active');}
-
-function api2(p,m,b){
-  var o={method:m||'GET',headers:{'Content-Type':'application/json'}};
-  if(token) o.headers['Authorization']='Bearer '+token;
-  if(b) o.body=JSON.stringify(b);
-  return fetch(API+p,o).then(function(r){return r.json();});
-}
-
-function doLogin(){
-  var u=document.getElementById('loginUser').value,p=document.getElementById('pinInput').value;
-  api2('/login','POST',{user:u,pin:p}).then(function(r){
-    if(r.ok){token=r.token;currentUser=r.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);showApp();}
-    else{document.getElementById('loginError').style.display='block';document.getElementById('pinInput').value='';setTimeout(function(){document.getElementById('loginError').style.display='none';},2000);}
-  }).catch(function(){document.getElementById('loginError').textContent='Erreur';document.getElementById('loginError').style.display='block';});
-}
-function doLogout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token=null;currentUser=null;document.getElementById('app').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';}
-function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('app').style.display='block';document.getElementById('userName').textContent=NAMES[currentUser];document.getElementById('otherTab').textContent=NAMES[OTHER[currentUser]];loadCategories().then(function(){loadTasks();});}
-var st=localStorage.getItem('hf_token'),su=localStorage.getItem('hf_user');if(st&&su){token=st;currentUser=su;showApp();}
-
-function switchList(l,el){currentList=l;document.querySelectorAll('.stab').forEach(function(t){t.classList.toggle('active',t.dataset.list===l)});document.getElementById('addArea').style.display=l==='other'?'none':'block';loadTasks();}
-function setCatFilter(c){currentCat=c;document.querySelectorAll('.cat-chip').forEach(function(b){b.classList.toggle('active',b.dataset.cat===c)});render();}
-function setFilter(f,el){currentFilter=f;document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('active')});el.classList.add('active');render();}
-function syncStatus(m,ok){var el=document.getElementById('syncStatus');el.textContent=m;el.className='sync-status '+(ok!==false?'ok':'err');if(ok!==false)setTimeout(function(){el.textContent='';},2000);}
-function loadCategories(){return api2('/categories').then(function(c){categories=c&&c.length?c:['Général'];renderCats();}).catch(function(){categories=['Général'];renderCats();});}
-function renderCats(){
-  var row=document.getElementById('catRow'),sel=document.getElementById('newCat');
-  var h='<button class="cat-chip '+(currentCat==='all'?'active':'')+'" data-cat="all" onclick="setCatFilter(\'all\')">Tout</button>';
-  categories.forEach(function(c){h+='<button class="cat-chip '+(currentCat===c?'active':'')+'" data-cat="'+c+'" onclick="setCatFilter(\''+c+'\')">'+c+'</button>';});
-  h+='<button class="cat-add" onclick="addCat()">+ Dossier</button>';
-  row.innerHTML=h;
-  sel.innerHTML=categories.map(function(c){return'<option>'+c+'</option>';}).join('');
-}
-function addCat(){var n=prompt('Nom du dossier :');if(!n||!n.trim())return;api2('/categories','POST',{name:n.trim()}).then(function(c){categories=c;renderCats();});}
-function loadTasks(){var lp=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks?list='+lp).then(function(d){tasks=d;syncStatus('✓');render();}).catch(function(){syncStatus('✗ Erreur',false);});}
-function addTask(){var i=document.getElementById('newTask'),d=document.getElementById('newDue'),c=document.getElementById('newCat');var t=i.value.trim();if(!t)return;api2('/tasks','POST',{text:t,list:currentList==='personal'?currentUser:currentList,due_date:d.value||null,category:c.value||'Général'}).then(function(){i.value='';d.value='';loadTasks();});}
-function toggleDone(id){var t=tasks.find(function(t){return t.id===id});if(!t)return;var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks/'+id,'PUT',{list:l,updates:{done:!t.done}}).then(loadTasks);}
-function toggleUrgent(id){var t=tasks.find(function(t){return t.id===id});if(!t)return;var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks/'+id,'PUT',{list:l,updates:{urgent:!t.urgent}}).then(loadTasks);}
-function deleteTask(id){if(!confirm('Supprimer ?'))return;var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks/'+id+'?list='+l,'DELETE').then(loadTasks);}
-function editTask(id){var t=tasks.find(function(t){return t.id===id});if(!t)return;var n=prompt('Modifier :',t.text);if(n!==null&&n.trim()){var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks/'+id,'PUT',{list:l,updates:{text:n.trim()}}).then(loadTasks);}}
-function setDue(id){var t=tasks.find(function(t){return t.id===id});var d=prompt('Échéance (YYYY-MM-DD) :',(t&&t.due_date)||'');if(d!==null){var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks/'+id,'PUT',{list:l,updates:{due_date:d||null}}).then(loadTasks);}}
-function setCatT(id){
-  var t=tasks.find(function(t){return t.id===id});
-  var cur=(t&&t.category)||'Général';
-  // Build options
-  var opts=categories.map(function(c){return '<option value="'+c+'"'+(c===cur?' selected':'')+'>'+c+'</option>';}).join('');
-  opts+='<option value="__new__">+ Nouveau dossier...</option>';
-  // Create inline dropdown
-  var el=document.getElementById('catsel-'+id);
-  if(el){el.remove();return;}
-  var sel=document.createElement('select');
-  sel.id='catsel-'+id;
-  sel.style.cssText='margin-top:4px;padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;width:100%';
-  sel.innerHTML=opts;
-  sel.onchange=function(){
-    var v=sel.value;
-    if(v==='__new__'){v=prompt('Nom du nouveau dossier:');if(!v){sel.remove();return;}v=v.trim();if(v&&!categories.includes(v)){api2('/categories','POST',{name:v}).then(function(r){categories=r;loadCategories();});}}
-    var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);
-    api2('/tasks/'+id,'PUT',{list:l,updates:{category:v||'Général'}}).then(loadTasks);
-    sel.remove();
-  };
-  var taskEl=document.querySelector('[data-taskid="'+id+'"]')||document.getElementById('n-'+id).parentNode;
-  if(taskEl)taskEl.appendChild(sel);
-  sel.focus();
-}
-function toggleNote(id){var el=document.getElementById('n-'+id);el.classList.toggle('show');if(el.classList.contains('show'))el.focus();}
-function saveNote(id){var v=document.getElementById('n-'+id).value;var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);api2('/tasks/'+id,'PUT',{list:l,updates:{note:v}});}
-function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
-function dueS(d){if(!d)return{c:'',l:''};var t=new Date().toISOString().slice(0,10),diff=Math.round((new Date(d)-new Date(t))/864e5);if(diff<0)return{c:'overdue',l:'⚠️ Retard'};if(diff===0)return{c:'today',l:"Auj."};if(diff===1)return{c:'',l:'Demain'};return{c:'',l:d.split('-').reverse().join('/')};}
-function render(){
-  var f=Array.isArray(tasks)?tasks.slice():[];
-  if(currentCat!=='all') f=f.filter(function(t){return(t.category||'Général')===currentCat;});
-  var tot=f.length,dn=f.filter(function(t){return t.done}).length,urg=f.filter(function(t){return t.urgent&&!t.done}).length;
-  document.getElementById('stats').innerHTML='<b>'+(tot-dn)+'</b> à faire | <b>'+dn+'</b> faites'+(urg?' | <b>'+urg+'</b> urgentes':'');
-  if(currentFilter==='todo') f=f.filter(function(t){return!t.done});
-  else if(currentFilter==='done') f=f.filter(function(t){return t.done});
-  else if(currentFilter==='urgent') f=f.filter(function(t){return t.urgent&&!t.done});
-  f.sort(function(a,b){if(a.done!==b.done)return a.done?1:-1;if(a.due_date&&b.due_date)return a.due_date.localeCompare(b.due_date);if(a.due_date&&!b.due_date)return-1;if(!a.due_date&&b.due_date)return 1;if(a.urgent!==b.urgent)return a.urgent?-1:1;return b.id-a.id;});
-  var el=document.getElementById('taskList');
-  if(!f.length){el.innerHTML='<div class="empty"><span>✨</span>Rien ici</div>';return;}
-  var h='';if(currentList==='other')h+='<div class="readonly-badge">👁 '+NAMES[OTHER[currentUser]]+'</div>';
-  f.forEach(function(t){var ds=dueS(t.due_date),od=ds.c==='overdue'&&!t.done;
-    h+='<li class="task-item '+(t.done?'done':'')+' '+(t.urgent?'urgent':'')+' '+(od?'overdue':'')+'"><div class="task-check" onclick="toggleDone('+t.id+')"></div><div class="task-content"><div class="task-text">'+t.text+'</div>'+(t.note?'<div class="task-note">📝 '+t.note+'</div>':'')+(t.attachments&&t.attachments.length?'<div class="task-attachments">'+t.attachments.map(function(a){return '<a href="'+API+'/files/'+a.key+'?token='+token+'" target="_blank" class="task-attach">📎 '+a.name+'</a>';}).join(' ')+'</div>':'')+'<textarea class="note-input" id="n-'+t.id+'" onblur="saveNote('+t.id+')">'+(t.note||'')+'</textarea><div class="task-meta"><span class="tm tm-date">'+fmtDate(t.created_at)+'</span>'+(t.due_date?'<span class="tm tm-due '+ds.c+'">📅 '+ds.l+'</span>':'')+(t.category&&t.category!=='Général'?'<span class="tm tm-cat">📁 '+t.category+'</span>':'')+(t.urgent?'<span class="tm tm-urg">Urgent</span>':'')+(t.created_by&&currentList!=='personal'?'<span class="tm tm-own">'+t.created_by+'</span>':'')+'</div></div><div class="task-actions"><button class="tbtn" onclick="attachFile('+t.id+')">📎</button><button class="tbtn" onclick="setCatT('+t.id+')">📁</button><button class="tbtn" onclick="setDue('+t.id+')">📅</button><button class="tbtn" onclick="toggleNote('+t.id+')">📝</button><button class="tbtn" onclick="toggleUrgent('+t.id+')">'+(t.urgent?'🔴':'⚪')+'</button><button class="tbtn" onclick="editTask('+t.id+')">✏️</button><button class="tbtn" onclick="deleteTask('+t.id+')">🗑️</button></div></li>';
-  });el.innerHTML=h;
-}
-// Hidden file input for attachments
-var fileInput=document.createElement('input');fileInput.type='file';fileInput.style.display='none';fileInput.accept='image/*,.pdf,.doc,.docx,.txt';document.body.appendChild(fileInput);
-var attachTaskId=null;
-fileInput.onchange=function(){
-  if(!fileInput.files[0]||!attachTaskId)return;
-  var file=fileInput.files[0];
-  var fname=Date.now()+'_'+file.name;
-  fetch(API+'/files/'+encodeURIComponent(fname),{method:'PUT',headers:{'Authorization':'Bearer '+token,'Content-Type':file.type},body:file})
-    .then(function(r){return r.json();})
-    .then(function(r){
-      if(r.ok){
-        var t=tasks.find(function(t){return t.id===attachTaskId;});
-        if(t){
-          var att=t.attachments||[];
-          att.push({key:r.key,name:file.name});
-          var l=currentList==='other'?OTHER[currentUser]:(currentList==='personal'?currentUser:currentList);
-          api2('/tasks/'+attachTaskId,'PUT',{list:l,updates:{attachments:att}}).then(loadTasks);
-        }
-      }
-    });
-  fileInput.value='';
-};
-function attachFile(id){attachTaskId=id;fileInput.click();}
-setInterval(function(){if(token)loadTasks();},30000);
-
-// ===== QR CODE =====
-var qrType='url';
-function setQrType(t,el){qrType=t;document.querySelectorAll('.qtab').forEach(function(b){b.classList.remove('active')});el.classList.add('active');['url','vcard','wifi','text'].forEach(function(f){document.getElementById('qf-'+f).style.display=f===t?'block':'none';});}
-function getQrData(){
-  if(qrType==='url') return document.getElementById('qr-url').value;
-  if(qrType==='text') return document.getElementById('qr-text').value;
-  if(qrType==='wifi'){var s=document.getElementById('wifi-ssid').value,p=document.getElementById('wifi-pass').value,e=document.getElementById('wifi-enc').value;return'WIFI:T:'+e+';S:'+s+';P:'+p+';;';}
-  if(qrType==='vcard'){var fn=document.getElementById('vc-fn').value,ln=document.getElementById('vc-ln').value;var v='BEGIN:VCARD\nVERSION:3.0\nN:'+ln+';'+fn+';;;\nFN:'+fn+' '+ln+'\n';
-    var add=function(id,pre){var val=document.getElementById(id).value;return val?pre+val+'\n':'';};
-    v+=add('vc-org','ORG:')+add('vc-title','TITLE:')+add('vc-tel','TEL;TYPE=CELL:')+add('vc-email','EMAIL:')+add('vc-url','URL:');
-    var a=document.getElementById('vc-adr').value;if(a)v+='ADR;TYPE=WORK:;;'+a+';;;;\n';return v+'END:VCARD';}
-  return'';
-}
-function genQR(){
-  var data=getQrData();if(!data){alert('Remplis un champ !');return;}
-  var shorten=document.getElementById('qr-shorten');
-  if(qrType==='url' && shorten && shorten.checked && data.startsWith('http')){
-    fetch('https://is.gd/create.php?format=json&url='+encodeURIComponent(data))
-      .then(function(r){return r.json();})
-      .then(function(r){
-        if(r.shorturl) doGenQR(r.shorturl);
-        else doGenQR(data);
-      }).catch(function(){doGenQR(data);});
-  } else if(qrType==='vcard'){
-    // Store vCard on server, QR points to short download link
-    api2('/vcard','POST',{vcard:data}).then(function(r){
-      if(r.short){
-        // Shorten the vcard URL with is.gd for even shorter QR
-        fetch('https://is.gd/create.php?format=json&url='+encodeURIComponent(r.short))
-          .then(function(r2){return r2.json();})
-          .then(function(r2){
-            doGenQR(r2.shorturl||r.short);
-          }).catch(function(){doGenQR(r.short);});
-      } else doGenQR(data);
-    }).catch(function(){doGenQR(data);});
-  } else if(qrType==='text' && data.length > 30){
-    api2('/text','POST',{text:data}).then(function(r){
-      if(r.short){
-        fetch('https://is.gd/create.php?format=json&url='+encodeURIComponent(r.short))
-          .then(function(r2){return r2.json();})
-          .then(function(r2){doGenQR(r2.shorturl||r.short);})
-          .catch(function(){doGenQR(r.short);});
-      } else doGenQR(data);
-    }).catch(function(){doGenQR(data);});
-  } else {
-    doGenQR(data);
-  }
-}
-function doGenQR(data){
-  
-  var fg=document.getElementById('qr-fg').value,bg=document.getElementById('qr-bg').value,size=parseInt(document.getElementById('qr-size').value)||400;
-  try{
-    var qr=qrcode(0,'L');
-    qr.addData(data);
-    qr.make();
-    var mCount=qr.getModuleCount();
-    var canvas=document.getElementById('qrCanvas');
-    var cellSize=Math.max(1,Math.floor(size/mCount));
-    var realSize=cellSize*mCount;
-    canvas.width=realSize;canvas.height=realSize;
-    var ctx=canvas.getContext('2d');
-    ctx.fillStyle=bg;ctx.fillRect(0,0,realSize,realSize);
-    for(var r=0;r<mCount;r++) for(var c=0;c<mCount;c++){
-      ctx.fillStyle=qr.isDark(r,c)?fg:bg;
-      ctx.fillRect(c*cellSize,r*cellSize,cellSize,cellSize);
-    }
-    // Overlay logo if selected
-    var logoFile=document.getElementById('qr-logo').files[0];
-    if(logoFile){
-      var reader=new FileReader();
-      reader.onload=function(e){
-        var img=new Image();
-        img.onload=function(){
-          var maxLogo=Math.floor(realSize*0.15);
-          var ratio=img.width/img.height;
-          var lw,lh;
-          if(ratio>=1){lw=maxLogo;lh=Math.floor(maxLogo/ratio);}
-          else{lh=maxLogo;lw=Math.floor(maxLogo*ratio);}
-          var lx=Math.floor((realSize-lw)/2);
-          var ly=Math.floor((realSize-lh)/2);
-          var logoSize=maxLogo;
-          // White background behind logo
-          ctx.fillStyle='#ffffff';
-          // Cercle blanc derrière le logo
-          var cr=Math.max(lw,lh)/2+4;
-          ctx.beginPath();
-          ctx.arc(realSize/2,realSize/2,cr,0,Math.PI*2);
-          ctx.fillStyle='#ffffff';
-          ctx.fill();
-          ctx.drawImage(img,lx,ly,lw,lh);
-          // Update PNG download
-          document.getElementById('dlPng').href=canvas.toDataURL('image/png');
-        };
-        img.src=e.target.result;
-      };
-      reader.readAsDataURL(logoFile);
-    }
-    document.getElementById('qrResult').style.display='block';
-    document.getElementById('dlPng').href=canvas.toDataURL('image/png');
-    var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+realSize+'" height="'+realSize+'" viewBox="0 0 '+mCount+' '+mCount+'">';
-    svg+='<rect width="'+mCount+'" height="'+mCount+'" fill="'+bg+'"/>';
-    for(var r=0;r<mCount;r++) for(var c=0;c<mCount;c++){if(qr.isDark(r,c)) svg+='<rect x="'+c+'" y="'+r+'" width="1" height="1" fill="'+fg+'"/>';}
-    svg+='</svg>';
-    document.getElementById('dlSvg').href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
-  }catch(e){alert('Erreur: '+e.message);}
-}
-function dlPDF(){
-  var canvas=document.getElementById('qrCanvas');
-  var imgData=canvas.toDataURL('image/png');
-  var jsPDF=window.jspdf.jsPDF;
-  var pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  var mmSize=Math.min(canvas.width*0.264583,180);
-  var x=(210-mmSize)/2,y=(297-mmSize)/2;
-  pdf.addImage(imgData,'PNG',x,y,mmSize,mmSize);
-  pdf.save('qrcode.pdf');
-}
+const API='https://hf-tasks-api.hectoflex.workers.dev';
+let token=localStorage.getItem('hf_token')||'',currentUser=localStorage.getItem('hf_user')||'',currentList='personal',currentFilter='all',tasks=[],syncTimer=null;
+if(token&&currentUser){showApp()}else{document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').focus()}
+async function doLogin(){const pin=document.getElementById('pinInput').value;const errEl=document.getElementById('loginError');errEl.textContent='';for(const user of['daniel','marco']){try{const res=await fetch(API+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,pin})});const data=await res.json();if(data.ok){token=data.token;currentUser=data.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);showApp();return}}catch(e){}}errEl.textContent='PIN incorrect';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
+function doLogout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token='';currentUser='';clearInterval(syncTimer);document.getElementById('appScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
+function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';document.getElementById('userName').textContent=currentUser.charAt(0).toUpperCase()+currentUser.slice(1);loadTasks();clearInterval(syncTimer);syncTimer=setInterval(loadTasks,30000)}
+function setSyncState(s){document.getElementById('syncDot').className='sync-indicator'+(s==='ok'?'':s==='syncing'?' syncing':' error')}
+async function apiFetch(path,opts={}){setSyncState('syncing');try{const res=await fetch(API+path,{...opts,headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json',...(opts.headers||{})}});if(res.status===401){doLogout();return null}const data=await res.json();setSyncState('ok');return data}catch(e){setSyncState('error');return null}}
+async function loadTasks(){const data=await apiFetch('/tasks?list='+currentList);if(data&&Array.isArray(data)){tasks=data;render()}}
+function switchList(list){currentList=list;document.getElementById('tabPersonal').classList.toggle('active',list==='personal');document.getElementById('tabShared').classList.toggle('active',list==='shared');loadTasks()}
+function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');render()}
+async function addTask(){const input=document.getElementById('newTask');const catSel=document.getElementById('newCategory');const text=input.value.trim();if(!text)return;const body={text,list:currentList};if(catSel.value)body.category=catSel.value;const result=await apiFetch('/tasks',{method:'POST',body:JSON.stringify(body)});if(result){input.value='';catSel.selectedIndex=0;await loadTasks()}input.focus()}
+async function toggleDone(id){const t=tasks.find(t=>t.id===id);if(!t)return;await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{done:!t.done,doneAt:!t.done?new Date().toISOString():null}})});await loadTasks()}
+async function toggleUrgent(id){const t=tasks.find(t=>t.id===id);if(!t)return;await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{urgent:!t.urgent}})});await loadTasks()}
+async function deleteTask(id){if(!confirm('Supprimer cette tâche ?'))return;await apiFetch('/tasks/'+id+'?list='+currentList,{method:'DELETE'});await loadTasks()}
+async function editTask(id){const t=tasks.find(t=>t.id===id);if(!t)return;const newText=prompt('Modifier la tâche :',t.text);if(newText!==null&&newText.trim()){await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{text:newText.trim()}})});await loadTasks()}}
+function toggleNote(id){const el=document.getElementById('note-'+id);el.classList.toggle('show');if(el.classList.contains('show'))el.focus()}
+async function saveNote(id){const note=document.getElementById('note-'+id).value;await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{note}})})}
+function formatDate(iso){if(!iso)return'';const d=new Date(iso);return d.toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}
+function escHtml(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+function render(){const total=tasks.length,done=tasks.filter(t=>t.done).length,urgent=tasks.filter(t=>t.urgent&&!t.done).length;document.getElementById('stats').innerHTML=`<span>${total-done}</span> à faire | <span>${done}</span> terminées${urgent?` | <span>${urgent}</span> urgentes`:''}`;let filtered=[...tasks];if(currentFilter==='todo')filtered=filtered.filter(t=>!t.done);else if(currentFilter==='done')filtered=filtered.filter(t=>t.done);else if(currentFilter==='urgent')filtered=filtered.filter(t=>t.urgent&&!t.done);filtered.sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;if(a.urgent!==b.urgent)return a.urgent?-1:1;return b.id-a.id});const list=document.getElementById('taskList');if(filtered.length===0){list.innerHTML='<div class="empty"><span>✨</span>Aucune tâche !</div>';return}list.innerHTML=filtered.map(t=>`<li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''}"><div class="task-check" onclick="toggleDone(${t.id})"></div><div class="task-content"><div class="task-text">${escHtml(t.text)}</div>${t.note?'<div class="task-note">📝 '+escHtml(t.note)+'</div>':''}<textarea class="note-input" id="note-${t.id}" placeholder="Ajouter une note..." onblur="saveNote(${t.id})">${t.note||''}</textarea><div class="task-meta"><span class="task-date">${formatDate(t.created_at||t.created)}</span>${t.category?'<span class="task-tag">'+escHtml(t.category)+'</span>':''}${t.urgent?'<span class="task-tag" style="background:#5c1a1a;color:#e94560">🔴 Urgent</span>':''}${t.created_by&&t.created_by!==currentUser?'<span class="task-tag" style="background:#1a3a5c;color:#6ab0de">👤 '+escHtml(t.created_by)+'</span>':''}</div></div><div class="task-actions"><button class="task-btn" onclick="toggleNote(${t.id})" title="Note">📝</button><button class="task-btn" onclick="toggleUrgent(${t.id})" title="Urgent">${t.urgent?'🔴':'⚪'}</button><button class="task-btn" onclick="editTask(${t.id})" title="Modifier">✏️</button><button class="task-btn del" onclick="deleteTask(${t.id})" title="Supprimer">🗑️</button></div></li>`).join('')}
 </script>
 </body>
 </html>
