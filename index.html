@@ -112,7 +112,7 @@ function switchPage(page, btn){
   document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(page==='tasks'?'pageTasks':'pageQr').classList.add('active');
+  document.getElementById(page==='tasks'?'pageTasks':page==='qr'?'pageQr':'pageCustoms').classList.add('active');
 }
 
 function switchQrType(type, btn){
@@ -259,6 +259,7 @@ async function copyQR(){
 <div class="main-tabs">
 <button class="main-tab active" onclick="switchPage('tasks',this)">📋 Tâches</button>
 <button class="main-tab" onclick="switchPage('qr',this)">📱 QR Code</button>
+<button class="main-tab" onclick="switchPage('customs',this)">🚗 HF Customs</button>
 </div>
 <div class="page active" id="pageTasks">
 <div class="list-tabs">
@@ -345,6 +346,24 @@ async function copyQR(){
 </div>
 </div>
 </div>
+
+<div class="page" id="pageCustoms" style="text-align:center;padding:20px">
+<div style="margin:30px auto;max-width:400px">
+<div style="font-size:4rem;margin-bottom:16px">🚗</div>
+<h2 style="color:#e94560;margin-bottom:8px">HF Customs</h2>
+<p style="color:#aaa;margin-bottom:24px;font-size:14px">Gestion des prestations céramique & PPF</p>
+<div style="background:#16213e;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 4px 15px rgba(0,0,0,0.3)">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+<div style="background:#1a1a2e;border-radius:8px;padding:12px"><div style="font-size:1.5rem">🎨</div><div style="font-size:12px;color:#aaa">Céramique</div></div>
+<div style="background:#1a1a2e;border-radius:8px;padding:12px"><div style="font-size:1.5rem">🛡️</div><div style="font-size:12px;color:#aaa">PPF</div></div>
+</div>
+<p style="font-size:13px;color:#888;margin-bottom:16px">Créez des demandes, suivez les commandes et gérez la boutique depuis l'app dédiée.</p>
+<a href="https://hf-customs.hfcustoms.workers.dev" target="_blank" style="display:block;padding:14px;background:#e94560;color:#fff;border-radius:8px;font-weight:600;text-decoration:none;font-size:16px;transition:opacity .2s">🚀 Ouvrir HF Customs</a>
+</div>
+<p style="font-size:11px;color:#555">Codes: admin2026 (directeur) • vendeur01 (vendeur)</p>
+</div>
+</div>
+
 <script>
 const API='https://hf-tasks-api.hectoflex.workers.dev';
 const CATEGORIES=['Tout','Général','Marketing','Affaires','Production','Admin','Planning'];
@@ -435,7 +454,7 @@ function switchPage(page, btn){
   document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(page==='tasks'?'pageTasks':'pageQr').classList.add('active');
+  document.getElementById(page==='tasks'?'pageTasks':page==='qr'?'pageQr':'pageCustoms').classList.add('active');
 }
 
 function switchQrType(type, btn){
