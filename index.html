@@ -72,7 +72,169 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 .login-box button:hover{background:#c73651}
 .login-error{color:#e94560;font-size:13px;min-height:20px}
 .cat-badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:6px;margin-left:6px;vertical-align:middle}
+
+.main-tabs{display:flex;gap:0;margin-bottom:15px;border-bottom:2px solid #0f3460}
+.main-tab{padding:10px 20px;border:none;background:transparent;color:#666;cursor:pointer;font-size:14px;font-weight:600;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.main-tab.active{color:#e94560;border-bottom-color:#e94560}
+.main-tab:hover{color:#e94560}
+.page{display:none}.page.active{display:block}
+.qr-section{max-width:500px;margin:0 auto}
+.qr-type-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.qr-type-btn{padding:8px 16px;border-radius:20px;border:2px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.qr-type-btn.active{background:#e94560;color:#fff;border-color:#e94560}
+.qr-type-btn:hover{border-color:#e94560}
+.qr-form{background:#16213e;border-radius:12px;padding:20px;margin-bottom:20px}
+.qr-form label{display:block;font-size:13px;color:#888;margin-bottom:6px;margin-top:12px}
+.qr-form label:first-child{margin-top:0}
+.qr-form input,.qr-form textarea{width:100%;padding:10px 14px;border-radius:8px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:14px;outline:none;font-family:inherit}
+.qr-form input:focus,.qr-form textarea:focus{border-color:#e94560}
+.qr-form textarea{resize:vertical;min-height:80px}
+.qr-generate-btn{width:100%;padding:14px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:16px;font-weight:600;cursor:pointer;margin-top:16px}
+.qr-generate-btn:hover{background:#c73651}
+.qr-result{text-align:center;margin-top:20px}
+.qr-result canvas{border-radius:12px;background:#fff;padding:16px}
+.qr-actions{display:flex;gap:10px;justify-content:center;margin-top:15px}
+.qr-actions button{padding:10px 20px;border-radius:8px;border:1px solid #444;background:transparent;color:#aaa;cursor:pointer;font-size:13px}
+.qr-actions button:hover{border-color:#e94560;color:#e94560}
+.qr-logo-section{display:flex;align-items:center;gap:12px;margin-top:12px}
+.qr-logo-section label{margin:0;flex-shrink:0}
+.qr-logo-preview{width:40px;height:40px;border-radius:8px;object-fit:contain;background:#fff}
+.qr-logo-remove{padding:4px 10px;border-radius:6px;border:1px solid #444;background:transparent;color:#888;cursor:pointer;font-size:11px}
+.qr-logo-remove:hover{color:#e94560;border-color:#e94560}
+
 </style>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js">
+
+// ===== QR CODE =====
+let qrType='url', qrLogo=null;
+
+function switchPage(page, btn){
+  document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(page==='tasks'?'pageTasks':'pageQr').classList.add('active');
+}
+
+function switchQrType(type, btn){
+  qrType=type;
+  document.querySelectorAll('.qr-type-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  ['qrFormUrl','qrFormText','qrFormVcard','qrFormWifi'].forEach(id=>document.getElementById(id).style.display='none');
+  const map={url:'qrFormUrl',text:'qrFormText',vcard:'qrFormVcard',wifi:'qrFormWifi'};
+  document.getElementById(map[type]).style.display='block';
+}
+
+function loadQrLogo(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    qrLogo=new Image();
+    qrLogo.onload=function(){
+      document.getElementById('qrLogoPreview').src=e.target.result;
+      document.getElementById('qrLogoPreview').style.display='block';
+      document.getElementById('qrLogoRemoveBtn').style.display='inline';
+    };
+    qrLogo.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeQrLogo(){
+  qrLogo=null;
+  document.getElementById('qrLogoPreview').style.display='none';
+  document.getElementById('qrLogoRemoveBtn').style.display='none';
+  document.getElementById('qrLogoInput').value='';
+}
+
+function getQrData(){
+  if(qrType==='url') return document.getElementById('qrUrl').value.trim();
+  if(qrType==='text') return document.getElementById('qrText').value.trim();
+  if(qrType==='wifi'){
+    const ssid=document.getElementById('wifiSsid').value.trim();
+    const pass=document.getElementById('wifiPass').value.trim();
+    const sec=document.getElementById('wifiSec').value;
+    return `WIFI:T:${sec};S:${ssid};P:${pass};;`;
+  }
+  if(qrType==='vcard'){
+    const fn=document.getElementById('vcFirst').value.trim();
+    const ln=document.getElementById('vcLast').value.trim();
+    const org=document.getElementById('vcOrg').value.trim();
+    const title=document.getElementById('vcTitle').value.trim();
+    const tel=document.getElementById('vcPhone').value.trim();
+    const email=document.getElementById('vcEmail').value.trim();
+    const web=document.getElementById('vcWeb').value.trim();
+    const addr=document.getElementById('vcAddr').value.trim();
+    let vc='BEGIN:VCARD\nVERSION:3.0\n';
+    if(fn||ln) vc+=`N:${ln};${fn};;;\nFN:${fn} ${ln}\n`;
+    if(org) vc+=`ORG:${org}\n`;
+    if(title) vc+=`TITLE:${title}\n`;
+    if(tel) vc+=`TEL;TYPE=CELL:${tel}\n`;
+    if(email) vc+=`EMAIL:${email}\n`;
+    if(web) vc+=`URL:${web}\n`;
+    if(addr) vc+=`ADR:;;${addr};;;;\n`;
+    vc+='END:VCARD';
+    return vc;
+  }
+  return '';
+}
+
+async function generateQR(){
+  const data=getQrData();
+  if(!data){alert('Veuillez remplir les champs');return}
+  const canvas=document.getElementById('qrCanvas');
+  try{
+    await QRCode.toCanvas(canvas,data,{width:300,margin:2,color:{dark:'#000000',light:'#ffffff'},errorCorrectionLevel:qrLogo?'H':'M'});
+    if(qrLogo){
+      const ctx=canvas.getContext('2d');
+      const size=canvas.width*0.15;
+      const x=(canvas.width-size)/2;
+      const y=(canvas.height-size)/2;
+      const r=size/2;
+      ctx.beginPath();
+      ctx.arc(x+r,y+r,r+4,0,Math.PI*2);
+      ctx.fillStyle='#fff';
+      ctx.fill();
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x+r,y+r,r,0,Math.PI*2);
+      ctx.clip();
+      ctx.drawImage(qrLogo,x,y,size,size);
+      ctx.restore();
+    }
+    document.getElementById('qrResult').style.display='block';
+  }catch(e){alert('Erreur: '+e.message)}
+}
+
+function downloadQR(format){
+  const canvas=document.getElementById('qrCanvas');
+  if(format==='png'){
+    const link=document.createElement('a');
+    link.download='qr-code.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+  }else{
+    QRCode.toString(getQrData(),{type:'svg',width:300,margin:2},function(err,svg){
+      if(err)return;
+      const blob=new Blob([svg],{type:'image/svg+xml'});
+      const link=document.createElement('a');
+      link.download='qr-code.svg';
+      link.href=URL.createObjectURL(blob);
+      link.click();
+    });
+  }
+}
+
+async function copyQR(){
+  const canvas=document.getElementById('qrCanvas');
+  try{
+    const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+    await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+    alert('QR copié !');
+  }catch(e){alert('Copie impossible sur ce navigateur')}
+}
+
+</script>
 </head>
 <body>
 <div id="loginScreen" class="login-screen">
@@ -94,6 +256,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 </div>
 </div>
 <div class="container">
+<div class="main-tabs">
+<button class="main-tab active" onclick="switchPage('tasks',this)">📋 Tâches</button>
+<button class="main-tab" onclick="switchPage('qr',this)">📱 QR Code</button>
+</div>
+<div class="page active" id="pageTasks">
 <div class="list-tabs">
 <button class="list-tab active" id="tabPersonal" onclick="switchList('personal')">Mes tâches</button>
 <button class="list-tab" id="tabShared" onclick="switchList('shared')">Commun</button>
@@ -111,6 +278,71 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#1a1a2e;color:#eee;m
 <button class="filter-btn" onclick="setFilter('urgent',this)">Urgent</button>
 </div>
 <ul class="task-list" id="taskList"></ul>
+</div>
+<div class="page" id="pageQr">
+<div class="qr-section">
+<div class="qr-type-tabs">
+<button class="qr-type-btn active" onclick="switchQrType('url',this)">🔗 Lien</button>
+<button class="qr-type-btn" onclick="switchQrType('text',this)">📝 Texte</button>
+<button class="qr-type-btn" onclick="switchQrType('vcard',this)">👤 vCard</button>
+<button class="qr-type-btn" onclick="switchQrType('wifi',this)">📶 WiFi</button>
+</div>
+<div class="qr-form" id="qrFormUrl">
+<label>URL</label>
+<input type="url" id="qrUrl" placeholder="https://example.com">
+</div>
+<div class="qr-form" id="qrFormText" style="display:none">
+<label>Texte</label>
+<textarea id="qrText" placeholder="Entrez votre texte..."></textarea>
+</div>
+<div class="qr-form" id="qrFormVcard" style="display:none">
+<label>Prénom</label>
+<input type="text" id="vcFirst" placeholder="Daniel">
+<label>Nom</label>
+<input type="text" id="vcLast" placeholder="Fraga">
+<label>Entreprise</label>
+<input type="text" id="vcOrg" placeholder="HectoFlex Customs">
+<label>Titre</label>
+<input type="text" id="vcTitle" placeholder="Co-fondateur">
+<label>Téléphone</label>
+<input type="tel" id="vcPhone" placeholder="+41 76 334 13 06">
+<label>Email</label>
+<input type="email" id="vcEmail" placeholder="info@hectoflex.ch">
+<label>Site web</label>
+<input type="url" id="vcWeb" placeholder="https://hectoflex.ch">
+<label>Adresse</label>
+<input type="text" id="vcAddr" placeholder="Chemin des Champs-Courbes 5, 1024 Ecublens">
+</div>
+<div class="qr-form" id="qrFormWifi" style="display:none">
+<label>Nom du réseau (SSID)</label>
+<input type="text" id="wifiSsid" placeholder="MonWiFi">
+<label>Mot de passe</label>
+<input type="text" id="wifiPass" placeholder="motdepasse123">
+<label>Sécurité</label>
+<select id="wifiSec" style="width:100%;padding:10px 14px;border-radius:8px;border:2px solid #0f3460;background:#1a1a2e;color:#eee;font-size:14px;outline:none">
+<option value="WPA">WPA/WPA2</option>
+<option value="WEP">WEP</option>
+<option value="">Aucune</option>
+</select>
+</div>
+<div class="qr-logo-section">
+<label style="font-size:13px;color:#888">Logo :</label>
+<input type="file" id="qrLogoInput" accept="image/*" style="display:none" onchange="loadQrLogo(this)">
+<button onclick="document.getElementById('qrLogoInput').click()" style="padding:6px 14px;border-radius:8px;border:1px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:12px">📷 Ajouter</button>
+<img id="qrLogoPreview" class="qr-logo-preview" style="display:none">
+<button class="qr-logo-remove" id="qrLogoRemoveBtn" style="display:none" onclick="removeQrLogo()">✕</button>
+</div>
+<button class="qr-generate-btn" onclick="generateQR()">Générer le QR Code</button>
+<div class="qr-result" id="qrResult" style="display:none">
+<canvas id="qrCanvas"></canvas>
+<div class="qr-actions">
+<button onclick="downloadQR('png')">📥 PNG</button>
+<button onclick="downloadQR('svg')">📥 SVG</button>
+<button onclick="copyQR()">📋 Copier</button>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <script>
@@ -194,6 +426,137 @@ function render(){
       <button class="task-btn del" onclick="deleteTask(${t.id})" title="Supprimer">🗑️</button>
     </div>
   </li>`).join('')}
+
+
+// ===== QR CODE =====
+let qrType='url', qrLogo=null;
+
+function switchPage(page, btn){
+  document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(page==='tasks'?'pageTasks':'pageQr').classList.add('active');
+}
+
+function switchQrType(type, btn){
+  qrType=type;
+  document.querySelectorAll('.qr-type-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  ['qrFormUrl','qrFormText','qrFormVcard','qrFormWifi'].forEach(id=>document.getElementById(id).style.display='none');
+  const map={url:'qrFormUrl',text:'qrFormText',vcard:'qrFormVcard',wifi:'qrFormWifi'};
+  document.getElementById(map[type]).style.display='block';
+}
+
+function loadQrLogo(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    qrLogo=new Image();
+    qrLogo.onload=function(){
+      document.getElementById('qrLogoPreview').src=e.target.result;
+      document.getElementById('qrLogoPreview').style.display='block';
+      document.getElementById('qrLogoRemoveBtn').style.display='inline';
+    };
+    qrLogo.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeQrLogo(){
+  qrLogo=null;
+  document.getElementById('qrLogoPreview').style.display='none';
+  document.getElementById('qrLogoRemoveBtn').style.display='none';
+  document.getElementById('qrLogoInput').value='';
+}
+
+function getQrData(){
+  if(qrType==='url') return document.getElementById('qrUrl').value.trim();
+  if(qrType==='text') return document.getElementById('qrText').value.trim();
+  if(qrType==='wifi'){
+    const ssid=document.getElementById('wifiSsid').value.trim();
+    const pass=document.getElementById('wifiPass').value.trim();
+    const sec=document.getElementById('wifiSec').value;
+    return `WIFI:T:${sec};S:${ssid};P:${pass};;`;
+  }
+  if(qrType==='vcard'){
+    const fn=document.getElementById('vcFirst').value.trim();
+    const ln=document.getElementById('vcLast').value.trim();
+    const org=document.getElementById('vcOrg').value.trim();
+    const title=document.getElementById('vcTitle').value.trim();
+    const tel=document.getElementById('vcPhone').value.trim();
+    const email=document.getElementById('vcEmail').value.trim();
+    const web=document.getElementById('vcWeb').value.trim();
+    const addr=document.getElementById('vcAddr').value.trim();
+    let vc='BEGIN:VCARD\nVERSION:3.0\n';
+    if(fn||ln) vc+=`N:${ln};${fn};;;\nFN:${fn} ${ln}\n`;
+    if(org) vc+=`ORG:${org}\n`;
+    if(title) vc+=`TITLE:${title}\n`;
+    if(tel) vc+=`TEL;TYPE=CELL:${tel}\n`;
+    if(email) vc+=`EMAIL:${email}\n`;
+    if(web) vc+=`URL:${web}\n`;
+    if(addr) vc+=`ADR:;;${addr};;;;\n`;
+    vc+='END:VCARD';
+    return vc;
+  }
+  return '';
+}
+
+async function generateQR(){
+  const data=getQrData();
+  if(!data){alert('Veuillez remplir les champs');return}
+  const canvas=document.getElementById('qrCanvas');
+  try{
+    await QRCode.toCanvas(canvas,data,{width:300,margin:2,color:{dark:'#000000',light:'#ffffff'},errorCorrectionLevel:qrLogo?'H':'M'});
+    if(qrLogo){
+      const ctx=canvas.getContext('2d');
+      const size=canvas.width*0.15;
+      const x=(canvas.width-size)/2;
+      const y=(canvas.height-size)/2;
+      const r=size/2;
+      ctx.beginPath();
+      ctx.arc(x+r,y+r,r+4,0,Math.PI*2);
+      ctx.fillStyle='#fff';
+      ctx.fill();
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x+r,y+r,r,0,Math.PI*2);
+      ctx.clip();
+      ctx.drawImage(qrLogo,x,y,size,size);
+      ctx.restore();
+    }
+    document.getElementById('qrResult').style.display='block';
+  }catch(e){alert('Erreur: '+e.message)}
+}
+
+function downloadQR(format){
+  const canvas=document.getElementById('qrCanvas');
+  if(format==='png'){
+    const link=document.createElement('a');
+    link.download='qr-code.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+  }else{
+    QRCode.toString(getQrData(),{type:'svg',width:300,margin:2},function(err,svg){
+      if(err)return;
+      const blob=new Blob([svg],{type:'image/svg+xml'});
+      const link=document.createElement('a');
+      link.download='qr-code.svg';
+      link.href=URL.createObjectURL(blob);
+      link.click();
+    });
+  }
+}
+
+async function copyQR(){
+  const canvas=document.getElementById('qrCanvas');
+  try{
+    const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+    await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+    alert('QR copié !');
+  }catch(e){alert('Copie impossible sur ce navigateur')}
+}
+
 </script>
 </body>
 </html>
