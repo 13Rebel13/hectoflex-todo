@@ -410,7 +410,17 @@ function getQRData() {
     var email=(document.getElementById('vcEmail')||{}).value||'';
     var web=(document.getElementById('vcWeb')||{}).value||'';
     var addr=(document.getElementById('vcAddr')||{}).value||'';
-    return 'BEGIN:VCARD\nVERSION:3.0\nN:'+ln+';'+fn+'\nFN:'+fn+' '+ln+'\nORG:'+org+'\nTITLE:'+title+'\nTEL:'+tel+'\nEMAIL:'+email+'\nURL:'+web+'\nADR:;;'+addr+'\nEND:VCARD';
+    var lines=['BEGIN:VCARD','VERSION:3.0'];
+    if(ln||fn)lines.push('N:'+ln+';'+fn+';;;');
+    if(fn||ln)lines.push('FN:'+(fn?fn+' ':'')+ln);
+    if(org)lines.push('ORG:'+org);
+    if(title)lines.push('TITLE:'+title);
+    if(tel)lines.push('TEL;TYPE=CELL:'+tel);
+    if(email)lines.push('EMAIL:'+email);
+    if(web)lines.push('URL:'+web);
+    if(addr)lines.push('ADR:;;'+addr+';;;;');
+    lines.push('END:VCARD');
+    return lines.join('\r\n');
   }
   
   var wifiForm = document.getElementById('qrFormWifi');
