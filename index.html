@@ -430,7 +430,21 @@ function generateQR() {
   var result = document.getElementById('qrResult');
   if(result) result.style.display='block';
   var opts = {width:300, margin:2, color:{dark:'#000000',light:'#ffffff'}};
-  if(typeof QRCode === 'undefined'){alert('QRCode library not loaded');return}
+  if(typeof QRCode === 'undefined'){
+    // Wait for CDN to load
+    var waitCount = 0;
+    var waitTimer = setInterval(function(){
+      waitCount++;
+      if(typeof QRCode !== 'undefined'){
+        clearInterval(waitTimer);
+        generateQR();
+      } else if(waitCount > 20){
+        clearInterval(waitTimer);
+        alert('Erreur: librairie QR non chargee');
+      }
+    }, 200);
+    return;
+  }
   QRCode.toCanvas(canvas, data, opts, function(err){
     if(err){alert('Erreur: '+err.message);return}
     if(qrLogo){
