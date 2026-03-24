@@ -113,6 +113,7 @@ function switchPage(page, btn){
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(page==='tasks'?'pageTasks':page==='qr'?'pageQr':'pageCustoms').classList.add('active');
+  if(page==='customs')hfcInit();
 }
 
 function switchQrType(type, btn){
@@ -347,8 +348,33 @@ async function copyQR(){
 </div>
 </div>
 
-<div class="page" id="pageCustoms" style="padding:0;height:calc(100vh - 60px)">
-<iframe src="https://hf-customs.hfcustoms.workers.dev/" style="width:100%;height:100%;border:none;border-radius:0"></iframe>
+<div class="page" id="pageCustoms">
+<div id="customsLogin" style="display:none;text-align:center;padding:40px 20px">
+  <h3 style="color:#e94560;margin-bottom:12px">HF Customs</h3>
+  <p style="color:#888;font-size:13px;margin-bottom:20px">Connectez-vous pour gérer les demandes</p>
+  <div style="max-width:300px;margin:0 auto">
+    <input type="text" id="hfcCode" placeholder="Code directeur" style="width:100%;padding:12px;border-radius:10px;border:2px solid #0f3460;background:#16213e;color:#eee;font-size:15px;text-align:center;margin-bottom:10px;outline:none">
+    <button onclick="hfcLogin()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#e94560;color:#fff;font-size:15px;font-weight:600;cursor:pointer">Connexion</button>
+    <div id="hfcLoginErr" style="color:#e94560;font-size:13px;margin-top:8px"></div>
+  </div>
+</div>
+<div id="customsApp" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h3 style="color:#e94560;font-size:16px">Demandes HF Customs</h3>
+    <button onclick="hfcRefresh()" style="padding:6px 14px;border-radius:8px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:12px">Actualiser</button>
+  </div>
+  <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap" id="hfcFilters">
+    <button class="filter-btn active" onclick="hfcFilter('',this)">Tous</button>
+    <button class="filter-btn" onclick="hfcFilter('en_attente',this)">En attente</button>
+    <button class="filter-btn" onclick="hfcFilter('valide',this)">Validé</button>
+    <button class="filter-btn" onclick="hfcFilter('en_cours',this)">En cours</button>
+    <button class="filter-btn" onclick="hfcFilter('termine',this)">Terminé</button>
+    <button class="filter-btn" onclick="hfcFilter('facture',this)">Facturé</button>
+  </div>
+  <div id="hfcStats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px"></div>
+  <div id="hfcList"></div>
+  <div id="hfcDetail" style="display:none"></div>
+</div>
 </div>
 <script>
 const API='https://hf-tasks-api.hectoflex.workers.dev';
@@ -441,6 +467,7 @@ function switchPage(page, btn){
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(page==='tasks'?'pageTasks':page==='qr'?'pageQr':'pageCustoms').classList.add('active');
+  if(page==='customs')hfcInit();
 }
 
 function switchQrType(type, btn){
@@ -560,6 +587,135 @@ async function copyQR(){
     await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
     alert('QR copié !');
   }catch(e){alert('Copie impossible sur ce navigateur')}
+}
+
+
+
+// ===== HF CUSTOMS MANAGEMENT =====
+const HFC_API='https://hf-customs.hfcustoms.workers.dev';
+let hfcToken=localStorage.getItem('hfc_mgr_tk');
+let hfcFilterVal='';
+const HFC_ST={en_attente:'En attente',valide:'Validé',en_cours:'En cours',termine:'Terminé',facture:'Facturé'};
+const HFC_COLORS={en_attente:'#eab308',valide:'#3b82f6',en_cours:'#f97316',termine:'#22c55e',facture:'#a855f7'};
+
+function hfcInit(){
+  if(hfcToken){
+    document.getElementById('customsLogin').style.display='none';
+    document.getElementById('customsApp').style.display='block';
+    hfcRefresh();
+  }else{
+    document.getElementById('customsLogin').style.display='block';
+    document.getElementById('customsApp').style.display='none';
+  }
+}
+
+async function hfcApi(path,opts={}){
+  const h={'Content-Type':'application/json'};
+  if(hfcToken)h.Authorization='Bearer '+hfcToken;
+  const r=await fetch(HFC_API+path,{...opts,headers:h});
+  if(r.status===401){hfcToken=null;localStorage.removeItem('hfc_mgr_tk');hfcInit();throw new Error('Session expirée')}
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error||'Erreur');
+  return d;
+}
+
+async function hfcLogin(){
+  const code=document.getElementById('hfcCode').value.trim();
+  if(!code)return;
+  try{
+    const d=await hfcApi('/api/auth/login',{method:'POST',body:JSON.stringify({code})});
+    if(d.vendeur.role!=='directeur'){document.getElementById('hfcLoginErr').textContent='Accès directeur requis';return}
+    hfcToken=d.token;
+    localStorage.setItem('hfc_mgr_tk',hfcToken);
+    hfcInit();
+  }catch(e){document.getElementById('hfcLoginErr').textContent=e.message}
+}
+document.getElementById('hfcCode').addEventListener('keydown',function(e){if(e.key==='Enter')hfcLogin()});
+
+function hfcFilter(val,btn){
+  hfcFilterVal=val;
+  document.querySelectorAll('#hfcFilters .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  hfcRefresh();
+}
+
+async function hfcRefresh(){
+  try{
+    const [orders,stats]=await Promise.all([hfcApi('/api/commandes'),hfcApi('/api/stats')]);
+    // Stats
+    document.getElementById('hfcStats').innerHTML=
+      '<div style="background:#16213e;padding:10px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:700;color:#eab308">'+stats.en_attente+'</div><div style="font-size:11px;color:#888">En attente</div></div>'+
+      '<div style="background:#16213e;padding:10px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:700;color:#f97316">'+stats.en_cours+'</div><div style="font-size:11px;color:#888">En cours</div></div>'+
+      '<div style="background:#16213e;padding:10px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:700;color:#22c55e">'+stats.termine+'</div><div style="font-size:11px;color:#888">Terminées</div></div>';
+    // List
+    let filtered=orders;
+    if(hfcFilterVal)filtered=orders.filter(o=>o.statut===hfcFilterVal);
+    const list=document.getElementById('hfcList');
+    const detail=document.getElementById('hfcDetail');
+    detail.style.display='none';
+    list.style.display='block';
+    if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:30px;color:#555">Aucune commande</div>';return}
+    list.innerHTML=filtered.map(o=>{
+      const col=HFC_COLORS[o.statut]||'#888';
+      return '<div style="background:#16213e;padding:12px 14px;border-radius:10px;margin-bottom:8px;border-left:3px solid '+col+';cursor:pointer" onclick="hfcShowDetail('+o.id+')">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+          '<span style="font-size:14px;font-weight:600">'+(o.marque||'')+' '+(o.modele||'')+'</span>'+
+          '<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:'+col+'22;color:'+col+'">'+HFC_ST[o.statut]+'</span>'+
+        '</div>'+
+        '<div style="font-size:12px;color:#888">'+(o.prestation==='ceramique'?'Céramique':'PPF')+' · '+(o.option_type||'')+' · '+o.vendeur_nom+'</div>'+
+        '<div style="font-size:11px;color:#555;margin-top:2px">'+(o.date_reception||'Pas de date')+(o.prix?' · '+o.prix+' CHF':'')+'</div>'+
+      '</div>'
+    }).join('');
+  }catch(e){console.error(e)}
+}
+
+async function hfcShowDetail(id){
+  try{
+    const o=await hfcApi('/api/commandes/'+id);
+    document.getElementById('hfcList').style.display='none';
+    const d=document.getElementById('hfcDetail');
+    d.style.display='block';
+    const col=HFC_COLORS[o.statut]||'#888';
+    const statuts=['en_attente','valide','en_cours','termine','facture'];
+    d.innerHTML='<button onclick="hfcBack()" style="padding:6px 14px;border-radius:8px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:12px;margin-bottom:12px">Retour</button>'+
+      '<div style="background:#16213e;padding:16px;border-radius:10px;margin-bottom:10px">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+          '<span style="font-size:16px;font-weight:700">'+(o.marque||'')+' '+(o.modele||'')+'</span>'+
+          '<span style="padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;background:'+col+'22;color:'+col+'">'+HFC_ST[o.statut]+'</span>'+
+        '</div>'+
+        '<div style="font-size:13px;color:#aaa;line-height:1.8">'+
+          'Prestation : <b>'+(o.prestation==='ceramique'?'Céramique':'PPF')+'</b><br>'+
+          'Option : <b>'+(o.option_type||'-')+'</b><br>'+
+          'N° véhicule : <b>'+(o.numero_vehicule||'-')+'</b><br>'+
+          'Couleur : <b>'+(o.couleur||'-')+(o.couleur_mat?' (mat)':'')+'</b><br>'+
+          'Prix : <b>'+(o.prix?o.prix+' CHF':'-')+'</b><br>'+
+          'Réception : <b>'+(o.date_reception||'-')+'</b><br>'+
+          'Livraison : <b>'+(o.date_livraison||'-')+'</b><br>'+
+          'Vendeur : <b>'+o.vendeur_nom+'</b>'+
+          (o.notes?'<br>Notes : <b>'+o.notes+'</b>':'')+
+        '</div>'+
+      '</div>'+
+      '<div style="background:#16213e;padding:14px;border-radius:10px">'+
+        '<div style="font-size:13px;font-weight:600;margin-bottom:10px">Changer le statut</div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+          statuts.filter(s=>s!==o.statut).map(s=>
+            '<button onclick="hfcChangeStatus('+o.id+',\''+s+'\')" style="padding:7px 14px;border-radius:8px;border:1px solid '+HFC_COLORS[s]+';background:transparent;color:'+HFC_COLORS[s]+';cursor:pointer;font-size:12px;font-weight:500">'+HFC_ST[s]+'</button>'
+          ).join('')+
+        '</div>'+
+      '</div>';
+  }catch(e){console.error(e)}
+}
+
+function hfcBack(){
+  document.getElementById('hfcDetail').style.display='none';
+  document.getElementById('hfcList').style.display='block';
+}
+
+async function hfcChangeStatus(id,statut){
+  try{
+    await hfcApi('/api/commandes/'+id+'/status',{method:'PUT',body:JSON.stringify({statut})});
+    hfcShowDetail(id);
+  }catch(e){alert(e.message)}
 }
 
 </script>
