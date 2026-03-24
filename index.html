@@ -667,7 +667,7 @@ async function hfcRefresh(){
     if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:30px;color:#555">Aucune commande</div>';return}
     list.innerHTML=filtered.map(o=>{
       const col=HFC_COLORS[o.statut]||'#888';
-      const thumb=o.photo||((o.photos&&o.photos.length)?o.photos[0]:'');
+      const thumb=(o.photos&&o.photos.length)?o.photos[0]:'';
       return '<div style="background:#16213e;border-radius:10px;margin-bottom:10px;overflow:hidden;cursor:pointer" onclick="hfcShowDetail('+o.id+')">'+
         '<div style="display:flex;gap:0">'+
           (thumb?'<div style="width:100px;min-height:80px;flex-shrink:0;background:#0f1525"><img src="'+thumb+'" style="width:100%;height:100%;object-fit:cover"></div>':
@@ -697,7 +697,7 @@ async function hfcShowDetail(id){
     const statuts=['brouillon','en_attente','valide','en_cours','termine','facture'];
     const photos=o.photos||[];
     const photoHtml=photos.length?'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'+photos.map((p,i)=>'<img src="'+p+'" style="width:80px;height:60px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="hfcViewPhoto('+id+','+i+')">').join('')+'</div>':'';
-    const mainPhoto=o.photo?'<div style="margin-top:10px"><img src="'+o.photo+'" style="max-width:100%;border-radius:8px"></div>':'';
+    const infoPhoto=o.photo_info?'<div style="margin-top:10px"><div style="font-size:11px;color:#666;margin-bottom:4px">Photo facturation</div><img src="'+o.photo_info+'" style="max-width:100%;border-radius:8px"></div>':'';
     
     d.innerHTML='<button onclick="hfcBack()" style="padding:6px 14px;border-radius:8px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:12px;margin-bottom:12px">Retour</button>'+
       '<div style="background:#16213e;padding:16px;border-radius:10px;margin-bottom:10px">'+
@@ -715,7 +715,7 @@ async function hfcShowDetail(id){
           'Livraison : <b>'+(o.date_livraison||'-')+'</b><br>'+
           'Vendeur : <b>'+o.vendeur_nom+'</b>'+
           (o.notes?'<br>Notes : <b>'+o.notes+'</b>':'')+
-        '</div>'+mainPhoto+photoHtml+
+        '</div>'+infoPhoto+photoHtml+
       '</div>'+
       '<div style="background:#16213e;padding:14px;border-radius:10px;margin-bottom:10px">'+
         '<div style="font-size:13px;font-weight:600;margin-bottom:10px">Modifier les infos</div>'+
