@@ -674,3 +674,146 @@ function render(){
 
 
 
+
+
+// ===== NAVIGATION =====
+function switchNav(page, btn){
+  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':'pageCustoms';
+  var el = document.getElementById(target);
+  if(el) el.classList.add('active');
+  if(page==='customs')hfcInit();
+}
+
+function toggleThemeHF(){
+  var html=document.documentElement;
+  if(html.getAttribute('data-theme')==='dark'){
+    html.removeAttribute('data-theme');
+    localStorage.setItem('hf_theme','light');
+    var tb=document.getElementById('themeToggle');
+    if(tb)tb.textContent='🌙';
+  } else {
+    html.setAttribute('data-theme','dark');
+    localStorage.setItem('hf_theme','dark');
+    var tb=document.getElementById('themeToggle');
+    if(tb)tb.textContent='☀️';
+  }
+}
+
+// ===== QR CODE =====
+var qrType='url', qrLogo=null;
+
+function switchQRType(type,btn){
+  qrType=type;
+  document.querySelectorAll('.qr-type-tab').forEach(function(b){b.classList.remove('active')});
+  if(btn)btn.classList.add('active');
+  updateQRForm();
+}
+
+function updateQRForm(){
+  var f=document.getElementById('qrForm');
+  if(!f)return;
+  if(qrType==='url')f.innerHTML='<label>URL</label><input id="qrUrl" type="url" placeholder="https://example.com">';
+  else if(qrType==='text')f.innerHTML='<label>Texte</label><textarea id="qrText" rows="4" placeholder="Votre texte..."></textarea>';
+  else if(qrType==='vcard')f.innerHTML='<label>Nom</label><input id="vcName" placeholder="Jean Dupont"><label>Telephone</label><input id="vcPhone" placeholder="+41 79 000 00 00"><label>Email</label><input id="vcEmail" placeholder="jean@example.com"><label>Entreprise</label><input id="vcOrg" placeholder="Ma Societe">';
+  else if(qrType==='wifi')f.innerHTML='<label>SSID</label><input id="wfSsid" placeholder="MonWiFi"><label>Mot de passe</label><input id="wfPass" placeholder="motdepasse"><label>Securite</label><select id="wfSec"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="">Aucune</option></select>';
+}
+
+function getQRData(){
+  if(qrType==='url')return (document.getElementById('qrUrl')||{}).value||'';
+  if(qrType==='text')return (document.getElementById('qrText')||{}).value||'';
+  if(qrType==='vcard'){var n=(document.getElementById('vcName')||{}).value||'',p=(document.getElementById('vcPhone')||{}).value||'',e=(document.getElementById('vcEmail')||{}).value||'',o=(document.getElementById('vcOrg')||{}).value||'';return 'BEGIN:VCARD\nVERSION:3.0\nFN:'+n+'\nTEL:'+p+'\nEMAIL:'+e+'\nORG:'+o+'\nEND:VCARD'}
+  if(qrType==='wifi'){var s=(document.getElementById('wfSsid')||{}).value||'',p=(document.getElementById('wfPass')||{}).value||'',t=(document.getElementById('wfSec')||{}).value||'WPA';return 'WIFI:T:'+t+';S:'+s+';P:'+p+';;'}
+  return '';
+}
+
+function generateQR(){
+  var data=getQRData();
+  if(!data){alert('Veuillez remplir les champs');return}
+  var canvas=document.getElementById('qrCanvas');
+  var opts={width:300,margin:2,color:{dark:'#000000',light:'#ffffff'}};
+  QRCode.toCanvas(canvas,data,opts,function(err){
+    if(err){alert('Erreur: '+err.message);return}
+    if(qrLogo){
+      var ctx=canvas.getContext('2d');
+      var img=new Image();
+      img.onload=function(){
+        var s=canvas.width*0.2,x=(canvas.width-s)/2,y=(canvas.height-s)/2;
+        ctx.fillStyle='#fff';ctx.fillRect(x-4,y-4,s+8,s+8);ctx.drawImage(img,x,y,s,s);
+      };
+      img.src=qrLogo;
+    }
+  });
+}
+
+function downloadQR(){
+  var canvas=document.getElementById('qrCanvas');
+  var link=document.createElement('a');
+  link.download='qrcode.png';link.href=canvas.toDataURL();link.click();
+}
+
+function handleLogoUpload(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){qrLogo=e.target.result;var p=document.getElementById('logoPreview');if(p){p.src=qrLogo;p.style.display='block'}var rb=document.getElementById('logoRemoveBtn');if(rb)rb.style.display='inline';};
+  reader.readAsDataURL(file);
+}
+
+function removeLogo(){
+  qrLogo=null;var u=document.getElementById('logoUpload');if(u)u.value='';var p=document.getElementById('logoPreview');if(p)p.style.display='none';var rb=document.getElementById('logoRemoveBtn');if(rb)rb.style.display='none';
+}
+
+// ===== HF CUSTOMS =====
+function hfcInit(){
+  var tk=localStorage.getItem('hfc_tk');
+  if(tk){
+    var cl=document.getElementById('customsLogin');if(cl)cl.style.display='none';
+    var cp=document.getElementById('customsPanel');if(cp)cp.style.display='block';
+    hfcLoadOrders();
+  } else {
+    var cl=document.getElementById('customsLogin');if(cl)cl.style.display='block';
+    var cp=document.getElementById('customsPanel');if(cp)cp.style.display='none';
+  }
+}
+
+async function hfcLogin(){
+  var u=document.getElementById('hfcUser').value;
+  var p=document.getElementById('hfcPass').value;
+  var err=document.getElementById('hfcError');
+  if(err)err.textContent='';
+  try{
+    var res=await fetch('https://hf-customs.hfcustoms.workers.dev/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+    var d=await res.json();
+    if(d.token){localStorage.setItem('hfc_tk',d.token);localStorage.setItem('hfc_usr',JSON.stringify(d.vendeur||{}));hfcInit();}
+    else{if(err)err.textContent=d.error||'Erreur de connexion'}
+  }catch(e){if(err)err.textContent='Erreur reseau'}
+}
+
+function hfcLogout(){
+  localStorage.removeItem('hfc_tk');localStorage.removeItem('hfc_usr');hfcInit();
+}
+
+async function hfcLoadOrders(){
+  var tk=localStorage.getItem('hfc_tk');
+  try{
+    var res=await fetch('https://hf-customs.hfcustoms.workers.dev/api/commandes',{headers:{'Authorization':'Bearer '+tk}});
+    if(res.status===401){hfcLogout();return}
+    var orders=await res.json();
+    var el=document.getElementById('hfcOrders');
+    if(!el)return;
+    if(!orders.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><p>Aucune commande</p></div>';return}
+    el.innerHTML=orders.map(function(o){return '<div style="background:var(--surface);padding:12px;border-radius:10px;margin-bottom:8px;border-left:4px solid '+(o.statut==='termine'?'var(--green)':o.statut==='en_cours'?'var(--accent)':'var(--border)')+'"><strong>#'+o.id+' '+o.marque+' '+o.modele+'</strong><br><span style="font-size:.8rem;color:var(--text2)">'+o.prestation+' - '+(o.statut||'').replace('_',' ')+'</span></div>'}).join('');
+  }catch(e){var el=document.getElementById('hfcOrders');if(el)el.innerHTML='<p style="color:var(--red)">Erreur de chargement</p>'}
+}
+
+// Theme init
+(function(){
+  var t=localStorage.getItem('hf_theme');
+  if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');var tb=document.getElementById('themeToggle');if(tb)tb.textContent='☀️';}
+})();
+
+</script>
+</body>
+</html>
