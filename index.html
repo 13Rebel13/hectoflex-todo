@@ -537,11 +537,11 @@ function removeQrLogo() {
 }
 
 // ===== HF CUSTOMS =====
-async function hfcInit(){
+async async function hfcInit(){
   var tk=localStorage.getItem('hfc_tk');
   if(tk){
     var cl=document.getElementById('customsLogin');if(cl)cl.style.display='none';
-    var cp=document.getElementById('customsPanel');if(cp)cp.style.display='block';
+    var cp=document.getElementById('customsApp');if(cp)cp.style.display='block';
     hfcLoadOrders();
   } else {
     // Auto-login: if logged into HectoFlex, try auto-login to HF Customs
@@ -557,7 +557,7 @@ async function hfcInit(){
             localStorage.setItem('hfc_tk',d.token);
             localStorage.setItem('hfc_usr',JSON.stringify(d.vendeur||{}));
             var cl=document.getElementById('customsLogin');if(cl)cl.style.display='none';
-            var cp=document.getElementById('customsPanel');if(cp)cp.style.display='block';
+            var cp=document.getElementById('customsApp');if(cp)cp.style.display='block';
             hfcLoadOrders();
             return;
           }
@@ -565,7 +565,7 @@ async function hfcInit(){
       }catch(e){}
     }
     var cl=document.getElementById('customsLogin');if(cl)cl.style.display='block';
-    var cp=document.getElementById('customsPanel');if(cp)cp.style.display='none';
+    var cp=document.getElementById('customsApp');if(cp)cp.style.display='none';
   }
 }
 
