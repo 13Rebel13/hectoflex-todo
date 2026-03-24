@@ -178,6 +178,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <button class="qr-type-btn" onclick="switchQrType('text',this)">📝 Texte</button>
 <button class="qr-type-btn" onclick="switchQrType('vcard',this)">👤 vCard</button>
 <button class="qr-type-btn" onclick="switchQrType('wifi',this)">📶 WiFi</button>
+<button class="qr-type-btn" onclick="switchQrType('image',this)">📸 Image</button>
 </div>
 <div class="qr-form" id="qrFormUrl">
 <label>URL</label>
@@ -223,6 +224,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <button onclick="document.getElementById('qrLogoInput').click()" style="padding:6px 14px;border-radius:8px;border:1px solid #0f3460;background:transparent;color:#aaa;cursor:pointer;font-size:12px">📷 Ajouter</button>
 <img id="qrLogoPreview" class="qr-logo-preview" style="display:none">
 <button class="qr-logo-remove" id="qrLogoRemoveBtn" style="display:none" onclick="removeQrLogo()">✕</button>
+</div>
+<div class="qr-form" id="qrFormImage" style="display:none">
+<label>Uploader une image</label>
+<input type="file" id="imageUpload" accept="image/*" style="width:100%;padding:8px;border:2px dashed var(--border);border-radius:8px;cursor:pointer">
+<div id="imageUploadStatus" style="margin-top:10px;font-size:13px;color:var(--text2)"></div>
+<div id="imageUploadResult" style="display:none;margin-top:10px">
+<label>Lien public de l'image :</label>
+<input type="text" id="imageUrl" readonly style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px">
+<button onclick="copyImageUrl()" style="margin-top:8px;padding:8px 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:13px">📋 Copier le lien</button>
+<p style="font-size:12px;color:var(--text2);margin-top:8px">Le QR code sera généré automatiquement avec ce lien.</p>
+</div>
 </div>
 <button class="qr-generate-btn" onclick="generateQR()">Générer le QR Code</button>
 <div class="qr-result" id="qrResult" style="display:none">
@@ -391,6 +403,7 @@ function switchQrType(type, btn) {
   else if(type==='text') document.getElementById('qrFormText').style.display='block';
   else if(type==='vcard') document.getElementById('qrFormVcard').style.display='block';
   else if(type==='wifi') document.getElementById('qrFormWifi').style.display='block';
+  else if(type==='image') { document.getElementById('qrFormImage').style.display='block'; initImageUpload(); }
 }
 
 function getQRData() {
@@ -429,6 +442,10 @@ function getQRData() {
     var pass=(document.getElementById('wifiPass')||{}).value||'';
     var sec=(document.getElementById('wifiSec')||{}).value||'WPA';
     return 'WIFI:T:'+sec+';S:'+ssid+';P:'+pass+';;';
+  }
+  var imageForm = document.getElementById('qrFormImage');
+  if(imageForm && imageForm.style.display !== 'none') {
+    return (document.getElementById('imageUrl')||{}).value||'';
   }
   return '';
 }
@@ -587,6 +604,60 @@ async function hfcLoadOrders(){
   var t=localStorage.getItem('hf_theme');
   if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');var tb=document.getElementById('themeToggle');if(tb)tb.textContent='☀️';}
 })();
+
+
+
+// ===== IMAGE UPLOAD =====
+function initImageUpload() {
+  var input = document.getElementById('imageUpload');
+  if (!input) return;
+  input.addEventListener('change', async function() {
+    var file = this.files[0];
+    if (!file) return;
+    var status = document.getElementById('imageUploadStatus');
+    status.textContent = 'Upload en cours...';
+    status.style.color = 'var(--accent)';
+    
+    try {
+      var res = await fetch('https://hf-tasks-api.hectoflex.workers.dev/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': file.type || 'image/jpeg'
+        },
+        body: file
+      });
+      var data = await res.json();
+      if (data.ok) {
+        status.textContent = 'Upload reussi!';
+        status.style.color = 'var(--green, #4ecb71)';
+        document.getElementById('imageUrl').value = data.url;
+        document.getElementById('imageUploadResult').style.display = 'block';
+        // Auto-generate QR with this URL
+        setTimeout(function(){ generateQR(); }, 500);
+      } else {
+        status.textContent = 'Erreur: ' + (data.error || 'Upload echoue');
+        status.style.color = 'var(--red, #e74c3c)';
+      }
+    } catch(e) {
+      status.textContent = 'Erreur reseau';
+      status.style.color = 'var(--red, #e74c3c)';
+    }
+  });
+}
+
+function copyImageUrl() {
+  var input = document.getElementById('imageUrl');
+  if (input) {
+    navigator.clipboard.writeText(input.value).then(function(){
+      alert('Lien copie!');
+    }).catch(function(){
+      input.select();
+      document.execCommand('copy');
+      alert('Lien copie!');
+    });
+  }
+}
 
 </script>
 </body>
