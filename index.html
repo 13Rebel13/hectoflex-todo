@@ -593,6 +593,7 @@ async function copyQR(){
 
 
 // ===== HF CUSTOMS MANAGEMENT =====
+function fmtDateCH(d){if(!d)return '-';var p=d.split('T')[0].split('-');return p[2]+'.'+p[1]+'.'+p[0]}
 const HFC_API='https://hf-customs.hfcustoms.workers.dev';
 let hfcToken=localStorage.getItem('hfc_mgr_tk');
 let hfcFilterVal='';
@@ -679,7 +680,7 @@ async function hfcRefresh(){
             '</div>'+
             '<div style="font-size:12px;color:#aaa;margin-bottom:2px">'+(o.prestation==='ceramique'?'Céramique':o.prestation==='ppf'?'PPF':'-')+' · '+(o.option_type||'')+'</div>'+
             '<div style="font-size:11px;color:#666">'+o.vendeur_nom+(o.prix?' · <b style="color:#e94560">'+o.prix+' CHF</b>':'')+'</div>'+
-            '<div style="font-size:10px;color:#555;margin-top:2px">'+(o.date_reception||'Pas de date')+(o.date_livraison?' → '+o.date_livraison:'')+'</div>'+
+            '<div style="font-size:10px;color:#555;margin-top:2px">'+fmtDateCH(o.date_reception)+(o.date_livraison?' → '+o.date_livraison:'')+'</div>'+
           '</div>'+
         '</div>'+
       '</div>'
@@ -711,8 +712,8 @@ async function hfcShowDetail(id){
           'N° véhicule : <b>'+(o.numero_vehicule||'-')+'</b><br>'+
           'Couleur : <b>'+(o.couleur||'-')+(o.couleur_mat?' (mat)':'')+'</b><br>'+
           'Prix : <b>'+(o.prix?o.prix+' CHF':'-')+'</b><br>'+
-          'Réception : <b>'+(o.date_reception||'-')+'</b><br>'+
-          'Livraison : <b>'+(o.date_livraison||'-')+'</b><br>'+
+          'Réception : <b>'+fmtDateCH(o.date_reception)+(o.heure_reception?' '+o.heure_reception:'')+'</b><br>'+
+          'Livraison : <b>'+fmtDateCH(o.date_livraison)+(o.heure_livraison?' '+o.heure_livraison:'')+'</b><br>'+
           'Vendeur : <b>'+o.vendeur_nom+'</b>'+
           (o.notes?'<br>Notes : <b>'+o.notes+'</b>':'')+
         '</div>'+infoPhoto+photoHtml+
