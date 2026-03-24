@@ -262,8 +262,8 @@ function switchNav(page, btn){
 }
 function toggleThemeHF(){
   var html=document.documentElement;
-  if(html.getAttribute('data-theme')==='dark'){html.removeAttribute('data-theme');localStorage.setItem('hf_theme','light');document.getElementById('themeToggle').textContent='\u{1F319}'}
-  else{html.setAttribute('data-theme','dark');localStorage.setItem('hf_theme','dark');document.getElementById('themeToggle').textContent='\u{2600}'}
+  if(html.getAttribute('data-theme')==='dark'){html.removeAttribute('data-theme');localStorage.setItem('hf_theme','light');document.getElementById('themeToggle').textContent='🌙'}
+  else{html.setAttribute('data-theme','dark');localStorage.setItem('hf_theme','dark');document.getElementById('themeToggle').textContent='☀️'}
 }
 (function(){
   var t=localStorage.getItem('hf_theme');
