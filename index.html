@@ -707,38 +707,57 @@ function toggleThemeHF(){
 }
 
 // ===== QR CODE =====
-var qrType='url', qrLogo=null;
+var qrLogo = null;
 
-function switchQRType(type,btn){
-  qrType=type;
-  document.querySelectorAll('.qr-type-tab').forEach(function(b){b.classList.remove('active')});
-  if(btn)btn.classList.add('active');
-  updateQRForm();
+function switchQrType(type, btn) {
+  document.querySelectorAll('.qr-type-btn').forEach(function(b){b.classList.remove('active')});
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('.qr-form').forEach(function(f){f.style.display='none'});
+  if(type==='url') document.getElementById('qrFormUrl').style.display='block';
+  else if(type==='text') document.getElementById('qrFormText').style.display='block';
+  else if(type==='vcard') document.getElementById('qrFormVcard').style.display='block';
+  else if(type==='wifi') document.getElementById('qrFormWifi').style.display='block';
 }
 
-function updateQRForm(){
-  var f=document.getElementById('qrForm');
-  if(!f)return;
-  if(qrType==='url')f.innerHTML='<label>URL</label><input id="qrUrl" type="url" placeholder="https://example.com">';
-  else if(qrType==='text')f.innerHTML='<label>Texte</label><textarea id="qrText" rows="4" placeholder="Votre texte..."></textarea>';
-  else if(qrType==='vcard')f.innerHTML='<label>Nom</label><input id="vcName" placeholder="Jean Dupont"><label>Telephone</label><input id="vcPhone" placeholder="+41 79 000 00 00"><label>Email</label><input id="vcEmail" placeholder="jean@example.com"><label>Entreprise</label><input id="vcOrg" placeholder="Ma Societe">';
-  else if(qrType==='wifi')f.innerHTML='<label>SSID</label><input id="wfSsid" placeholder="MonWiFi"><label>Mot de passe</label><input id="wfPass" placeholder="motdepasse"><label>Securite</label><select id="wfSec"><option value="WPA">WPA/WPA2</option><option value="WEP">WEP</option><option value="">Aucune</option></select>';
-}
-
-function getQRData(){
-  if(qrType==='url')return (document.getElementById('qrUrl')||{}).value||'';
-  if(qrType==='text')return (document.getElementById('qrText')||{}).value||'';
-  if(qrType==='vcard'){var n=(document.getElementById('vcName')||{}).value||'',p=(document.getElementById('vcPhone')||{}).value||'',e=(document.getElementById('vcEmail')||{}).value||'',o=(document.getElementById('vcOrg')||{}).value||'';return 'BEGIN:VCARD\nVERSION:3.0\nFN:'+n+'\nTEL:'+p+'\nEMAIL:'+e+'\nORG:'+o+'\nEND:VCARD'}
-  if(qrType==='wifi'){var s=(document.getElementById('wfSsid')||{}).value||'',p=(document.getElementById('wfPass')||{}).value||'',t=(document.getElementById('wfSec')||{}).value||'WPA';return 'WIFI:T:'+t+';S:'+s+';P:'+p+';;'}
+function getQRData() {
+  var urlForm = document.getElementById('qrFormUrl');
+  if(urlForm && urlForm.style.display !== 'none') return (document.getElementById('qrUrl')||{}).value||'';
+  
+  var textForm = document.getElementById('qrFormText');
+  if(textForm && textForm.style.display !== 'none') return (document.getElementById('qrText')||{}).value||'';
+  
+  var vcardForm = document.getElementById('qrFormVcard');
+  if(vcardForm && vcardForm.style.display !== 'none') {
+    var fn=(document.getElementById('vcFirst')||{}).value||'';
+    var ln=(document.getElementById('vcLast')||{}).value||'';
+    var org=(document.getElementById('vcOrg')||{}).value||'';
+    var title=(document.getElementById('vcTitle')||{}).value||'';
+    var tel=(document.getElementById('vcPhone')||{}).value||'';
+    var email=(document.getElementById('vcEmail')||{}).value||'';
+    var web=(document.getElementById('vcWeb')||{}).value||'';
+    var addr=(document.getElementById('vcAddr')||{}).value||'';
+    return 'BEGIN:VCARD\nVERSION:3.0\nN:'+ln+';'+fn+'\nFN:'+fn+' '+ln+'\nORG:'+org+'\nTITLE:'+title+'\nTEL:'+tel+'\nEMAIL:'+email+'\nURL:'+web+'\nADR:;;'+addr+'\nEND:VCARD';
+  }
+  
+  var wifiForm = document.getElementById('qrFormWifi');
+  if(wifiForm && wifiForm.style.display !== 'none') {
+    var ssid=(document.getElementById('wifiSsid')||{}).value||'';
+    var pass=(document.getElementById('wifiPass')||{}).value||'';
+    var sec=(document.getElementById('wifiSec')||{}).value||'WPA';
+    return 'WIFI:T:'+sec+';S:'+ssid+';P:'+pass+';;';
+  }
   return '';
 }
 
-function generateQR(){
-  var data=getQRData();
+function generateQR() {
+  var data = getQRData();
   if(!data){alert('Veuillez remplir les champs');return}
-  var canvas=document.getElementById('qrCanvas');
-  var opts={width:300,margin:2,color:{dark:'#000000',light:'#ffffff'}};
-  QRCode.toCanvas(canvas,data,opts,function(err){
+  var canvas = document.getElementById('qrCanvas');
+  var result = document.getElementById('qrResult');
+  if(result) result.style.display='block';
+  var opts = {width:300, margin:2, color:{dark:'#000000',light:'#ffffff'}};
+  if(typeof QRCode === 'undefined'){alert('QRCode library not loaded');return}
+  QRCode.toCanvas(canvas, data, opts, function(err){
     if(err){alert('Erreur: '+err.message);return}
     if(qrLogo){
       var ctx=canvas.getContext('2d');
@@ -752,31 +771,84 @@ function generateQR(){
   });
 }
 
-function downloadQR(){
-  var canvas=document.getElementById('qrCanvas');
-  var link=document.createElement('a');
-  link.download='qrcode.png';link.href=canvas.toDataURL();link.click();
+function downloadQR(format) {
+  var canvas = document.getElementById('qrCanvas');
+  if(!canvas) return;
+  var link = document.createElement('a');
+  if(format==='svg'){
+    // Simple SVG export from canvas
+    var imgData = canvas.toDataURL('image/png');
+    var svgStr = '<svg xmlns="http://www.w3.org/2000/svg" width="'+canvas.width+'" height="'+canvas.height+'"><image href="'+imgData+'" width="'+canvas.width+'" height="'+canvas.height+'"/></svg>';
+    link.download = 'qrcode.svg';
+    link.href = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+  } else {
+    link.download = 'qrcode.png';
+    link.href = canvas.toDataURL('image/png');
+  }
+  link.click();
 }
 
-function handleLogoUpload(input){
-  var file=input.files[0];if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(e){qrLogo=e.target.result;var p=document.getElementById('logoPreview');if(p){p.src=qrLogo;p.style.display='block'}var rb=document.getElementById('logoRemoveBtn');if(rb)rb.style.display='inline';};
+async function copyQR() {
+  try {
+    var canvas = document.getElementById('qrCanvas');
+    var blob = await new Promise(function(r){canvas.toBlob(r)});
+    await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+    alert('QR copie dans le presse-papier!');
+  } catch(e) { alert('Copie impossible sur ce navigateur'); }
+}
+
+function loadQrLogo(input) {
+  var file = input.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    qrLogo = e.target.result;
+    var preview = document.getElementById('qrLogoPreview');
+    if(preview){preview.src=qrLogo;preview.style.display='inline-block'}
+    var rmBtn = document.getElementById('qrLogoRemoveBtn');
+    if(rmBtn) rmBtn.style.display='inline';
+  };
   reader.readAsDataURL(file);
 }
 
-function removeLogo(){
-  qrLogo=null;var u=document.getElementById('logoUpload');if(u)u.value='';var p=document.getElementById('logoPreview');if(p)p.style.display='none';var rb=document.getElementById('logoRemoveBtn');if(rb)rb.style.display='none';
+function removeQrLogo() {
+  qrLogo = null;
+  var input = document.getElementById('qrLogoInput');
+  if(input) input.value='';
+  var preview = document.getElementById('qrLogoPreview');
+  if(preview) preview.style.display='none';
+  var rmBtn = document.getElementById('qrLogoRemoveBtn');
+  if(rmBtn) rmBtn.style.display='none';
 }
 
 // ===== HF CUSTOMS =====
-function hfcInit(){
+async function hfcInit(){
   var tk=localStorage.getItem('hfc_tk');
   if(tk){
     var cl=document.getElementById('customsLogin');if(cl)cl.style.display='none';
     var cp=document.getElementById('customsPanel');if(cp)cp.style.display='block';
     hfcLoadOrders();
   } else {
+    // Auto-login: if logged into HectoFlex, try auto-login to HF Customs
+    if(currentUser){
+      try{
+        // Map HectoFlex users to HF Customs credentials
+        var creds = {daniel:{u:'daniel',p:'admin2026'},marco:{u:'marco',p:'marco2026'}};
+        var c = creds[currentUser];
+        if(c){
+          var res=await fetch('https://hf-customs.hfcustoms.workers.dev/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:c.u,password:c.p})});
+          var d=await res.json();
+          if(d.token){
+            localStorage.setItem('hfc_tk',d.token);
+            localStorage.setItem('hfc_usr',JSON.stringify(d.vendeur||{}));
+            var cl=document.getElementById('customsLogin');if(cl)cl.style.display='none';
+            var cp=document.getElementById('customsPanel');if(cp)cp.style.display='block';
+            hfcLoadOrders();
+            return;
+          }
+        }
+      }catch(e){}
+    }
     var cl=document.getElementById('customsLogin');if(cl)cl.style.display='block';
     var cp=document.getElementById('customsPanel');if(cp)cp.style.display='none';
   }
