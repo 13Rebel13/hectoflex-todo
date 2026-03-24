@@ -586,7 +586,7 @@ function hfcLogout(){
   localStorage.removeItem('hfc_tk');localStorage.removeItem('hfc_usr');hfcInit();
 }
 
-async function hfcLoadOrders(){
+async async function hfcLoadOrders(){
   var tk=localStorage.getItem('hfc_tk');
   try{
     var res=await fetch('https://hf-customs.hfcustoms.workers.dev/api/commandes',{headers:{'Authorization':'Bearer '+tk}});
