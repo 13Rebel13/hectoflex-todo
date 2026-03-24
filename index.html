@@ -607,7 +607,7 @@ async function hfcInit(){
     hfcRefresh();
   }else{
     try{
-      const d=await hfcApi('/api/auth/login',{method:'POST',body:JSON.stringify({code:'admin2026'})});
+      const d=await hfcApi('/api/auth/login',{method:'POST',body:JSON.stringify({username:'daniel',password:'admin2026'})});
       hfcToken=d.token;
       localStorage.setItem('hfc_mgr_tk',hfcToken);
       document.getElementById('customsLogin').style.display='none';
