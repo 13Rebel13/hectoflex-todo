@@ -614,7 +614,7 @@ function setSyncState(s){document.getElementById('syncDot').className='sync-indi
 
 async function apiFetch(path,opts={}){setSyncState('syncing');try{const res=await fetch(API+path,{...opts,headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json',...(opts.headers||{})}});if(res.status===401){doLogout();return null}const data=await res.json();setSyncState('ok');return data}catch(e){setSyncState('error');return null}}
 
-async async function loadTasks(){const data=await apiFetch('/tasks/'+currentList);if(data&&Array.isArray(data)){tasks=data;render()}}
+async function loadTasks(){const data=await apiFetch('/tasks/'+currentList);if(data&&Array.isArray(data)){tasks=data;render()}}
 
 function switchList(list){currentList=list;document.getElementById('tabPersonal').classList.toggle('active',list==='personal');document.getElementById('tabShared').classList.toggle('active',list==='shared');loadTasks()}
 
