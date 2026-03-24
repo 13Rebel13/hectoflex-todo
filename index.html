@@ -119,6 +119,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .qr-logo-preview{width:40px;height:40px;border-radius:8px;object-fit:contain;background:#fff}
 .qr-logo-remove{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.7rem}
 .qr-logo-remove:hover{color:var(--accent);border-color:var(--accent)}
+.sync-indicator{background:#4ecb71}.sync-indicator.syncing{background:#f0ad4e}.sync-indicator.error{background:#e74c3c}
 #themeToggle{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 8px;border-radius:var(--radius);cursor:pointer;font-size:.85rem}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js">
@@ -464,7 +465,7 @@ async function hfcLoadOrders(){
 <div class="header">
 <div><span id="welcomeHF" style="font-weight:600;font-size:1.1rem">HectoFlex</span></div>
 <div style="display:flex;align-items:center;gap:10px">
-<span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;background:#4ecb71;border-radius:50%;display:inline-block"></span> <span id="userName"></span></span>
+<span style="display:flex;align-items:center;gap:6px"><span id="syncDot" class="sync-indicator" style="width:8px;height:8px;border-radius:50%;display:inline-block"></span> <span id="userName"></span></span>
 <button id="themeToggle" onclick="toggleThemeHF()">🌙</button>
 <button onclick="doLogout()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:.85rem">Déconnexion</button>
 </div></div>
@@ -610,7 +611,7 @@ function renderCatTabs(){document.getElementById('catTabs').innerHTML=CATEGORIES
 
 function switchCat(cat,btn){currentCat=cat;document.querySelectorAll('.cat-tab').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');const input=document.getElementById('newTask');input.placeholder=cat==='Tout'?'Nouvelle tâche...':'Nouvelle tâche '+cat+'...';render()}
 
-function setSyncState(s){document.getElementById('syncDot').className='sync-indicator'+(s==='ok'?'':s==='syncing'?' syncing':' error')}
+function setSyncState(s){var d=document.getElementById('syncDot');if(!d)return;d.className='sync-indicator'+(s==='ok'?'':s==='syncing'?' syncing':' error')}
 
 async function apiFetch(path,opts={}){setSyncState('syncing');try{const res=await fetch(API+path,{...opts,headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json',...(opts.headers||{})}});if(res.status===401){doLogout();return null}const data=await res.json();setSyncState('ok');return data}catch(e){setSyncState('error');return null}}
 
