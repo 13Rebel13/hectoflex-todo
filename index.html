@@ -370,6 +370,7 @@ async function copyQR(){
     <button class="filter-btn" onclick="hfcFilter('en_cours',this)">En cours</button>
     <button class="filter-btn" onclick="hfcFilter('termine',this)">Terminé</button>
     <button class="filter-btn" onclick="hfcFilter('facture',this)">Facturé</button>
+    <button class="filter-btn" onclick="hfcFilter('brouillon',this)">Brouillon</button>
   </div>
   <div id="hfcStats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px"></div>
   <div id="hfcList"></div>
@@ -595,8 +596,8 @@ async function copyQR(){
 const HFC_API='https://hf-customs.hfcustoms.workers.dev';
 let hfcToken=localStorage.getItem('hfc_mgr_tk');
 let hfcFilterVal='';
-const HFC_ST={en_attente:'En attente',valide:'Validé',en_cours:'En cours',termine:'Terminé',facture:'Facturé'};
-const HFC_COLORS={en_attente:'#eab308',valide:'#3b82f6',en_cours:'#f97316',termine:'#22c55e',facture:'#a855f7'};
+const HFC_ST={brouillon:'Brouillon',en_attente:'En attente',valide:'Validé',en_cours:'En cours',termine:'Terminé',facture:'Facturé'};
+const HFC_COLORS={brouillon:'#888',en_attente:'#eab308',valide:'#3b82f6',en_cours:'#f97316',termine:'#22c55e',facture:'#a855f7'};
 
 async function hfcInit(){
   if(hfcToken){
