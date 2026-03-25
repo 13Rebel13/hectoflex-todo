@@ -595,7 +595,17 @@ async function hfcLoadOrders(){
     var el=document.getElementById('hfcList');
     if(!el)return;
     if(!orders.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><p>Aucune commande</p></div>';return}
-    el.innerHTML=orders.map(function(o){return '<div style="background:var(--surface);padding:12px;border-radius:10px;margin-bottom:8px;border-left:4px solid '+(o.statut==='termine'?'var(--green)':o.statut==='en_cours'?'var(--accent)':'var(--border)')+'"><strong>#'+o.id+' '+o.marque+' '+o.modele+'</strong><br><span style="font-size:.8rem;color:var(--text2)">'+o.prestation+' - '+(o.statut||'').replace('_',' ')+'</span></div>'}).join('');
+    el.innerHTML=orders.map(function(o){
+      var color=o.statut==='termine'?'var(--green,#4ecb71)':o.statut==='en_cours'?'var(--accent,#FF7300)':'var(--border,#ddd)';
+      var title='#'+o.id;
+      if(o.marque)title+=' '+o.marque;
+      if(o.modele)title+=' '+o.modele;
+      var sub=o.prestation||'';
+      if(o.statut)sub+=(sub?' - ':'')+o.statut.replace(/_/g,' ');
+      if(o.garage_nom)sub+=(sub?' | ':'')+o.garage_nom;
+      if(o.vendeur_nom)sub+=(sub?' | ':'')+o.vendeur_nom;
+      return '<div style="background:var(--card,#f8f8f8);padding:12px;border-radius:10px;margin-bottom:8px;border-left:4px solid '+color+';color:var(--text,#222)"><strong style="color:var(--text,#222)">'+title+'</strong><br><span style="font-size:.8rem;color:var(--text2,#666)">'+sub+'</span></div>'
+    }).join('');
   }catch(e){var el=document.getElementById('hfcList');if(el)el.innerHTML='<p style="color:var(--red)">Erreur de chargement</p>'}
 }
 
