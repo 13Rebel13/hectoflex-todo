@@ -754,41 +754,23 @@ async function projRemoveCheck(projId, checkIdx) {
 async function projUploadDoc(projId, input) {
   var file = input.files[0];
   if(!file) return;
-  if(file.size > 2*1024*1024) { alert('Fichier trop volumineux (max 2 Mo)'); return; }
-  var reader = new FileReader();
-  reader.onload = async function() {
-    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
-    var all = await r.json();
-    var p = all.find(function(x){return x.id===projId});
-    if(!p) return;
-    var docs = p.documents || [];
-    docs.push({name: file.name, type: file.type, data: reader.result, added: new Date().toISOString()});
-    await updateProject(projId, {documents: docs});
-    projShowDetail(projId);
-  };
-  reader.readAsDataURL(file);
+  if(file.size > 20*1024*1024) { alert('Fichier trop volumineux (max 20 Mo)'); return; }
+  var fd = new FormData();
+  fd.append('file', file);
+  try {
+    var r = await fetch(PROJ_API+'/projects/'+projId+'/files', {method:'POST', headers:{'Authorization':'Basic '+token}, body:fd});
+    if(r.ok) projShowDetail(projId);
+    else alert('Erreur upload');
+  } catch(e) { alert('Erreur: '+e.message); }
 }
 
 function projDownloadDoc(projId, docIdx) {
-  fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}}).then(function(r){return r.json()}).then(function(all){
-    var p = all.find(function(x){return x.id===projId});
-    if(!p || !p.documents || !p.documents[docIdx]) return;
-    var d = p.documents[docIdx];
-    var a = document.createElement('a');
-    a.href = d.data;
-    a.download = d.name;
-    a.click();
-  });
+  window.open(PROJ_API+'/projects/'+projId+'/files/'+docIdx, '_blank');
 }
 
 async function projRemoveDoc(projId, docIdx) {
   if(!confirm('Supprimer ce document?')) return;
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
-  var all = await r.json();
-  var p = all.find(function(x){return x.id===projId});
-  if(!p || !p.documents) return;
-  p.documents.splice(docIdx, 1);
-  await updateProject(projId, {documents: p.documents});
+  await fetch(PROJ_API+'/projects/'+projId+'/files/'+docIdx, {method:'DELETE', headers:{'Authorization':'Basic '+token}});
   projShowDetail(projId);
 }
 
