@@ -318,6 +318,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <option value="deadline">Deadline</option>
 <option value="montant_desc">Montant ↓</option>
 <option value="montant_asc">Montant ↑</option>
+<option value="manual">Manuel</option>
 </select>
 </div>
 <div id="projStats" style="font-size:.8rem;color:var(--text2);margin-bottom:12px"></div>
@@ -625,6 +626,7 @@ function renderProjects() {
     if(projSortVal==='deadline') { if(!a.deadline)return 1; if(!b.deadline)return -1; return a.deadline.localeCompare(b.deadline); }
     if(projSortVal==='montant_desc') return (parseFloat(b.montant)||0)-(parseFloat(a.montant)||0);
     if(projSortVal==='montant_asc') return (parseFloat(a.montant)||0)-(parseFloat(b.montant)||0);
+    if(projSortVal==='manual') return (a.sortOrder||9999)-(b.sortOrder||9999);
     return 0;
   });
   list.innerHTML = filtered.map(function(p) {
@@ -633,7 +635,8 @@ function renderProjects() {
     var checkDone = (p.checklist||[]).filter(function(c){return c.done}).length;
     var checkTotal = (p.checklist||[]).length;
     var progress = checkTotal ? Math.round(checkDone/checkTotal*100) : 0;
-    return '<div onclick="projShowDetail('+p.id+')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+sc+';cursor:pointer">' +
+    var moveBtns = projSortVal==='manual' ? '<div style="display:flex;flex-direction:column;gap:2px;margin-right:10px" onclick="event.stopPropagation()"><button onclick="projMove('+p.id+',-1)" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:2px 6px;color:var(--text2);font-size:.7rem">&#9650;</button><button onclick="projMove('+p.id+',1)" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:2px 6px;color:var(--text2);font-size:.7rem">&#9660;</button></div>' : '';
+    return '<div onclick="projShowDetail('+p.id+')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+sc+';cursor:pointer;display:flex;align-items:center">' + moveBtns + '<div style="flex:1">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
         '<div style="font-weight:600;font-size:.9rem;color:var(--text)">'+escHtml(p.name)+'</div>' +
         '<span style="padding:2px 8px;border-radius:8px;background:'+sc+';color:#fff;font-size:.7rem;font-weight:600">'+sl+'</span>' +
@@ -641,8 +644,27 @@ function renderProjects() {
       (p.client ? '<div style="font-size:.8rem;color:var(--text2)">'+escHtml(p.client)+(p.dept?' — '+escHtml(p.dept):'')+'</div>' : '') +
       '<div style="display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--text2);margin-top:4px">'+(p.montant?'<span style="font-weight:600">'+escHtml(p.montant)+' CHF</span>':'<span></span>')+(p.deadline?'<span style="background:var(--accent);color:#fff;padding:3px 10px;border-radius:6px;font-size:.75rem;font-weight:600">'+fmtDate(p.deadline)+'</span>':'')+'</div>' +
       (checkTotal ? '<div style="margin-top:6px;display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:var(--border);border-radius:2px"><div style="width:'+progress+'%;height:100%;background:'+sc+';border-radius:2px"></div></div><span style="font-size:.7rem;color:var(--text3)">'+checkDone+'/'+checkTotal+'</span></div>' : '') +
-    '</div>';
+    '</div></div>';
   }).join('');
+}
+
+async function projMove(id, direction) {
+  // Get current filtered list
+  var filtered = projFilterVal==='all' ? projects.slice() : projects.filter(function(p){return p.statut===projFilterVal});
+  filtered.sort(function(a,b){return (a.sortOrder||9999)-(b.sortOrder||9999)});
+  var idx = filtered.findIndex(function(p){return p.id===id});
+  if(idx<0) return;
+  var newIdx = idx + direction;
+  if(newIdx<0 || newIdx>=filtered.length) return;
+  // Swap sortOrder
+  var temp = filtered[idx];
+  filtered[idx] = filtered[newIdx];
+  filtered[newIdx] = temp;
+  // Assign new sortOrder
+  for(var i=0;i<filtered.length;i++){
+    await updateProject(filtered[i].id, {sortOrder: i});
+  }
+  await loadProjects();
 }
 
 function projFilter(val, btn) {
