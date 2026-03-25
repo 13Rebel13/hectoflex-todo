@@ -85,6 +85,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .task-item.done .task-check::after{content:'\2713';color:#fff;font-size:13px}
 .task-content{flex:1;min-width:0}
 .task-text{font-size:.9rem;line-height:1.4;word-break:break-word}
+.task-note{font-size:.8rem;color:var(--text2);margin-top:4px;padding:4px 8px;background:var(--bg);border-radius:6px;display:flex;align-items:center;gap:6px}
+.task-note svg{flex-shrink:0}
+.note-input{display:none;width:100%;margin-top:6px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem;font-family:inherit;resize:vertical;min-height:40px}
+.note-input.show{display:block}
+.task-date{font-size:.7rem;color:var(--text3);margin-top:4px}
 .task-meta{font-size:.7rem;color:var(--text3);margin-top:4px}
 .task-actions{display:flex;gap:6px;flex-shrink:0}
 .task-actions button{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
@@ -133,7 +138,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <p>Entrez votre code PIN</p>
 <div class="login-box">
 <input type="password" id="pinInput" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter')doLogin()">
-<button onclick="doLogin()">→</button>
+<button onclick="doLogin()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
 </div>
 <div class="login-error" id="loginError"></div>
 </div>
@@ -353,7 +358,7 @@ function render(){
     <div class="task-check" onclick="toggleDone(${t.id})"></div>
     <div class="task-content">
       <div class="task-text">${escHtml(t.text)}</div>
-      ${t.note?'<div class="task-note">📝 '+escHtml(t.note)+'</div>':''}
+      ${t.note?'<div class="task-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>'+escHtml(t.note)+'</div>':''}
       <textarea class="note-input" id="note-${t.id}" placeholder="Ajouter une note..." onblur="saveNote(${t.id})">${t.note||''}</textarea>
       <div class="task-meta">
         <span class="task-date">${formatDate(t.created_at||t.created)}</span>
@@ -391,12 +396,12 @@ function toggleThemeHF(){
     html.removeAttribute('data-theme');
     localStorage.setItem('hf_theme','light');
     var tb=document.getElementById('themeToggle');
-    if(tb)tb.textContent='🌙';
+    if(tb)tb.textContent='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
   } else {
     html.setAttribute('data-theme','dark');
     localStorage.setItem('hf_theme','dark');
     var tb=document.getElementById('themeToggle');
-    if(tb)tb.textContent='☀️';
+    if(tb)tb.textContent='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
   }
 }
 
@@ -713,10 +718,13 @@ async function hfcLoadOrders(){
       if(o.modele)title+=' '+o.modele;
       var sub=o.prestation||'';
       if(o.numero_vehicule)sub+=(sub?' - ':'')+'N°'+o.numero_vehicule;
-      if(o.statut)sub+=(sub?' - ':'')+o.statut.replace(/_/g,' ');
+      if(o.statut){
+        var _sc={en_attente:'#f59e0b',valide:'#10b981',en_cours:'#3b82f6',termine:'#22c55e',facture:'#8b5cf6',brouillon:'#6b7280'};
+        sub+=(sub?' ':'')+'<span style="display:inline-block;padding:1px 7px;border-radius:8px;background:'+(_sc[o.statut]||'#999')+';color:#fff;font-size:10px;font-weight:600;vertical-align:middle">'+(o.statut||'').replace(/_/g,' ')+'</span>';
+      }
       if(o.garage_nom)sub+=(sub?' | ':'')+o.garage_nom;
       if(o.vendeur_nom)sub+=(sub?' | ':'')+o.vendeur_nom;
-      var factBadge=o.statut==='facture'?'<span style="display:inline-block;margin-left:8px;padding:1px 6px;border-radius:8px;background:#8b5cf6;color:#fff;font-size:10px">facturé</span>':'';
+      var factBadge='';
       return '<div onclick="hfcShowDetail('+o.id+')" style="cursor:pointer;background:var(--card,#f8f8f8);padding:12px;border-radius:10px;margin-bottom:8px;border-left:4px solid '+color+';color:var(--text,#222)"><strong style="color:var(--text,#222)">'+title+factBadge+'</strong><br><span style="font-size:.8rem;color:var(--text2,#666)">'+sub+'</span></div>'
     }).join('');
   }catch(e){var el=document.getElementById('hfcList');if(el)el.innerHTML='<p style="color:var(--red)">Erreur de chargement</p>'}
@@ -831,7 +839,7 @@ function hfcBackToList(){
 // Theme init
 (function(){
   var t=localStorage.getItem('hf_theme');
-  if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');var tb=document.getElementById('themeToggle');if(tb)tb.textContent='☀️';}
+  if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');var tb=document.getElementById('themeToggle');if(tb)tb.textContent='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';}
 })();
 
 
