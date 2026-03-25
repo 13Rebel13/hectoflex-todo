@@ -592,11 +592,11 @@ async function hfcLoadOrders(){
     var res=await fetch('https://hf-customs.hfcustoms.workers.dev/api/commandes',{headers:{'Authorization':'Bearer '+tk}});
     if(res.status===401){hfcLogout();return}
     var orders=await res.json();
-    var el=document.getElementById('hfcOrders');
+    var el=document.getElementById('hfcList');
     if(!el)return;
     if(!orders.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--text2)"><p>Aucune commande</p></div>';return}
     el.innerHTML=orders.map(function(o){return '<div style="background:var(--surface);padding:12px;border-radius:10px;margin-bottom:8px;border-left:4px solid '+(o.statut==='termine'?'var(--green)':o.statut==='en_cours'?'var(--accent)':'var(--border)')+'"><strong>#'+o.id+' '+o.marque+' '+o.modele+'</strong><br><span style="font-size:.8rem;color:var(--text2)">'+o.prestation+' - '+(o.statut||'').replace('_',' ')+'</span></div>'}).join('');
-  }catch(e){var el=document.getElementById('hfcOrders');if(el)el.innerHTML='<p style="color:var(--red)">Erreur de chargement</p>'}
+  }catch(e){var el=document.getElementById('hfcList');if(el)el.innerHTML='<p style="color:var(--red)">Erreur de chargement</p>'}
 }
 
 // Theme init
