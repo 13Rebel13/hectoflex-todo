@@ -629,10 +629,13 @@ async function projShowDetail(id) {
   
   var html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">';
-  html += '<select onchange="projChangeStatus('+p.id+',this.value)" style="padding:6px 12px;border-radius:8px;background:'+sc+';color:#fff;font-size:.8rem;font-weight:600;border:none;cursor:pointer;appearance:auto;-webkit-appearance:auto">';
-  var allStatuts = [{v:'en_cours',l:'En cours'},{v:'termine',l:'Terminé'},{v:'facture',l:'Facturé'}];
-  allStatuts.forEach(function(s){ html += '<option value="'+s.v+'" '+(p.statut===s.v?'selected':'')+'>'+s.l+'</option>'; });
-  html += '</select>';
+  var allStatuts = [{v:'en_cours',l:'En cours',c:'#3b82f6'},{v:'termine',l:'Terminé',c:'#22c55e'},{v:'facture',l:'Facturé',c:'#8b5cf6'}];
+  html += '<div style="display:flex;gap:6px;flex-wrap:wrap">';
+  allStatuts.forEach(function(s){
+    var isActive = p.statut===s.v;
+    html += '<button onclick="projChangeStatus('+p.id+',\''+s.v+'\')" style="padding:6px 14px;border-radius:8px;border:'+(isActive?'2px solid '+s.c:'1px solid var(--border)')+';background:'+(isActive?s.c:'transparent')+';color:'+(isActive?'#fff':'var(--text2)')+';cursor:pointer;font-size:.8rem;font-weight:'+(isActive?'600':'400')+'">'+s.l+'</button>';
+  });
+  html += '</div>';
   html += '<div style="display:flex;gap:6px">';
   html += '<button onclick="projShowForm('+p.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Modifier</button>';
   html += '<button onclick="projDeleteAndBack('+p.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#e55;cursor:pointer;font-size:.75rem">Supprimer</button>';
