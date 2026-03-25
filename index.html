@@ -670,13 +670,7 @@ async function hfcShowDetail(id){
       html+='<p style="color:var(--text2,#888);font-size:13px">Aucune photo</p>';
     }
     html+='</div>';
-    // Photo info (from creation)
-    if(o.photo_info){
-      html+='<div style="background:var(--surface,#fff);padding:12px;border-radius:8px;border:1px solid var(--border,#eee);margin-bottom:12px">';
-      html+='<div style="font-size:11px;color:var(--text2,#888);margin-bottom:4px">Info photo</div>';
-      html+='<div style="font-size:14px;color:var(--text,#222)">'+o.photo_info+'</div>';
-      html+='</div>';
-    }
+
     el.innerHTML=html;
     document.getElementById('hfcList').style.display='none';
     document.getElementById('hfcFilters').style.display='none';
