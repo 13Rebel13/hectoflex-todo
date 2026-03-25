@@ -355,13 +355,87 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 </div>
 </div>
 <div class="page" id="pageLeads" style="padding:0 16px">
+<div id="leadListView">
 <div class="header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
 <h2 style="font-size:1.1rem;color:var(--accent);margin:0">Leads</h2>
-<button onclick="showAddLead()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Nouveau</button>
+<button onclick="leadShowForm()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Nouveau</button>
+</div>
+<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap" id="leadFilters">
+<button class="filter-btn active" onclick="leadFilter('all',this)">Tous</button>
+<button class="filter-btn" onclick="leadFilter('nouveau',this)">Nouveau</button>
+<button class="filter-btn" onclick="leadFilter('qualifie',this)">Qualifié</button>
+<button class="filter-btn" onclick="leadFilter('proposition',this)">Proposition</button>
+<button class="filter-btn" onclick="leadFilter('gagne',this)">Gagné</button>
+<button class="filter-btn" onclick="leadFilter('perdu',this)">Perdu</button>
 </div>
 <div id="leadStats" style="font-size:.8rem;color:var(--text2);margin-bottom:12px"></div>
 <div id="leadList" style="display:flex;flex-direction:column;gap:10px"></div>
 <p id="leadEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun lead</p>
+</div>
+<div id="leadFormView" style="display:none">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
+<button onclick="leadBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">&#8592;</button>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="leadFormTitle">Nouveau lead</h2>
+</div>
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Titre du lead *</label>
+<input id="lf_name" type="text" placeholder="Ex: Demande PPF Golf GTI" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Client / Société</label>
+<input id="lf_client" type="text" placeholder="Nom du client ou société" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Contact</label>
+<input id="lf_contact" type="text" placeholder="Nom du contact" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<div style="display:flex;gap:10px;margin-bottom:12px">
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Téléphone</label>
+<input id="lf_phone" type="tel" placeholder="079..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Email</label>
+<input id="lf_email" type="email" placeholder="email@..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+</div>
+<div style="display:flex;gap:10px;margin-bottom:12px">
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Revenu estimé</label>
+<input id="lf_montant" type="text" placeholder="CHF" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Date de clôture</label>
+<input id="lf_deadline" type="date" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+</div>
+<div style="display:flex;gap:10px;margin-bottom:12px">
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Département</label>
+<select id="lf_dept" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem">
+<option value="">— Choisir —</option>
+<option value="HF Pub">HF Pub</option>
+<option value="HF Customs">HF Customs</option>
+<option value="HF Vitro">HF Vitro</option>
+</select></div>
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Source</label>
+<select id="lf_source" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem">
+<option value="">— Choisir —</option>
+<option value="Site web">Site web</option>
+<option value="Téléphone">Téléphone</option>
+<option value="Email">Email</option>
+<option value="Bouche à oreille">Bouche à oreille</option>
+<option value="Réseaux sociaux">Réseaux sociaux</option>
+<option value="Salon/Événement">Salon/Événement</option>
+<option value="Autre">Autre</option>
+</select></div>
+</div>
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Priorité</label>
+<div id="lf_priority" style="display:flex;gap:4px;margin-bottom:12px;cursor:pointer">
+<span onclick="leadSetPriority(1)" data-star="1" style="font-size:1.5rem;color:var(--border)">&#9733;</span>
+<span onclick="leadSetPriority(2)" data-star="2" style="font-size:1.5rem;color:var(--border)">&#9733;</span>
+<span onclick="leadSetPriority(3)" data-star="3" style="font-size:1.5rem;color:var(--border)">&#9733;</span>
+</div>
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Description</label>
+<textarea id="lf_desc" rows="3" placeholder="Détails de la demande..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical;margin-bottom:16px;box-sizing:border-box"></textarea>
+<input type="hidden" id="lf_editId" value="">
+<input type="hidden" id="lf_priorityVal" value="0">
+<button onclick="leadSaveForm()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:.9rem;font-weight:600">Enregistrer</button>
+</div>
+</div>
+<div id="leadDetailView" style="display:none">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
+<button onclick="leadBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">&#8592;</button>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="leadDetailTitle">Lead</h2>
+</div>
+<div id="leadDetailContent"></div>
+</div>
 </div>
 
 </div>
@@ -795,13 +869,14 @@ var leads = [];
 async function loadLeads() {
   try {
     var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
-    if(r.ok) {
-      var all = await r.json();
-      leads = all.filter(function(p){return p.statut==='en_attente'});
-    }
+    if(r.ok) leads = await r.json();
   } catch(e) { console.error('loadLeads',e); }
+  leads = leads.filter(function(p){return p.statut==='en_attente'||p.statut==='nouveau'||p.statut==='qualifie'||p.statut==='proposition'||p.statut==='gagne'||p.statut==='perdu'});
   renderLeads();
 }
+
+var leadFilterVal = 'all';
+var leadPriorityVal = 0;
 
 function renderLeads() {
   var list = document.getElementById('leadList');
@@ -809,50 +884,208 @@ function renderLeads() {
   var stats = document.getElementById('leadStats');
   if(!list) return;
   
-  if(stats) stats.textContent = leads.length+' lead(s) en attente';
+  var filtered = leadFilterVal==='all' ? leads : leads.filter(function(p){return p.statut===leadFilterVal});
+  var nouveau = leads.filter(function(p){return p.statut==='nouveau'||p.statut==='en_attente'}).length;
+  var qualifie = leads.filter(function(p){return p.statut==='qualifie'}).length;
+  var proposition = leads.filter(function(p){return p.statut==='proposition'}).length;
+  var gagne = leads.filter(function(p){return p.statut==='gagne'}).length;
+  if(stats) stats.textContent = nouveau+' nouveau(x) | '+qualifie+' qualifié(s) | '+proposition+' proposition(s) | '+gagne+' gagné(s)';
   
-  if(!leads.length) { list.innerHTML=''; if(empty) empty.style.display='block'; return; }
+  if(!filtered.length) { list.innerHTML=''; if(empty) empty.style.display='block'; return; }
   if(empty) empty.style.display='none';
   
-  list.innerHTML = leads.map(function(p) {
-    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid #f59e0b">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">' +
-        '<div style="font-weight:600;font-size:.9rem;color:var(--text)">'+escHtml(p.name)+'</div>' +
-        '<span style="padding:2px 8px;border-radius:8px;background:#f59e0b;color:#fff;font-size:.7rem;font-weight:600">En attente</span>' +
+  var statusColors = {nouveau:'#f59e0b',en_attente:'#f59e0b',qualifie:'#3b82f6',proposition:'#8b5cf6',gagne:'#22c55e',perdu:'#ef4444'};
+  var statusLabels = {nouveau:'Nouveau',en_attente:'Nouveau',qualifie:'Qualifié',proposition:'Proposition',gagne:'Gagné',perdu:'Perdu'};
+  
+  list.innerHTML = filtered.map(function(p) {
+    var sc = statusColors[p.statut] || '#f59e0b';
+    var sl = statusLabels[p.statut] || 'Nouveau';
+    var stars = '';
+    for(var s=0;s<(p.priority||0);s++) stars += '<span style="color:#f59e0b">&#9733;</span>';
+    return '<div onclick="leadShowDetail('+p.id+')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+sc+';cursor:pointer">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
+        '<div style="font-weight:600;font-size:.9rem;color:var(--text)">'+escHtml(p.name)+' '+stars+'</div>' +
+        '<span style="padding:2px 8px;border-radius:8px;background:'+sc+';color:#fff;font-size:.7rem;font-weight:600">'+sl+'</span>' +
       '</div>' +
-      (p.client ? '<div style="font-size:.8rem;color:var(--text2);margin-bottom:4px">'+escHtml(p.client)+'</div>' : '') +
-      (p.montant ? '<div style="font-size:.8rem;color:var(--text2);margin-bottom:4px">Montant: '+escHtml(p.montant)+'</div>' : '') +
-      (p.note ? '<div style="font-size:.75rem;color:var(--text3);margin-bottom:6px">'+escHtml(p.note)+'</div>' : '') +
-      '<div style="display:flex;gap:6px;justify-content:flex-end">' +
-        '<button onclick="leadToProject('+p.id+')" style="padding:6px 14px;border-radius:6px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:.8rem;font-weight:600">Valider → Projet</button>' +
-        '<button onclick="leadEdit('+p.id+')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>' +
-        '<button onclick="leadDelete('+p.id+')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>' +
-      '</div>' +
+      (p.client ? '<div style="font-size:.8rem;color:var(--text2)">'+escHtml(p.client)+(p.dept?' — '+escHtml(p.dept):'')+'</div>' : '') +
+      '<div style="display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--text2);margin-top:4px">'+(p.montant?'<span style="font-weight:600">'+escHtml(p.montant)+' CHF</span>':'<span></span>')+(p.deadline?'<span style="background:var(--accent);color:#fff;padding:3px 10px;border-radius:6px;font-size:.75rem;font-weight:600">'+fmtDate(p.deadline)+'</span>':'')+'</div>' +
     '</div>';
   }).join('');
 }
 
-async function showAddLead() {
-  var name = prompt('Nom du lead / offre:');
-  if(!name) return;
-  var client = prompt('Client:') || '';
-  var contact = prompt('Contact (tel/email):') || '';
-  var montant = prompt('Montant estimé:') || '';
-  var desc = prompt('Description:') || '';
-  await saveProject({name:name, client:client, contact:contact, montant:montant, description:desc, statut:'en_attente'});
+function leadFilter(val, btn) {
+  leadFilterVal = val;
+  document.querySelectorAll('#leadFilters .filter-btn').forEach(function(b){b.classList.remove('active')});
+  if(btn) btn.classList.add('active');
+  renderLeads();
+}
+
+function leadSetPriority(n) {
+  leadPriorityVal = n;
+  document.getElementById('lf_priorityVal').value = n;
+  document.querySelectorAll('#lf_priority span').forEach(function(s){
+    s.style.color = parseInt(s.getAttribute('data-star')) <= n ? '#f59e0b' : 'var(--border)';
+  });
+}
+
+function leadShowForm(editId) {
+  document.getElementById('leadListView').style.display='none';
+  document.getElementById('leadDetailView').style.display='none';
+  document.getElementById('leadFormView').style.display='block';
+  document.getElementById('lf_editId').value = editId || '';
+  document.getElementById('leadFormTitle').textContent = editId ? 'Modifier le lead' : 'Nouveau lead';
+  if(editId) {
+    var p = leads.find(function(x){return x.id==editId});
+    if(p) {
+      document.getElementById('lf_name').value = p.name||'';
+      document.getElementById('lf_client').value = p.client||'';
+      document.getElementById('lf_contact').value = p.contact||'';
+      document.getElementById('lf_phone').value = p.phone||'';
+      document.getElementById('lf_email').value = p.email||'';
+      document.getElementById('lf_montant').value = p.montant||'';
+      document.getElementById('lf_deadline').value = p.deadline||'';
+      document.getElementById('lf_dept').value = p.dept||'';
+      document.getElementById('lf_source').value = p.source||'';
+      document.getElementById('lf_desc').value = p.description||'';
+      leadSetPriority(p.priority||0);
+    }
+  } else {
+    ['lf_name','lf_client','lf_contact','lf_phone','lf_email','lf_montant','lf_deadline','lf_dept','lf_source','lf_desc'].forEach(function(id){document.getElementById(id).value=''});
+    leadSetPriority(0);
+  }
+}
+
+async function leadSaveForm() {
+  var name = document.getElementById('lf_name').value.trim();
+  if(!name) { alert('Titre requis'); return; }
+  var data = {
+    name: name,
+    client: document.getElementById('lf_client').value.trim(),
+    contact: document.getElementById('lf_contact').value.trim(),
+    phone: document.getElementById('lf_phone').value.trim(),
+    email: document.getElementById('lf_email').value.trim(),
+    montant: document.getElementById('lf_montant').value.trim(),
+    deadline: document.getElementById('lf_deadline').value,
+    dept: document.getElementById('lf_dept').value,
+    source: document.getElementById('lf_source').value,
+    description: document.getElementById('lf_desc').value.trim(),
+    priority: parseInt(document.getElementById('lf_priorityVal').value)||0
+  };
+  var editId = document.getElementById('lf_editId').value;
+  if(editId) {
+    await updateProject(parseInt(editId), data);
+  } else {
+    data.statut = 'nouveau';
+    await saveProject(data);
+  }
+  leadBackToList();
   await loadLeads();
 }
 
-
-async function leadEdit(id) {
-  // Switch to projects page to use the form
-  switchNav('projects', document.querySelectorAll('.bottom-nav button')[3]);
-  setTimeout(function(){ projShowForm(id); }, 200);
+function leadBackToList() {
+  document.getElementById('leadFormView').style.display='none';
+  document.getElementById('leadDetailView').style.display='none';
+  document.getElementById('leadListView').style.display='block';
 }
+
+async function leadShowDetail(id) {
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var all = await r.json();
+  var p = all.find(function(x){return x.id===id});
+  if(!p) return;
+  
+  document.getElementById('leadListView').style.display='none';
+  document.getElementById('leadFormView').style.display='none';
+  document.getElementById('leadDetailView').style.display='block';
+  document.getElementById('leadDetailTitle').textContent = p.name;
+  
+  var statusColors = {nouveau:'#f59e0b',en_attente:'#f59e0b',qualifie:'#3b82f6',proposition:'#8b5cf6',gagne:'#22c55e',perdu:'#ef4444'};
+  var allStatuts = [{v:'nouveau',l:'Nouveau',c:'#f59e0b'},{v:'qualifie',l:'Qualifié',c:'#3b82f6'},{v:'proposition',l:'Proposition',c:'#8b5cf6'},{v:'gagne',l:'Gagné',c:'#22c55e'},{v:'perdu',l:'Perdu',c:'#ef4444'}];
+  
+  var html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
+  
+  // Status buttons
+  html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">';
+  var curStat = p.statut==='en_attente'?'nouveau':p.statut;
+  allStatuts.forEach(function(s){
+    var isActive = curStat===s.v;
+    html += '<button onclick="leadChangeStatus('+p.id+',\''+s.v+'\')" style="padding:6px 12px;border-radius:8px;border:'+(isActive?'2px solid '+s.c:'1px solid var(--border)')+';background:'+(isActive?s.c:'transparent')+';color:'+(isActive?'#fff':'var(--text2)')+';cursor:pointer;font-size:.78rem;font-weight:'+(isActive?'600':'400')+'">'+s.l+'</button>';
+  });
+  html += '</div>';
+  
+  // Priority stars
+  html += '<div style="margin-bottom:12px">';
+  for(var s=1;s<=3;s++) html += '<span onclick="leadChangePriority('+p.id+','+s+')" style="font-size:1.3rem;cursor:pointer;color:'+(s<=(p.priority||0)?'#f59e0b':'var(--border)')+'">&#9733;</span>';
+  html += '</div>';
+  
+  // Action buttons
+  html += '<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">';
+  if(p.statut!=='gagne') html += '<button onclick="leadToProject('+p.id+')" style="padding:6px 14px;border-radius:6px;border:none;background:#22c55e;color:#fff;cursor:pointer;font-size:.8rem;font-weight:600">Convertir en Projet</button>';
+  html += '<button onclick="leadShowForm('+p.id+')" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">Modifier</button>';
+  html += '<button onclick="leadDeleteAndBack('+p.id+')" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#e55;cursor:pointer;font-size:.78rem">Supprimer</button>';
+  html += '</div>';
+  
+  // Fields
+  var fields = [
+    {label:'Client',val:p.client},
+    {label:'Contact',val:p.contact},
+    {label:'Téléphone',val:p.phone},
+    {label:'Email',val:p.email},
+    {label:'Revenu estimé',val:p.montant?(p.montant+' CHF'):''},
+    {label:'Date clôture',val:p.deadline?fmtDate(p.deadline):''},
+    {label:'Département',val:p.dept},
+    {label:'Source',val:p.source},
+    {label:'Description',val:p.description},
+    {label:'Créé par',val:p.created_by},
+    {label:'Date création',val:p.created_at?fmtDate(p.created_at):''}
+  ];
+  fields.forEach(function(f){
+    html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:100px">'+f.label+'</span><span style="font-size:.85rem;color:'+(f.val?'var(--text)':'var(--text3)')+'">'+(f.val?escHtml(f.val):'—')+'</span></div>';
+  });
+  html += '</div>';
+  
+  // Notes
+  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
+  html += '<h3 style="font-size:.95rem;color:var(--text);margin:0 0 10px">Notes</h3>';
+  html += '<textarea id="leadNotes" rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:.85rem;font-family:inherit;resize:vertical;box-sizing:border-box" onblur="leadSaveNotes('+p.id+')">'+(p.notes||'')+'</textarea>';
+  html += '</div>';
+  
+  document.getElementById('leadDetailContent').innerHTML = html;
+}
+
+async function leadChangeStatus(id, newStatus) {
+  await updateProject(id, {statut: newStatus});
+  await loadLeads();
+  leadShowDetail(id);
+}
+
+async function leadChangePriority(id, priority) {
+  await updateProject(id, {priority: priority});
+  leadShowDetail(id);
+}
+
+async function leadDeleteAndBack(id) {
+  if(!confirm('Supprimer ce lead?')) return;
+  await deleteProjectAPI(id);
+  leadBackToList();
+  await loadLeads();
+}
+
+async function leadSaveNotes(id) {
+  var notes = document.getElementById('leadNotes').value;
+  await updateProject(id, {notes: notes});
+}
+
 async function leadToProject(id) {
+  if(!confirm('Convertir ce lead en projet?')) return;
   await updateProject(id, {statut: 'en_cours'});
   await loadLeads();
+  leadBackToList();
+  // Switch to projects tab
+  switchNav('projects', document.querySelectorAll('.bottom-nav button')[3]);
 }
+
+
 
 async function leadDelete(id) {
   if(!confirm('Supprimer ce lead?')) return;
