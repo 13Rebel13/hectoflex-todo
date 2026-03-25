@@ -309,6 +309,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <button class="filter-btn" onclick="projFilter('termine',this)">Terminé</button>
 <button class="filter-btn" onclick="projFilter('facture',this)">Facturé</button>
 </div>
+<div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+<span style="font-size:.75rem;color:var(--text3)">Trier:</span>
+<select id="projSort" onchange="projSortChange(this.value)" style="padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem">
+<option value="recent">Plus récent</option>
+<option value="oldest">Plus ancien</option>
+<option value="name">Nom A-Z</option>
+<option value="deadline">Deadline</option>
+<option value="montant_desc">Montant ↓</option>
+<option value="montant_asc">Montant ↑</option>
+</select>
+</div>
 <div id="projStats" style="font-size:.8rem;color:var(--text2);margin-bottom:12px"></div>
 <div id="projList" style="display:flex;flex-direction:column;gap:10px"></div>
 <p id="projEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun projet</p>
@@ -586,6 +597,8 @@ async function deleteProjectAPI(id) {
   await fetch(PROJ_API+'/projects/'+id, {method:'DELETE', headers:{'Authorization':'Basic '+token}});
 }
 
+var projSortVal = 'recent';
+function projSortChange(val) { projSortVal = val; renderProjects(); }
 function renderProjects() {
   var list = document.getElementById('projList');
   var empty = document.getElementById('projEmpty');
@@ -604,6 +617,16 @@ function renderProjects() {
   var statusColors = {en_cours:'#3b82f6', termine:'#22c55e', facture:'#8b5cf6'};
   var statusLabels = {en_cours:'En cours', termine:'Terminé', facture:'Facturé'};
   
+  // Sort
+  filtered.sort(function(a,b){
+    if(projSortVal==='recent') return (b.id||0)-(a.id||0);
+    if(projSortVal==='oldest') return (a.id||0)-(b.id||0);
+    if(projSortVal==='name') return (a.name||'').localeCompare(b.name||'');
+    if(projSortVal==='deadline') { if(!a.deadline)return 1; if(!b.deadline)return -1; return a.deadline.localeCompare(b.deadline); }
+    if(projSortVal==='montant_desc') return (parseFloat(b.montant)||0)-(parseFloat(a.montant)||0);
+    if(projSortVal==='montant_asc') return (parseFloat(a.montant)||0)-(parseFloat(b.montant)||0);
+    return 0;
+  });
   list.innerHTML = filtered.map(function(p) {
     var sc = statusColors[p.statut] || '#999';
     var sl = statusLabels[p.statut] || p.statut;
