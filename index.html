@@ -777,6 +777,63 @@ async function projShowDetail(id) {
   html += '<div style="display:flex;gap:8px;padding:8px 0"><span style="font-size:.8rem;color:var(--text3);min-width:100px">Date création</span><span style="font-size:.85rem;color:var(--text)">'+(p.created_at?fmtDate(p.created_at):'—')+'</span></div>';
   html += '</div>';
   
+  // Finances section
+  var costs = p.costs || [];
+  var totalCosts = 0;
+  costs.forEach(function(c){ totalCosts += (parseFloat(c.amount)||0); });
+  var markup = parseFloat(p.markup)||0;
+  var rabais = parseFloat(p.rabais)||0;
+  var prixClient = parseFloat(p.montant)||0;
+  var totalAvantRabais = totalCosts + markup;
+  var benefice = prixClient - totalCosts;
+  var margeP = prixClient > 0 ? Math.round(benefice/prixClient*100) : 0;
+  
+  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
+  html += '<h3 style="font-size:.95rem;color:var(--text);margin:0 0 12px">Finances</h3>';
+  
+  // Cost lines
+  html += '<div style="font-size:.75rem;color:var(--text3);display:flex;padding:4px 0;border-bottom:1px solid var(--border);font-weight:600"><span style="flex:2">Description</span><span style="flex:1;text-align:right">Montant</span><span style="width:30px"></span></div>';
+  costs.forEach(function(c, i){
+    var desc = c.label || '';
+    if(c.type==='heures' && c.hours && c.rate) desc += ' ('+c.hours+'h x '+c.rate+' CHF/h)';
+    html += '<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.85rem">';
+    html += '<span style="flex:2;color:var(--text)">'+escHtml(desc)+'</span>';
+    html += '<span style="flex:1;text-align:right;color:var(--text);font-weight:500">'+parseFloat(c.amount||0).toFixed(2)+' CHF</span>';
+    html += '<button onclick="projRemoveCost('+p.id+','+i+')" style="width:30px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:.9rem;text-align:center">x</button>';
+    html += '</div>';
+  });
+  
+  // Add cost buttons
+  html += '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">';
+  html += '<button onclick="projAddCostLine('+p.id+',\'materiel\')" style="padding:5px 10px;border:1px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">+ Matériel</button>';
+  html += '<button onclick="projAddCostLine('+p.id+',\'consommable\')" style="padding:5px 10px;border:1px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">+ Consommable</button>';
+  html += '<button onclick="projAddCostLine('+p.id+',\'heures\')" style="padding:5px 10px;border:1px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">+ Heures</button>';
+  html += '<button onclick="projAddCostLine('+p.id+',\'frais\')" style="padding:5px 10px;border:1px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">+ Frais</button>';
+  html += '<button onclick="projAddCostLine('+p.id+',\'autre\')" style="padding:5px 10px;border:1px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">+ Autre</button>';
+  html += '</div>';
+  
+  // Totals
+  html += '<div style="margin-top:12px;padding-top:10px;border-top:2px solid var(--border)">';
+  html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Total coûts</span><span style="color:var(--text);font-weight:600">'+totalCosts.toFixed(2)+' CHF</span></div>';
+  
+  // Markup
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Mark up</span><div style="display:flex;align-items:center;gap:4px"><input id="projMarkup" type="number" value="'+(p.markup||0)+'" onblur="projSaveFinance('+p.id+')" style="width:80px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;text-align:right"> CHF</div></div>';
+  
+  // Prix client
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Prix client</span><div style="display:flex;align-items:center;gap:4px"><input id="projPrixClient" type="number" value="'+(p.montant||0)+'" onblur="projSaveFinance('+p.id+')" style="width:80px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;text-align:right"> CHF</div></div>';
+  
+  // Rabais
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Rabais</span><div style="display:flex;align-items:center;gap:4px"><input id="projRabais" type="number" value="'+(p.rabais||0)+'" onblur="projSaveFinance('+p.id+')" style="width:60px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;text-align:right"> %</div></div>';
+  
+  var prixFinal = prixClient * (1 - rabais/100);
+  var benefFinal = prixFinal - totalCosts;
+  var margeFinal = prixFinal > 0 ? Math.round(benefFinal/prixFinal*100) : 0;
+  
+  html += '<div style="margin-top:8px;padding-top:8px;border-top:2px solid var(--accent)">';
+  html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.9rem"><span style="font-weight:700;color:var(--text)">Prix final client</span><span style="font-weight:700;color:var(--text)">'+prixFinal.toFixed(2)+' CHF</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.9rem"><span style="font-weight:700;color:'+(benefFinal>=0?'#22c55e':'#ef4444')+'">Bénéfice</span><span style="font-weight:700;color:'+(benefFinal>=0?'#22c55e':'#ef4444')+'">'+benefFinal.toFixed(2)+' CHF ('+margeFinal+'%)</span></div>';
+  html += '</div></div></div>';
+
   // Checklist section
   var checklist = p.checklist || [];
   var checkDone = checklist.filter(function(c){return c.done}).length;
@@ -891,6 +948,51 @@ function projDownloadDoc(projId, docIdx) {
 async function projRemoveDoc(projId, docIdx) {
   if(!confirm('Supprimer ce document?')) return;
   await fetch(PROJ_API+'/projects/'+projId+'/files/'+docIdx, {method:'DELETE', headers:{'Authorization':'Basic '+token}});
+  projShowDetail(projId);
+}
+
+async function projAddCostLine(projId, type) {
+  var label = '';
+  var amount = 0;
+  var hours = 0, rate = 0;
+  if(type==='heures') {
+    var who = prompt('Qui? (ex: Daniel, Marco)');
+    if(!who) return;
+    hours = parseFloat(prompt('Nombre d\'heures:'))||0;
+    rate = parseFloat(prompt('Taux horaire CHF:'))||0;
+    amount = hours * rate;
+    label = type.charAt(0).toUpperCase()+type.slice(1) + ' — ' + who;
+  } else {
+    label = prompt('Description (ex: Film PPF, Encre, etc.):');
+    if(!label) return;
+    amount = parseFloat(prompt('Montant CHF:'))||0;
+  }
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var all = await r.json();
+  var p = all.find(function(x){return x.id===projId});
+  if(!p) return;
+  var costs = p.costs || [];
+  costs.push({type:type, label:label, amount:amount, hours:hours, rate:rate, added:new Date().toISOString()});
+  await updateProject(projId, {costs:costs});
+  projShowDetail(projId);
+}
+
+async function projRemoveCost(projId, idx) {
+  if(!confirm('Supprimer cette ligne?')) return;
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var all = await r.json();
+  var p = all.find(function(x){return x.id===projId});
+  if(!p||!p.costs) return;
+  p.costs.splice(idx, 1);
+  await updateProject(projId, {costs:p.costs});
+  projShowDetail(projId);
+}
+
+async function projSaveFinance(projId) {
+  var markup = parseFloat(document.getElementById('projMarkup').value)||0;
+  var montant = document.getElementById('projPrixClient').value;
+  var rabais = parseFloat(document.getElementById('projRabais').value)||0;
+  await updateProject(projId, {markup:markup, montant:montant, rabais:rabais});
   projShowDetail(projId);
 }
 
