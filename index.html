@@ -676,6 +676,25 @@ async function projShowDetail(id) {
   html += '<div style="display:flex;gap:6px;margin-top:8px"><input id="newCheckItem" placeholder="Ajouter une étape..." style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" onkeydown="if(event.key===\'Enter\')projAddCheck('+p.id+')"><button onclick="projAddCheck('+p.id+')" style="padding:8px 14px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;cursor:pointer;font-size:.85rem">+</button></div>';
   html += '</div>';
   
+  // Documents section
+  var docs = p.documents || [];
+  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
+  html += '<h3 style="font-size:.95rem;color:var(--text);margin:0 0 10px">Documents</h3>';
+  if(docs.length) {
+    docs.forEach(function(d, i){
+      var icon = d.type&&d.type.indexOf('pdf')>-1 ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e55" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">';
+      html += icon + '<span style="flex:1;font-size:.85rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(d.name)+'</span>';
+      html += '<button onclick="projDownloadDoc('+p.id+','+i+')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:.75rem;padding:4px 8px">Ouvrir</button>';
+      html += '<button onclick="projRemoveDoc('+p.id+','+i+')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem">x</button>';
+      html += '</div>';
+    });
+  } else {
+    html += '<p style="font-size:.8rem;color:var(--text3);margin:0 0 8px">Aucun document</p>';
+  }
+  html += '<div style="margin-top:8px"><label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px dashed var(--border);border-radius:var(--radius);cursor:pointer;font-size:.85rem;color:var(--text2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Ajouter un fichier<input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display:none" onchange="projUploadDoc('+p.id+',this)"></label></div>';
+  html += '</div>';
+
   // Notes section
   html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
   html += '<h3 style="font-size:.95rem;color:var(--text);margin:0 0 10px">Notes</h3>';
@@ -729,6 +748,47 @@ async function projRemoveCheck(projId, checkIdx) {
   if(!p || !p.checklist) return;
   p.checklist.splice(checkIdx, 1);
   await updateProject(projId, {checklist: p.checklist});
+  projShowDetail(projId);
+}
+
+async function projUploadDoc(projId, input) {
+  var file = input.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024) { alert('Fichier trop volumineux (max 2 Mo)'); return; }
+  var reader = new FileReader();
+  reader.onload = async function() {
+    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+    var all = await r.json();
+    var p = all.find(function(x){return x.id===projId});
+    if(!p) return;
+    var docs = p.documents || [];
+    docs.push({name: file.name, type: file.type, data: reader.result, added: new Date().toISOString()});
+    await updateProject(projId, {documents: docs});
+    projShowDetail(projId);
+  };
+  reader.readAsDataURL(file);
+}
+
+function projDownloadDoc(projId, docIdx) {
+  fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}}).then(function(r){return r.json()}).then(function(all){
+    var p = all.find(function(x){return x.id===projId});
+    if(!p || !p.documents || !p.documents[docIdx]) return;
+    var d = p.documents[docIdx];
+    var a = document.createElement('a');
+    a.href = d.data;
+    a.download = d.name;
+    a.click();
+  });
+}
+
+async function projRemoveDoc(projId, docIdx) {
+  if(!confirm('Supprimer ce document?')) return;
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var all = await r.json();
+  var p = all.find(function(x){return x.id===projId});
+  if(!p || !p.documents) return;
+  p.documents.splice(docIdx, 1);
+  await updateProject(projId, {documents: p.documents});
   projShowDetail(projId);
 }
 
