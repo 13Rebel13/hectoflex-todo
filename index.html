@@ -54,6 +54,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   .container{margin-left:220px!important;max-width:none!important;width:calc(100% - 220px)!important;padding:20px 30px!important}
   #pageCustoms{margin-left:220px!important;padding:20px 30px!important}
   #pageProjects{margin-left:220px!important;padding:20px 30px!important}
+  #pageLeads{margin-left:220px!important;padding:20px 30px!important}
   body{padding-bottom:0!important}
 }
 .container{max-width:800px;margin:0 auto;padding:20px}
@@ -138,13 +139,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 </div>
 <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="projFilters">
 <button class="filter-btn active" onclick="projFilter('all',this)">Tous</button>
-<button class="filter-btn" onclick="projFilter('en_attente',this)">En attente</button>
 <button class="filter-btn" onclick="projFilter('en_cours',this)">En cours</button>
 <button class="filter-btn" onclick="projFilter('termine',this)">Terminé</button>
 </div>
 <div id="projStats" style="font-size:.8rem;color:var(--text2);margin-bottom:12px"></div>
 <div id="projList" style="display:flex;flex-direction:column;gap:10px"></div>
 <p id="projEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun projet</p>
+</div>
+<div class="page" id="pageLeads" style="padding:0 16px">
+<div class="header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Leads</h2>
+<button onclick="showAddLead()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Nouveau</button>
+</div>
+<div id="leadStats" style="font-size:.8rem;color:var(--text2);margin-bottom:12px"></div>
+<div id="leadList" style="display:flex;flex-direction:column;gap:10px"></div>
+<p id="leadEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun lead</p>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
@@ -175,7 +184,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <button class="active" onclick="switchNav('tasks',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></span> Tâches</button>
 <button onclick="switchNav('qr',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="21" y1="21" x2="21" y2="21.01"/></svg></span> QR Code</button>
 <button onclick="switchNav('customs',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17h14M5 17a2 2 0 01-2-2V9a2 2 0 012-2h1l2-3h8l2 3h1a2 2 0 012 2v6a2 2 0 01-2 2M5 17a2 2 0 002 2h1a2 2 0 002-2M14 17a2 2 0 002 2h1a2 2 0 002-2"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg></span> HF Customs</button>
-<button onclick="switchNav('projects',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></span> Projets</button></div>
+<button onclick="switchNav('projects',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></span> Projets</button>
+<button onclick="switchNav('leads',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span> Leads</button></div>
 <div class="container">
 <div class="page active" id="pageTasks">
 <div class="list-tabs">
@@ -402,7 +412,7 @@ function switchNav(page, btn){
   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':'pageCustoms';
+  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':'pageCustoms';
   var el = document.getElementById(target);
   if(el) el.classList.add('active');
   if(page==='customs')hfcInit();
@@ -457,7 +467,8 @@ function renderProjects() {
   
   var filtered = projFilterVal === 'all' ? projects : projects.filter(function(p){return p.statut===projFilterVal});
   
-  var attente = projects.filter(function(p){return p.statut==='en_attente'}).length;
+  projects = projects.filter(function(p){return p.statut!=='en_attente'});
+  var attente = 0;
   var cours = projects.filter(function(p){return p.statut==='en_cours'}).length;
   var termine = projects.filter(function(p){return p.statut==='termine'}).length;
   if(stats) stats.textContent = attente+' en attente | '+cours+' en cours | '+termine+' terminé(s)';
@@ -480,7 +491,7 @@ function renderProjects() {
       (p.montant ? '<div style="font-size:.8rem;color:var(--text2);margin-bottom:4px">Montant: '+escHtml(p.montant)+'</div>' : '') +
       (p.note ? '<div style="font-size:.75rem;color:var(--text3);margin-bottom:6px">'+escHtml(p.note)+'</div>' : '') +
       '<div style="display:flex;gap:6px;justify-content:flex-end">' +
-        (p.statut==='en_attente' ? '<button onclick="projChangeStatus('+p.id+',\'en_cours\')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Valider</button>' : '') +
+        
         (p.statut==='en_cours' ? '<button onclick="projChangeStatus('+p.id+',\'termine\')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Terminer</button>' : '') +
         '<button onclick="projEdit('+p.id+')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>' +
         '<button onclick="projDelete('+p.id+')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>' +
@@ -527,6 +538,71 @@ async function projDelete(id) {
   if(!confirm('Supprimer ce projet?')) return;
   await deleteProjectAPI(id);
   await loadProjects();
+}
+
+
+// ===== LEADS =====
+var leads = [];
+
+async function loadLeads() {
+  try {
+    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+    if(r.ok) {
+      var all = await r.json();
+      leads = all.filter(function(p){return p.statut==='en_attente'});
+    }
+  } catch(e) { console.error('loadLeads',e); }
+  renderLeads();
+}
+
+function renderLeads() {
+  var list = document.getElementById('leadList');
+  var empty = document.getElementById('leadEmpty');
+  var stats = document.getElementById('leadStats');
+  if(!list) return;
+  
+  if(stats) stats.textContent = leads.length+' lead(s) en attente';
+  
+  if(!leads.length) { list.innerHTML=''; if(empty) empty.style.display='block'; return; }
+  if(empty) empty.style.display='none';
+  
+  list.innerHTML = leads.map(function(p) {
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid #f59e0b">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">' +
+        '<div style="font-weight:600;font-size:.9rem;color:var(--text)">'+escHtml(p.name)+'</div>' +
+        '<span style="padding:2px 8px;border-radius:8px;background:#f59e0b;color:#fff;font-size:.7rem;font-weight:600">En attente</span>' +
+      '</div>' +
+      (p.client ? '<div style="font-size:.8rem;color:var(--text2);margin-bottom:4px">'+escHtml(p.client)+'</div>' : '') +
+      (p.montant ? '<div style="font-size:.8rem;color:var(--text2);margin-bottom:4px">Montant: '+escHtml(p.montant)+'</div>' : '') +
+      (p.note ? '<div style="font-size:.75rem;color:var(--text3);margin-bottom:6px">'+escHtml(p.note)+'</div>' : '') +
+      '<div style="display:flex;gap:6px;justify-content:flex-end">' +
+        '<button onclick="leadToProject('+p.id+')" style="padding:6px 14px;border-radius:6px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:.8rem;font-weight:600">Valider → Projet</button>' +
+        '<button onclick="projEdit('+p.id+');loadLeads()" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>' +
+        '<button onclick="leadDelete('+p.id+')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function showAddLead() {
+  var name = prompt('Nom du lead / offre:');
+  if(!name) return;
+  var client = prompt('Client (optionnel):') || '';
+  var montant = prompt('Montant (optionnel):') || '';
+  var note = prompt('Note (optionnel):') || '';
+  await saveProject({name:name, client:client, montant:montant, note:note, statut:'en_attente'});
+  await loadLeads();
+}
+
+async function leadToProject(id) {
+  await updateProject(id, {statut: 'en_cours'});
+  await loadLeads();
+}
+
+async function leadDelete(id) {
+  if(!confirm('Supprimer ce lead?')) return;
+  await deleteProjectAPI(id);
+  await loadLeads();
 }
 
 // ===== QR CODE =====
