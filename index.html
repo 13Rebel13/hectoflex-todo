@@ -484,7 +484,7 @@ var PROJ_API = 'https://hf-tasks-api.hectoflex.workers.dev';
 
 async function loadProjects() {
   try {
-    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
     if(r.ok) projects = await r.json();
   } catch(e) { console.error('loadProjects',e); }
   // Filter out leads (en_attente)
@@ -493,15 +493,15 @@ async function loadProjects() {
 }
 
 async function saveProject(project) {
-  await fetch(PROJ_API+'/projects', {method:'POST', headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin')),'Content-Type':'application/json'}, body:JSON.stringify(project)});
+  await fetch(PROJ_API+'/projects', {method:'POST', headers:{'Authorization':'Basic '+token,'Content-Type':'application/json'}, body:JSON.stringify(project)});
 }
 
 async function updateProject(id, data) {
-  await fetch(PROJ_API+'/projects/'+id, {method:'PUT', headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin')),'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  await fetch(PROJ_API+'/projects/'+id, {method:'PUT', headers:{'Authorization':'Basic '+token,'Content-Type':'application/json'}, body:JSON.stringify(data)});
 }
 
 async function deleteProjectAPI(id) {
-  await fetch(PROJ_API+'/projects/'+id, {method:'DELETE', headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+  await fetch(PROJ_API+'/projects/'+id, {method:'DELETE', headers:{'Authorization':'Basic '+token}});
 }
 
 function renderProjects() {
@@ -604,7 +604,7 @@ function projBackToList() {
 async function projShowDetail(id) {
   var all_proj = [];
   try {
-    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
     if(r.ok) all_proj = await r.json();
   } catch(e) {}
   var p = all_proj.find(function(x){return x.id===id});
@@ -685,7 +685,7 @@ async function projDeleteAndBack(id) {
 }
 
 async function projToggleCheck(projId, checkIdx) {
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
   var all = await r.json();
   var p = all.find(function(x){return x.id===projId});
   if(!p || !p.checklist) return;
@@ -698,7 +698,7 @@ async function projAddCheck(projId) {
   var input = document.getElementById('newCheckItem');
   var text = input.value.trim();
   if(!text) return;
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
   var all = await r.json();
   var p = all.find(function(x){return x.id===projId});
   if(!p) return;
@@ -709,7 +709,7 @@ async function projAddCheck(projId) {
 }
 
 async function projRemoveCheck(projId, checkIdx) {
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
   var all = await r.json();
   var p = all.find(function(x){return x.id===projId});
   if(!p || !p.checklist) return;
@@ -738,7 +738,7 @@ var leads = [];
 
 async function loadLeads() {
   try {
-    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
     if(r.ok) {
       var all = await r.json();
       leads = all.filter(function(p){return p.statut==='en_attente'});
