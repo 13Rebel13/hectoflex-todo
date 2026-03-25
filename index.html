@@ -133,18 +133,61 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 </style>
 
 <div class="page" id="pageProjects" style="padding:0 16px">
+<div id="projListView">
 <div class="header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
 <h2 style="font-size:1.1rem;color:var(--accent);margin:0">Projets</h2>
-<button onclick="showAddProject()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Nouveau</button>
+<button onclick="projShowForm()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Nouveau</button>
 </div>
 <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="projFilters">
 <button class="filter-btn active" onclick="projFilter('all',this)">Tous</button>
 <button class="filter-btn" onclick="projFilter('en_cours',this)">En cours</button>
 <button class="filter-btn" onclick="projFilter('termine',this)">Terminé</button>
+<button class="filter-btn" onclick="projFilter('facture',this)">Facturé</button>
 </div>
 <div id="projStats" style="font-size:.8rem;color:var(--text2);margin-bottom:12px"></div>
 <div id="projList" style="display:flex;flex-direction:column;gap:10px"></div>
 <p id="projEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun projet</p>
+</div>
+<div id="projFormView" style="display:none">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
+<button onclick="projBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">←</button>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="projFormTitle">Nouveau projet</h2>
+</div>
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Nom du projet *</label>
+<input id="pf_name" type="text" placeholder="Ex: Vitrophanie bureau Lausanne" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Client</label>
+<input id="pf_client" type="text" placeholder="Ex: Blondel Chocolatier" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Contact</label>
+<input id="pf_contact" type="text" placeholder="Tél / email du contact" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<div style="display:flex;gap:10px">
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Montant</label>
+<input id="pf_montant" type="text" placeholder="CHF" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Deadline</label>
+<input id="pf_deadline" type="date" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+</div>
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;margin-top:12px">Département</label>
+<select id="pf_dept" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px">
+<option value="">— Choisir —</option>
+<option value="HF Pub">HF Pub</option>
+<option value="HF Customs">HF Customs</option>
+<option value="HF Vitro">HF Vitro</option>
+</select>
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Description</label>
+<textarea id="pf_desc" rows="3" placeholder="Détails du projet..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical;margin-bottom:12px;box-sizing:border-box"></textarea>
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Source du lead</label>
+<input id="pf_source" type="text" placeholder="Bouche à oreille, site web, etc." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:16px;box-sizing:border-box">
+<input type="hidden" id="pf_editId" value="">
+<button onclick="projSaveForm()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:.9rem;font-weight:600">Enregistrer</button>
+</div>
+</div>
+<div id="projDetailView" style="display:none">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
+<button onclick="projBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">←</button>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="projDetailTitle">Projet</h2>
+</div>
+<div id="projDetailContent"></div>
+</div>
 </div>
 <div class="page" id="pageLeads" style="padding:0 16px">
 <div class="header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
@@ -444,6 +487,8 @@ async function loadProjects() {
     var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
     if(r.ok) projects = await r.json();
   } catch(e) { console.error('loadProjects',e); }
+  // Filter out leads (en_attente)
+  projects = projects.filter(function(p){return p.statut!=='en_attente'});
   renderProjects();
 }
 
@@ -466,36 +511,31 @@ function renderProjects() {
   if(!list) return;
   
   var filtered = projFilterVal === 'all' ? projects : projects.filter(function(p){return p.statut===projFilterVal});
-  
-  projects = projects.filter(function(p){return p.statut!=='en_attente'});
-  var attente = 0;
   var cours = projects.filter(function(p){return p.statut==='en_cours'}).length;
   var termine = projects.filter(function(p){return p.statut==='termine'}).length;
-  if(stats) stats.textContent = attente+' en attente | '+cours+' en cours | '+termine+' terminé(s)';
+  var facture = projects.filter(function(p){return p.statut==='facture'}).length;
+  if(stats) stats.textContent = cours+' en cours | '+termine+' terminé(s) | '+facture+' facturé(s)';
   
   if(!filtered.length) { list.innerHTML=''; if(empty) empty.style.display='block'; return; }
   if(empty) empty.style.display='none';
   
-  var statusColors = {en_attente:'#f59e0b', en_cours:'#3b82f6', termine:'#22c55e'};
-  var statusLabels = {en_attente:'En attente', en_cours:'En cours', termine:'Terminé'};
+  var statusColors = {en_cours:'#3b82f6', termine:'#22c55e', facture:'#8b5cf6'};
+  var statusLabels = {en_cours:'En cours', termine:'Terminé', facture:'Facturé'};
   
   list.innerHTML = filtered.map(function(p) {
     var sc = statusColors[p.statut] || '#999';
     var sl = statusLabels[p.statut] || p.statut;
-    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+sc+'">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">' +
+    var checkDone = (p.checklist||[]).filter(function(c){return c.done}).length;
+    var checkTotal = (p.checklist||[]).length;
+    var progress = checkTotal ? Math.round(checkDone/checkTotal*100) : 0;
+    return '<div onclick="projShowDetail('+p.id+')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+sc+';cursor:pointer">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
         '<div style="font-weight:600;font-size:.9rem;color:var(--text)">'+escHtml(p.name)+'</div>' +
         '<span style="padding:2px 8px;border-radius:8px;background:'+sc+';color:#fff;font-size:.7rem;font-weight:600">'+sl+'</span>' +
       '</div>' +
-      (p.client ? '<div style="font-size:.8rem;color:var(--text2);margin-bottom:4px">'+escHtml(p.client)+'</div>' : '') +
-      (p.montant ? '<div style="font-size:.8rem;color:var(--text2);margin-bottom:4px">Montant: '+escHtml(p.montant)+'</div>' : '') +
-      (p.note ? '<div style="font-size:.75rem;color:var(--text3);margin-bottom:6px">'+escHtml(p.note)+'</div>' : '') +
-      '<div style="display:flex;gap:6px;justify-content:flex-end">' +
-        
-        (p.statut==='en_cours' ? '<button onclick="projChangeStatus('+p.id+',\'termine\')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Terminer</button>' : '') +
-        '<button onclick="projEdit('+p.id+')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>' +
-        '<button onclick="projDelete('+p.id+')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>' +
-      '</div>' +
+      (p.client ? '<div style="font-size:.8rem;color:var(--text2)">'+escHtml(p.client)+(p.dept?' — '+escHtml(p.dept):'')+'</div>' : '') +
+      (p.montant ? '<div style="font-size:.8rem;color:var(--text2)">'+escHtml(p.montant)+'</div>' : '') +
+      (checkTotal ? '<div style="margin-top:6px;display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:var(--border);border-radius:2px"><div style="width:'+progress+'%;height:100%;background:'+sc+';border-radius:2px"></div></div><span style="font-size:.7rem;color:var(--text3)">'+checkDone+'/'+checkTotal+'</span></div>' : '') +
     '</div>';
   }).join('');
 }
@@ -507,39 +547,191 @@ function projFilter(val, btn) {
   renderProjects();
 }
 
-async function showAddProject() {
-  var name = prompt('Nom du projet:');
-  if(!name) return;
-  var client = prompt('Client (optionnel):') || '';
-  var montant = prompt('Montant (optionnel):') || '';
-  var note = prompt('Note (optionnel):') || '';
-  await saveProject({name:name, client:client, montant:montant, note:note});
+function projShowForm(editId) {
+  document.getElementById('projListView').style.display='none';
+  document.getElementById('projDetailView').style.display='none';
+  document.getElementById('projFormView').style.display='block';
+  document.getElementById('pf_editId').value = editId || '';
+  document.getElementById('projFormTitle').textContent = editId ? 'Modifier le projet' : 'Nouveau projet';
+  if(editId) {
+    var all = projects.concat(leads||[]);
+    var p = all.find(function(x){return x.id==editId});
+    if(p) {
+      document.getElementById('pf_name').value = p.name||'';
+      document.getElementById('pf_client').value = p.client||'';
+      document.getElementById('pf_contact').value = p.contact||'';
+      document.getElementById('pf_montant').value = p.montant||'';
+      document.getElementById('pf_deadline').value = p.deadline||'';
+      document.getElementById('pf_dept').value = p.dept||'';
+      document.getElementById('pf_desc').value = p.description||'';
+      document.getElementById('pf_source').value = p.source||'';
+    }
+  } else {
+    ['pf_name','pf_client','pf_contact','pf_montant','pf_deadline','pf_dept','pf_desc','pf_source'].forEach(function(id){document.getElementById(id).value=''});
+  }
+}
+
+async function projSaveForm() {
+  var name = document.getElementById('pf_name').value.trim();
+  if(!name) { alert('Nom requis'); return; }
+  var data = {
+    name: name,
+    client: document.getElementById('pf_client').value.trim(),
+    contact: document.getElementById('pf_contact').value.trim(),
+    montant: document.getElementById('pf_montant').value.trim(),
+    deadline: document.getElementById('pf_deadline').value,
+    dept: document.getElementById('pf_dept').value,
+    description: document.getElementById('pf_desc').value.trim(),
+    source: document.getElementById('pf_source').value.trim()
+  };
+  var editId = document.getElementById('pf_editId').value;
+  if(editId) {
+    await updateProject(parseInt(editId), data);
+  } else {
+    data.statut = 'en_cours';
+    await saveProject(data);
+  }
+  projBackToList();
   await loadProjects();
+}
+
+function projBackToList() {
+  document.getElementById('projFormView').style.display='none';
+  document.getElementById('projDetailView').style.display='none';
+  document.getElementById('projListView').style.display='block';
+}
+
+async function projShowDetail(id) {
+  var all_proj = [];
+  try {
+    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+    if(r.ok) all_proj = await r.json();
+  } catch(e) {}
+  var p = all_proj.find(function(x){return x.id===id});
+  if(!p) return;
+  
+  document.getElementById('projListView').style.display='none';
+  document.getElementById('projFormView').style.display='none';
+  document.getElementById('projDetailView').style.display='block';
+  document.getElementById('projDetailTitle').textContent = p.name;
+  
+  var statusColors = {en_attente:'#f59e0b', en_cours:'#3b82f6', termine:'#22c55e', facture:'#8b5cf6'};
+  var statusLabels = {en_attente:'En attente', en_cours:'En cours', termine:'Terminé', facture:'Facturé'};
+  var sc = statusColors[p.statut]||'#999';
+  var sl = statusLabels[p.statut]||p.statut;
+  
+  var html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="padding:4px 12px;border-radius:8px;background:'+sc+';color:#fff;font-size:.8rem;font-weight:600">'+sl+'</span>';
+  html += '<div style="display:flex;gap:6px">';
+  if(p.statut==='en_cours') html += '<button onclick="projChangeStatus('+p.id+',\'termine\')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Terminer</button>';
+  if(p.statut==='termine') html += '<button onclick="projChangeStatus('+p.id+',\'facture\')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Facturer</button>';
+  html += '<button onclick="projShowForm('+p.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Modifier</button>';
+  html += '<button onclick="projDeleteAndBack('+p.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#e55;cursor:pointer;font-size:.75rem">Supprimer</button>';
+  html += '</div></div>';
+  
+  var fields = [
+    {icon:'user',label:'Client',val:p.client},
+    {icon:'phone',label:'Contact',val:p.contact},
+    {icon:'dollar',label:'Montant',val:p.montant},
+    {icon:'calendar',label:'Deadline',val:p.deadline},
+    {icon:'building',label:'Département',val:p.dept},
+    {icon:'file',label:'Source',val:p.source},
+    {icon:'text',label:'Description',val:p.description}
+  ];
+  fields.forEach(function(f){
+    if(f.val) html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:90px">'+f.label+'</span><span style="font-size:.85rem;color:var(--text)">'+escHtml(f.val)+'</span></div>';
+  });
+  html += '</div>';
+  
+  // Checklist section
+  var checklist = p.checklist || [];
+  var checkDone = checklist.filter(function(c){return c.done}).length;
+  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="font-size:.95rem;color:var(--text);margin:0">Checklist</h3><span style="font-size:.75rem;color:var(--text3)">'+checkDone+'/'+checklist.length+'</span></div>';
+  if(checklist.length) {
+    var prog = Math.round(checkDone/checklist.length*100);
+    html += '<div style="height:4px;background:var(--border);border-radius:2px;margin-bottom:10px"><div style="width:'+prog+'%;height:100%;background:var(--accent);border-radius:2px;transition:width .3s"></div></div>';
+  }
+  checklist.forEach(function(c, i){
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0">';
+    html += '<div onclick="projToggleCheck('+p.id+','+i+')" style="width:20px;height:20px;border-radius:50%;border:2px solid '+(c.done?'var(--green,#22c55e)':'var(--border)')+';background:'+(c.done?'var(--green,#22c55e)':'transparent')+';cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(c.done?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>';
+    html += '<span style="font-size:.85rem;color:var(--text);'+(c.done?'text-decoration:line-through;opacity:.5':'')+'">'+escHtml(c.text)+'</span>';
+    html += '<button onclick="projRemoveCheck('+p.id+','+i+')" style="margin-left:auto;background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem">×</button>';
+    html += '</div>';
+  });
+  html += '<div style="display:flex;gap:6px;margin-top:8px"><input id="newCheckItem" placeholder="Ajouter une étape..." style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" onkeydown="if(event.key===\'Enter\')projAddCheck('+p.id+')"><button onclick="projAddCheck('+p.id+')" style="padding:8px 14px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;cursor:pointer;font-size:.85rem">+</button></div>';
+  html += '</div>';
+  
+  // Notes section
+  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
+  html += '<h3 style="font-size:.95rem;color:var(--text);margin:0 0 10px">Notes</h3>';
+  html += '<textarea id="projNotes" rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:.85rem;font-family:inherit;resize:vertical;box-sizing:border-box" onblur="projSaveNotes('+p.id+')">'+(p.notes||'')+'</textarea>';
+  html += '</div>';
+  
+  document.getElementById('projDetailContent').innerHTML = html;
 }
 
 async function projChangeStatus(id, newStatus) {
   await updateProject(id, {statut: newStatus});
   await loadProjects();
+  projShowDetail(id);
+}
+
+async function projDeleteAndBack(id) {
+  if(!confirm('Supprimer ce projet?')) return;
+  await deleteProjectAPI(id);
+  projBackToList();
+  await loadProjects();
+}
+
+async function projToggleCheck(projId, checkIdx) {
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+  var all = await r.json();
+  var p = all.find(function(x){return x.id===projId});
+  if(!p || !p.checklist) return;
+  p.checklist[checkIdx].done = !p.checklist[checkIdx].done;
+  await updateProject(projId, {checklist: p.checklist});
+  projShowDetail(projId);
+}
+
+async function projAddCheck(projId) {
+  var input = document.getElementById('newCheckItem');
+  var text = input.value.trim();
+  if(!text) return;
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+  var all = await r.json();
+  var p = all.find(function(x){return x.id===projId});
+  if(!p) return;
+  var checklist = p.checklist || [];
+  checklist.push({text: text, done: false});
+  await updateProject(projId, {checklist: checklist});
+  projShowDetail(projId);
+}
+
+async function projRemoveCheck(projId, checkIdx) {
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+  var all = await r.json();
+  var p = all.find(function(x){return x.id===projId});
+  if(!p || !p.checklist) return;
+  p.checklist.splice(checkIdx, 1);
+  await updateProject(projId, {checklist: p.checklist});
+  projShowDetail(projId);
+}
+
+async function projSaveNotes(projId) {
+  var notes = document.getElementById('projNotes').value;
+  await updateProject(projId, {notes: notes});
 }
 
 async function projEdit(id) {
-  var p = projects.find(function(x){return x.id===id});
-  if(!p) return;
-  var name = prompt('Nom:', p.name);
-  if(name === null) return;
-  var client = prompt('Client:', p.client || '');
-  var montant = prompt('Montant:', p.montant || '');
-  var note = prompt('Note:', p.note || '');
-  await updateProject(id, {name: name||p.name, client: client!==null?client:p.client, montant: montant!==null?montant:p.montant, note: note!==null?note:p.note});
-  await loadProjects();
+  projShowForm(id);
 }
 
 async function projDelete(id) {
-  if(!confirm('Supprimer ce projet?')) return;
+  if(!confirm('Supprimer?')) return;
   await deleteProjectAPI(id);
   await loadProjects();
 }
-
 
 // ===== LEADS =====
 var leads = [];
@@ -577,7 +769,7 @@ function renderLeads() {
       (p.note ? '<div style="font-size:.75rem;color:var(--text3);margin-bottom:6px">'+escHtml(p.note)+'</div>' : '') +
       '<div style="display:flex;gap:6px;justify-content:flex-end">' +
         '<button onclick="leadToProject('+p.id+')" style="padding:6px 14px;border-radius:6px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:.8rem;font-weight:600">Valider → Projet</button>' +
-        '<button onclick="projEdit('+p.id+');loadLeads()" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>' +
+        '<button onclick="leadEdit('+p.id+')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>' +
         '<button onclick="leadDelete('+p.id+')" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></button>' +
       '</div>' +
     '</div>';
@@ -587,13 +779,20 @@ function renderLeads() {
 async function showAddLead() {
   var name = prompt('Nom du lead / offre:');
   if(!name) return;
-  var client = prompt('Client (optionnel):') || '';
-  var montant = prompt('Montant (optionnel):') || '';
-  var note = prompt('Note (optionnel):') || '';
-  await saveProject({name:name, client:client, montant:montant, note:note, statut:'en_attente'});
+  var client = prompt('Client:') || '';
+  var contact = prompt('Contact (tel/email):') || '';
+  var montant = prompt('Montant estimé:') || '';
+  var desc = prompt('Description:') || '';
+  await saveProject({name:name, client:client, contact:contact, montant:montant, description:desc, statut:'en_attente'});
   await loadLeads();
 }
 
+
+async function leadEdit(id) {
+  // Switch to projects page to use the form
+  switchNav('projects', document.querySelectorAll('.bottom-nav button')[3]);
+  setTimeout(function(){ projShowForm(id); }, 200);
+}
 async function leadToProject(id) {
   await updateProject(id, {statut: 'en_cours'});
   await loadLeads();
