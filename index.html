@@ -244,9 +244,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <div class="qr-actions">
 <button onclick="downloadQR('png')">📥 PNG</button>
 <button onclick="downloadQR('svg')">📥 SVG</button>
+<button class="primary" onclick="saveQR()">💾 Enregistrer</button>
 <button onclick="copyQR()">📋 Copier</button>
 </div>
 </div>
+</div>
+<div id="qrSavedSection" style="margin-top:20px">
+<h3 style="font-size:1rem;margin-bottom:12px;color:var(--text)">Mes QR Codes</h3>
+<div id="qrSavedList" style="display:flex;flex-direction:column;gap:10px"></div>
+<p id="qrSavedEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:20px">Aucun QR code enregistré</p>
 </div>
 </div>
 </div>
@@ -523,6 +529,98 @@ async function copyQR() {
     await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
     alert('QR copie dans le presse-papier!');
   } catch(e) { alert('Copie impossible sur ce navigateur'); }
+}
+
+function saveQR() {
+  var canvas = document.getElementById('qrCanvas');
+  if(!canvas || !canvas.toDataURL) { alert('Genere un QR code d\'abord'); return; }
+  var name = prompt('Nom du QR code:');
+  if(!name) return;
+  var saved = JSON.parse(localStorage.getItem('hf_saved_qr') || '[]');
+  var activeType = document.querySelector('.qr-type-btn.active');
+  var qrType = activeType ? activeType.textContent.trim() : 'QR';
+  saved.unshift({
+    id: Date.now(),
+    name: name,
+    type: qrType,
+    dataUrl: canvas.toDataURL('image/png'),
+    width: canvas.width,
+    height: canvas.height,
+    date: new Date().toLocaleDateString('fr-CH')
+  });
+  localStorage.setItem('hf_saved_qr', JSON.stringify(saved));
+  renderSavedQR();
+}
+
+function renderSavedQR() {
+  var list = document.getElementById('qrSavedList');
+  var empty = document.getElementById('qrSavedEmpty');
+  if(!list) return;
+  var saved = JSON.parse(localStorage.getItem('hf_saved_qr') || '[]');
+  if(!saved.length) { list.innerHTML=''; if(empty) empty.style.display='block'; return; }
+  if(empty) empty.style.display='none';
+  list.innerHTML = saved.map(function(q) {
+    return '<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg)">' +
+      '<img src="'+q.dataUrl+'" style="width:60px;height:60px;border-radius:8px;background:#fff">' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-weight:600;color:var(--text);font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+q.name+'</div>' +
+        '<div style="font-size:.75rem;color:var(--text2)">'+q.type+' - '+q.date+'</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px;flex-shrink:0">' +
+        '<button onclick="dlSavedQR('+q.id+',\'png\')" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem" title="PNG">PNG</button>' +
+        '<button onclick="dlSavedQR('+q.id+',\'svg\')" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem" title="SVG">SVG</button>' +
+        '<button onclick="copySavedQR('+q.id+')" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem" title="Copier">📋</button>' +
+        '<button onclick="deleteSavedQR('+q.id+')" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem" title="Supprimer">🗑</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function dlSavedQR(id, format) {
+  var saved = JSON.parse(localStorage.getItem('hf_saved_qr') || '[]');
+  var q = saved.find(function(x){return x.id===id});
+  if(!q) return;
+  if(format==='svg'){
+    var svgStr = '<svg xmlns="http://www.w3.org/2000/svg" width="'+q.width+'" height="'+q.height+'"><image href="'+q.dataUrl+'" width="'+q.width+'" height="'+q.height+'"/></svg>';
+    var blob = new Blob([svgStr],{type:'image/svg+xml'});
+    var file = new File([blob], q.name+'.svg',{type:'image/svg+xml'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try { await navigator.share({files:[file],title:q.name}); return; } catch(e){}
+    }
+    var link = document.createElement('a');
+    link.download = q.name+'.svg'; link.href = URL.createObjectURL(blob);
+    link.click(); URL.revokeObjectURL(link.href);
+  } else {
+    var resp = await fetch(q.dataUrl);
+    var blob = await resp.blob();
+    var file = new File([blob], q.name+'.png',{type:'image/png'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try { await navigator.share({files:[file],title:q.name}); return; } catch(e){}
+    }
+    var link = document.createElement('a');
+    link.download = q.name+'.png'; link.href = URL.createObjectURL(blob);
+    link.click(); URL.revokeObjectURL(link.href);
+  }
+}
+
+async function copySavedQR(id) {
+  var saved = JSON.parse(localStorage.getItem('hf_saved_qr') || '[]');
+  var q = saved.find(function(x){return x.id===id});
+  if(!q) return;
+  try {
+    var resp = await fetch(q.dataUrl);
+    var blob = await resp.blob();
+    await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+    alert('QR copie!');
+  } catch(e) { alert('Copie impossible'); }
+}
+
+function deleteSavedQR(id) {
+  if(!confirm('Supprimer ce QR code?')) return;
+  var saved = JSON.parse(localStorage.getItem('hf_saved_qr') || '[]');
+  saved = saved.filter(function(x){return x.id!==id});
+  localStorage.setItem('hf_saved_qr', JSON.stringify(saved));
+  renderSavedQR();
 }
 
 function loadQrLogo(input) {
