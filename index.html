@@ -606,9 +606,89 @@ async function hfcLoadOrders(){
       if(o.statut)sub+=(sub?' - ':'')+o.statut.replace(/_/g,' ');
       if(o.garage_nom)sub+=(sub?' | ':'')+o.garage_nom;
       if(o.vendeur_nom)sub+=(sub?' | ':'')+o.vendeur_nom;
-      return '<div style="background:var(--card,#f8f8f8);padding:12px;border-radius:10px;margin-bottom:8px;border-left:4px solid '+color+';color:var(--text,#222)"><strong style="color:var(--text,#222)">'+title+'</strong><br><span style="font-size:.8rem;color:var(--text2,#666)">'+sub+'</span></div>'
+      return '<div onclick="hfcShowDetail('+o.id+')" style="cursor:pointer;background:var(--card,#f8f8f8);padding:12px;border-radius:10px;margin-bottom:8px;border-left:4px solid '+color+';color:var(--text,#222)"><strong style="color:var(--text,#222)">'+title+'</strong><br><span style="font-size:.8rem;color:var(--text2,#666)">'+sub+'</span></div>'
     }).join('');
   }catch(e){var el=document.getElementById('hfcList');if(el)el.innerHTML='<p style="color:var(--red)">Erreur de chargement</p>'}
+}
+
+
+async function hfcShowDetail(id){
+  var tk=localStorage.getItem('hfc_tk');
+  try{
+    var res=await fetch('https://hf-customs.hfcustoms.workers.dev/api/commandes/'+id,{headers:{'Authorization':'Bearer '+tk}});
+    if(!res.ok){alert('Erreur');return}
+    var o=await res.json();
+    var el=document.getElementById('hfcDetail');
+    if(!el)return;
+    var statusColors={en_attente:'#f59e0b',valide:'#10b981',en_cours:'#3b82f6',termine:'#22c55e',facture:'#8b5cf6',brouillon:'#6b7280'};
+    var sc=statusColors[o.statut]||'#999';
+    var html='<div style="margin-bottom:12px"><button onclick="hfcBackToList()" style="background:none;border:none;color:var(--accent,#FF7300);font-size:14px;cursor:pointer;padding:4px 0">← Retour</button></div>';
+    html+='<div style="background:var(--card,#f8f8f8);border-radius:12px;padding:16px;margin-bottom:12px;border-left:4px solid '+sc+'">';
+    html+='<h3 style="margin:0 0 8px;color:var(--text,#222)">#'+o.id+' '+(o.marque||'')+' '+(o.modele||'')+'</h3>';
+    html+='<span style="display:inline-block;padding:3px 10px;border-radius:12px;background:'+sc+';color:#fff;font-size:12px;font-weight:600">'+(o.statut||'').replace(/_/g,' ')+'</span>';
+    html+='</div>';
+    // Info cards
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
+    var fields=[
+      {l:'Prestation',v:o.prestation},
+      {l:'Option',v:o.option_type},
+      {l:'Couleur',v:o.couleur},
+      {l:'Couleur mat.',v:o.couleur_mat},
+      {l:'N° véhicule',v:o.numero_vehicule},
+      {l:'Prix',v:o.prix?o.prix+' CHF':''},
+      {l:'Réception',v:o.date_reception?(o.date_reception+(o.heure_reception?' '+o.heure_reception:'')):''},
+      {l:'Livraison',v:o.date_livraison?(o.date_livraison+(o.heure_livraison?' '+o.heure_livraison:'')):''},
+      {l:'Garage',v:o.garage_nom},
+      {l:'Vendeur',v:o.vendeur_nom}
+    ];
+    for(var i=0;i<fields.length;i++){
+      if(fields[i].v){
+        html+='<div style="background:var(--surface,#fff);padding:10px;border-radius:8px;border:1px solid var(--border,#eee)">';
+        html+='<div style="font-size:11px;color:var(--text2,#888);margin-bottom:2px">'+fields[i].l+'</div>';
+        html+='<div style="font-size:14px;color:var(--text,#222);font-weight:500">'+fields[i].v+'</div>';
+        html+='</div>';
+      }
+    }
+    html+='</div>';
+    // Notes
+    if(o.notes){
+      html+='<div style="background:var(--surface,#fff);padding:12px;border-radius:8px;border:1px solid var(--border,#eee);margin-bottom:12px">';
+      html+='<div style="font-size:11px;color:var(--text2,#888);margin-bottom:4px">Notes</div>';
+      html+='<div style="font-size:14px;color:var(--text,#222)">'+o.notes+'</div>';
+      html+='</div>';
+    }
+    // Photos
+    html+='<div style="margin-bottom:12px"><h4 style="margin:0 0 8px;color:var(--text,#222)">Photos</h4>';
+    var photos=o.photos||[];
+    if(photos.length){
+      html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">';
+      for(var p=0;p<photos.length;p++){
+        html+='<img src="'+photos[p]+'" style="width:100%;border-radius:8px;object-fit:cover;height:100px;cursor:pointer" onclick="window.open(this.src)">';
+      }
+      html+='</div>';
+    }else{
+      html+='<p style="color:var(--text2,#888);font-size:13px">Aucune photo</p>';
+    }
+    html+='</div>';
+    // Photo info (from creation)
+    if(o.photo_info){
+      html+='<div style="background:var(--surface,#fff);padding:12px;border-radius:8px;border:1px solid var(--border,#eee);margin-bottom:12px">';
+      html+='<div style="font-size:11px;color:var(--text2,#888);margin-bottom:4px">Info photo</div>';
+      html+='<div style="font-size:14px;color:var(--text,#222)">'+o.photo_info+'</div>';
+      html+='</div>';
+    }
+    el.innerHTML=html;
+    document.getElementById('hfcList').style.display='none';
+    document.getElementById('hfcFilters').style.display='none';
+    var stats=document.getElementById('hfcStats');if(stats)stats.style.display='none';
+    el.style.display='block';
+  }catch(e){console.error(e)}
+}
+function hfcBackToList(){
+  document.getElementById('hfcDetail').style.display='none';
+  document.getElementById('hfcList').style.display='';
+  document.getElementById('hfcFilters').style.display='';
+  var stats=document.getElementById('hfcStats');if(stats)stats.style.display='';
 }
 
 // Theme init
