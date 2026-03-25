@@ -132,72 +132,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 #themeToggle{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 8px;border-radius:var(--radius);cursor:pointer;font-size:.85rem}
 </style>
 
-<div class="page" id="pageProjects" style="padding:0 16px">
-<div id="projListView">
-<div class="header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
-<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Projets</h2>
-<button onclick="projShowForm()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Nouveau</button>
-</div>
-<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="projFilters">
-<button class="filter-btn active" onclick="projFilter('all',this)">Tous</button>
-<button class="filter-btn" onclick="projFilter('en_cours',this)">En cours</button>
-<button class="filter-btn" onclick="projFilter('termine',this)">Terminé</button>
-<button class="filter-btn" onclick="projFilter('facture',this)">Facturé</button>
-</div>
-<div id="projStats" style="font-size:.8rem;color:var(--text2);margin-bottom:12px"></div>
-<div id="projList" style="display:flex;flex-direction:column;gap:10px"></div>
-<p id="projEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun projet</p>
-</div>
-<div id="projFormView" style="display:none">
-<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
-<button onclick="projBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">←</button>
-<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="projFormTitle">Nouveau projet</h2>
-</div>
-<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
-<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Nom du projet *</label>
-<input id="pf_name" type="text" placeholder="Ex: Vitrophanie bureau Lausanne" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
-<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Client</label>
-<input id="pf_client" type="text" placeholder="Ex: Blondel Chocolatier" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
-<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Contact</label>
-<input id="pf_contact" type="text" placeholder="Tél / email du contact" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
-<div style="display:flex;gap:10px">
-<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Montant</label>
-<input id="pf_montant" type="text" placeholder="CHF" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
-<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Deadline</label>
-<input id="pf_deadline" type="date" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
-</div>
-<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;margin-top:12px">Département</label>
-<select id="pf_dept" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px">
-<option value="">— Choisir —</option>
-<option value="HF Pub">HF Pub</option>
-<option value="HF Customs">HF Customs</option>
-<option value="HF Vitro">HF Vitro</option>
-</select>
-<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Description</label>
-<textarea id="pf_desc" rows="3" placeholder="Détails du projet..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical;margin-bottom:12px;box-sizing:border-box"></textarea>
-<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Source du lead</label>
-<input id="pf_source" type="text" placeholder="Bouche à oreille, site web, etc." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:16px;box-sizing:border-box">
-<input type="hidden" id="pf_editId" value="">
-<button onclick="projSaveForm()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:.9rem;font-weight:600">Enregistrer</button>
-</div>
-</div>
-<div id="projDetailView" style="display:none">
-<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
-<button onclick="projBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">←</button>
-<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="projDetailTitle">Projet</h2>
-</div>
-<div id="projDetailContent"></div>
-</div>
-</div>
-<div class="page" id="pageLeads" style="padding:0 16px">
-<div class="header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
-<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Leads</h2>
-<button onclick="showAddLead()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Nouveau</button>
-</div>
-<div id="leadStats" style="font-size:.8rem;color:var(--text2);margin-bottom:12px"></div>
-<div id="leadList" style="display:flex;flex-direction:column;gap:10px"></div>
-<p id="leadEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun lead</p>
-</div>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
@@ -363,6 +297,73 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <div id="hfcDetail" style="display:none"></div>
 </div>
 </div>
+<div class="page" id="pageProjects" style="padding:0 16px">
+<div id="projListView">
+<div class="header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Projets</h2>
+<button onclick="projShowForm()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Nouveau</button>
+</div>
+<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap" id="projFilters">
+<button class="filter-btn active" onclick="projFilter('all',this)">Tous</button>
+<button class="filter-btn" onclick="projFilter('en_cours',this)">En cours</button>
+<button class="filter-btn" onclick="projFilter('termine',this)">Terminé</button>
+<button class="filter-btn" onclick="projFilter('facture',this)">Facturé</button>
+</div>
+<div id="projStats" style="font-size:.8rem;color:var(--text2);margin-bottom:12px"></div>
+<div id="projList" style="display:flex;flex-direction:column;gap:10px"></div>
+<p id="projEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun projet</p>
+</div>
+<div id="projFormView" style="display:none">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
+<button onclick="projBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">←</button>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="projFormTitle">Nouveau projet</h2>
+</div>
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Nom du projet *</label>
+<input id="pf_name" type="text" placeholder="Ex: Vitrophanie bureau Lausanne" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Client</label>
+<input id="pf_client" type="text" placeholder="Ex: Blondel Chocolatier" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Contact</label>
+<input id="pf_contact" type="text" placeholder="Tél / email du contact" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<div style="display:flex;gap:10px">
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Montant</label>
+<input id="pf_montant" type="text" placeholder="CHF" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Deadline</label>
+<input id="pf_deadline" type="date" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+</div>
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px;margin-top:12px">Département</label>
+<select id="pf_dept" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px">
+<option value="">— Choisir —</option>
+<option value="HF Pub">HF Pub</option>
+<option value="HF Customs">HF Customs</option>
+<option value="HF Vitro">HF Vitro</option>
+</select>
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Description</label>
+<textarea id="pf_desc" rows="3" placeholder="Détails du projet..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical;margin-bottom:12px;box-sizing:border-box"></textarea>
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Source du lead</label>
+<input id="pf_source" type="text" placeholder="Bouche à oreille, site web, etc." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:16px;box-sizing:border-box">
+<input type="hidden" id="pf_editId" value="">
+<button onclick="projSaveForm()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:.9rem;font-weight:600">Enregistrer</button>
+</div>
+</div>
+<div id="projDetailView" style="display:none">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
+<button onclick="projBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">←</button>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="projDetailTitle">Projet</h2>
+</div>
+<div id="projDetailContent"></div>
+</div>
+</div>
+<div class="page" id="pageLeads" style="padding:0 16px">
+<div class="header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Leads</h2>
+<button onclick="showAddLead()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Nouveau</button>
+</div>
+<div id="leadStats" style="font-size:.8rem;color:var(--text2);margin-bottom:12px"></div>
+<div id="leadList" style="display:flex;flex-direction:column;gap:10px"></div>
+<p id="leadEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun lead</p>
+</div>
+
 </div>
 <script>
 const API='https://hf-tasks-api.hectoflex.workers.dev';
