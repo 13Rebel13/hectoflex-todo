@@ -464,7 +464,7 @@ function generateQR() {
   var canvas = document.getElementById('qrCanvas');
   var result = document.getElementById('qrResult');
   if(result) result.style.display='block';
-  var opts = {width:300, margin:2, color:{dark:'#000000',light:'#ffffff'}};
+  var opts = {width:400, margin:2, errorCorrectionLevel:'H', color:{dark:'#000000',light:'#ffffff'}};
   if(typeof QRCode === 'undefined'){
     // Wait for CDN to load
     var waitCount = 0;
