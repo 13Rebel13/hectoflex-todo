@@ -569,7 +569,7 @@ async function loadProjects() {
     if(r.ok) projects = await r.json();
   } catch(e) { console.error('loadProjects',e); }
   // Filter out leads (en_attente)
-  projects = projects.filter(function(p){return p.statut!=='en_attente'});
+  projects = projects.filter(function(p){return p.statut==='en_cours'||p.statut==='termine'||p.statut==='facture'});
   renderProjects();
 }
 
