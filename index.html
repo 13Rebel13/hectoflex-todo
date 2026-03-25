@@ -603,10 +603,12 @@ async function hfcLoadOrders(){
       if(o.marque)title+=' '+o.marque;
       if(o.modele)title+=' '+o.modele;
       var sub=o.prestation||'';
+      if(o.numero_vehicule)sub+=(sub?' - ':'')+'N°'+o.numero_vehicule;
       if(o.statut)sub+=(sub?' - ':'')+o.statut.replace(/_/g,' ');
       if(o.garage_nom)sub+=(sub?' | ':'')+o.garage_nom;
       if(o.vendeur_nom)sub+=(sub?' | ':'')+o.vendeur_nom;
-      return '<div onclick="hfcShowDetail('+o.id+')" style="cursor:pointer;background:var(--card,#f8f8f8);padding:12px;border-radius:10px;margin-bottom:8px;border-left:4px solid '+color+';color:var(--text,#222)"><strong style="color:var(--text,#222)">'+title+'</strong><br><span style="font-size:.8rem;color:var(--text2,#666)">'+sub+'</span></div>'
+      var factBadge=o.statut==='facture'?'<span style="display:inline-block;margin-left:8px;padding:1px 6px;border-radius:8px;background:#8b5cf6;color:#fff;font-size:10px">facturé</span>':'';
+      return '<div onclick="hfcShowDetail('+o.id+')" style="cursor:pointer;background:var(--card,#f8f8f8);padding:12px;border-radius:10px;margin-bottom:8px;border-left:4px solid '+color+';color:var(--text,#222)"><strong style="color:var(--text,#222)">'+title+factBadge+'</strong><br><span style="font-size:.8rem;color:var(--text2,#666)">'+sub+'</span></div>'
     }).join('');
   }catch(e){var el=document.getElementById('hfcList');if(el)el.innerHTML='<p style="color:var(--red)">Erreur de chargement</p>'}
 }
@@ -650,6 +652,12 @@ async function hfcShowDetail(id){
       }
     }
     html+='</div>';
+    // Actions: edit numero_vehicule + toggle facturé
+    html+='<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+    html+='<button onclick="hfcEditNumVehicule('+o.id+',&#39;'+(o.numero_vehicule||'')+'&#39;)" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--accent,#FF7300);background:none;color:var(--accent,#FF7300);font-size:13px;cursor:pointer;font-weight:600">Modifier N° véhicule</button>';
+    var isFact=o.statut==='facture';
+    html+='<button onclick="hfcToggleFacture('+o.id+','+(!isFact)+')" style="flex:1;padding:10px;border-radius:8px;border:none;background:'+(isFact?'#8b5cf6':'var(--accent,#FF7300)')+';color:#fff;font-size:13px;cursor:pointer;font-weight:600">'+(isFact?'Marquer non facturé':'Marquer facturé')+'</button>';
+    html+='</div>';
     // Notes
     if(o.notes){
       html+='<div style="background:var(--surface,#fff);padding:12px;border-radius:8px;border:1px solid var(--border,#eee);margin-bottom:12px">';
@@ -677,6 +685,20 @@ async function hfcShowDetail(id){
     var stats=document.getElementById('hfcStats');if(stats)stats.style.display='none';
     el.style.display='block';
   }catch(e){console.error(e)}
+}
+
+async function hfcEditNumVehicule(id,current){
+  var val=prompt('Numéro de véhicule:',current);
+  if(val===null)return;
+  var tk=localStorage.getItem('hfc_tk');
+  await fetch('https://hf-customs.hfcustoms.workers.dev/api/commandes/'+id,{method:'PUT',headers:{'Authorization':'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({numero_vehicule:val})});
+  hfcShowDetail(id);
+}
+async function hfcToggleFacture(id,setFacture){
+  var tk=localStorage.getItem('hfc_tk');
+  var newStatut=setFacture?'facture':'termine';
+  await fetch('https://hf-customs.hfcustoms.workers.dev/api/commandes/'+id+'/status',{method:'PUT',headers:{'Authorization':'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({statut:newStatut})});
+  hfcShowDetail(id);
 }
 function hfcBackToList(){
   document.getElementById('hfcDetail').style.display='none';
