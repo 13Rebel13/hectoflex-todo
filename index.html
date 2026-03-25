@@ -1044,7 +1044,7 @@ async function leadShowDetail(id) {
   
   // Action buttons
   html += '<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">';
-  if(p.statut!=='gagne') html += '<button onclick="leadToProject('+p.id+')" style="padding:6px 14px;border-radius:6px;border:none;background:#22c55e;color:#fff;cursor:pointer;font-size:.8rem;font-weight:600">Convertir en Projet</button>';
+  html += '<button onclick="leadToProject('+p.id+')" style="padding:6px 14px;border-radius:6px;border:none;background:#22c55e;color:#fff;cursor:pointer;font-size:.8rem;font-weight:600">Convertir en Projet</button>';
   html += '<button onclick="leadShowForm('+p.id+')" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">Modifier</button>';
   html += '<button onclick="leadDeleteAndBack('+p.id+')" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#e55;cursor:pointer;font-size:.78rem">Supprimer</button>';
   html += '</div>';
