@@ -628,10 +628,12 @@ async function projShowDetail(id) {
   var sl = statusLabels[p.statut]||p.statut;
   
   var html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="padding:4px 12px;border-radius:8px;background:'+sc+';color:#fff;font-size:.8rem;font-weight:600">'+sl+'</span>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">';
+  html += '<select onchange="projChangeStatus('+p.id+',this.value)" style="padding:6px 12px;border-radius:8px;background:'+sc+';color:#fff;font-size:.8rem;font-weight:600;border:none;cursor:pointer;appearance:auto;-webkit-appearance:auto">';
+  var allStatuts = [{v:'en_cours',l:'En cours'},{v:'termine',l:'Terminé'},{v:'facture',l:'Facturé'}];
+  allStatuts.forEach(function(s){ html += '<option value="'+s.v+'" '+(p.statut===s.v?'selected':'')+'>'+s.l+'</option>'; });
+  html += '</select>';
   html += '<div style="display:flex;gap:6px">';
-  if(p.statut==='en_cours') html += '<button onclick="projChangeStatus('+p.id+',\'termine\')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Terminer</button>';
-  if(p.statut==='termine') html += '<button onclick="projChangeStatus('+p.id+',\'facture\')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Facturer</button>';
   html += '<button onclick="projShowForm('+p.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Modifier</button>';
   html += '<button onclick="projDeleteAndBack('+p.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#e55;cursor:pointer;font-size:.75rem">Supprimer</button>';
   html += '</div></div>';
