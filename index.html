@@ -637,17 +637,19 @@ async function projShowDetail(id) {
   html += '</div></div>';
   
   var fields = [
-    {icon:'user',label:'Client',val:p.client},
-    {icon:'phone',label:'Contact',val:p.contact},
-    {icon:'dollar',label:'Montant',val:p.montant},
-    {icon:'calendar',label:'Deadline',val:p.deadline},
-    {icon:'building',label:'Département',val:p.dept},
-    {icon:'file',label:'Source',val:p.source},
-    {icon:'text',label:'Description',val:p.description}
+    {label:'Client',val:p.client},
+    {label:'Contact',val:p.contact},
+    {label:'Montant',val:p.montant},
+    {label:'Deadline',val:p.deadline},
+    {label:'Département',val:p.dept},
+    {label:'Source',val:p.source},
+    {label:'Description',val:p.description}
   ];
   fields.forEach(function(f){
-    if(f.val) html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:90px">'+f.label+'</span><span style="font-size:.85rem;color:var(--text)">'+escHtml(f.val)+'</span></div>';
+    html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:100px">'+f.label+'</span><span style="font-size:.85rem;color:'+(f.val?'var(--text)':'var(--text3)')+'">'+( f.val ? escHtml(f.val) : '—')+'</span></div>';
   });
+  html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:100px">Créé par</span><span style="font-size:.85rem;color:var(--text)">'+(p.created_by||'—')+'</span></div>';
+  html += '<div style="display:flex;gap:8px;padding:8px 0"><span style="font-size:.8rem;color:var(--text3);min-width:100px">Date création</span><span style="font-size:.85rem;color:var(--text)">'+(p.created_at?new Date(p.created_at).toLocaleDateString('fr-CH'):'—')+'</span></div>';
   html += '</div>';
   
   // Checklist section
