@@ -488,21 +488,32 @@ function generateQR() {
   });
 }
 
-function downloadQR(format) {
+async function downloadQR(format) {
   var canvas = document.getElementById('qrCanvas');
   if(!canvas) return;
-  var link = document.createElement('a');
   if(format==='svg'){
-    // Simple SVG export from canvas
     var imgData = canvas.toDataURL('image/png');
     var svgStr = '<svg xmlns="http://www.w3.org/2000/svg" width="'+canvas.width+'" height="'+canvas.height+'"><image href="'+imgData+'" width="'+canvas.width+'" height="'+canvas.height+'"/></svg>';
+    var blob = new Blob([svgStr], {type:'image/svg+xml'});
+    var file = new File([blob], 'qrcode.svg', {type:'image/svg+xml'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try { await navigator.share({files:[file],title:'QR Code'}); return; } catch(e){}
+    }
+    var link = document.createElement('a');
     link.download = 'qrcode.svg';
-    link.href = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+    link.href = URL.createObjectURL(blob);
+    link.click(); URL.revokeObjectURL(link.href);
   } else {
+    var blob = await new Promise(function(r){canvas.toBlob(r,'image/png')});
+    var file = new File([blob], 'qrcode.png', {type:'image/png'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try { await navigator.share({files:[file],title:'QR Code'}); return; } catch(e){}
+    }
+    var link = document.createElement('a');
     link.download = 'qrcode.png';
-    link.href = canvas.toDataURL('image/png');
+    link.href = URL.createObjectURL(blob);
+    link.click(); URL.revokeObjectURL(link.href);
   }
-  link.click();
 }
 
 async function copyQR() {
