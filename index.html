@@ -85,11 +85,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .task-item.done .task-check::after{content:'\2713';color:#fff;font-size:13px}
 .task-content{flex:1;min-width:0}
 .task-text{font-size:.9rem;line-height:1.4;word-break:break-word}
-.task-note{font-size:.8rem;color:var(--text2);margin-top:4px;padding:4px 8px;background:var(--bg);border-radius:6px;display:flex;align-items:center;gap:6px}
-.task-note svg{flex-shrink:0}
+.task-note{font-size:.75rem;color:var(--text3);margin-top:2px;display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.task-note svg{flex-shrink:0;opacity:.5}
 .note-input{display:none;width:100%;margin-top:6px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem;font-family:inherit;resize:vertical;min-height:40px}
 .note-input.show{display:block}
-.task-date{font-size:.7rem;color:var(--text3);margin-top:4px}
+.task-date{font-size:.7rem;color:var(--text3);margin-top:2px}
 .task-meta{font-size:.7rem;color:var(--text3);margin-top:4px}
 .task-actions{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap}
 .task-actions button{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
@@ -98,7 +98,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .empty span{font-size:40px;display:block;margin-bottom:10px}
 .stats{display:flex;gap:15px;margin-bottom:15px;font-size:.8rem;color:var(--text3)}
 .stats strong{color:var(--text)}
-.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;background:var(--bg)}
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;background:var(--bg);position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000}
 .login-screen h1{color:var(--accent);font-size:1.5rem}
 .login-screen p{color:var(--text2);font-size:.85rem}
 .login-box{display:flex;gap:10px}
