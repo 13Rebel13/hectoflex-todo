@@ -2000,10 +2000,18 @@ function suppRenderDetail(s) {
     // Search
     html += '<input id="suppSearch" type="text" placeholder="Rechercher un produit..." oninput="suppSearchProds('+s.id+')" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;margin-bottom:10px;box-sizing:border-box">';
     
-    var filtered = suppProdFilter==='all' ? prods : prods.filter(function(p){return p.category===suppProdFilter});
     html += '<div id="suppProdList">';
-    html += suppBuildProdCards(s, filtered.slice(0,50));
-    if(filtered.length>50) html += '<p style="font-size:.8rem;color:var(--text3);text-align:center">Affiche 50/'+filtered.length+' — utilisez la recherche</p>';
+    if(suppProdFilter==='all') {
+      // Group by category
+      catKeys.forEach(function(cat){
+        var catProds = prods.filter(function(p){return p.category===cat});
+        html += '<h4 style="font-size:.85rem;color:var(--accent);margin:16px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--accent)">'+escHtml(cat)+' ('+catProds.length+')</h4>';
+        html += suppBuildProdCards(s, catProds);
+      });
+    } else {
+      var filtered = prods.filter(function(p){return p.category===suppProdFilter});
+      html += suppBuildProdCards(s, filtered);
+    }
     html += '</div>';
   }
   
