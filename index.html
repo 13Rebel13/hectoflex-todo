@@ -2230,34 +2230,6 @@ async function suppShowDetail(id) {
     });
   }
   
-  html += '<button onclick="suppAddMyProduct('+s.id+')" style="margin-top:8px;padding:8px 14px;border:1px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text2);cursor:pointer;font-size:.85rem;width:100%">+ Ajouter un produit</button>';
-  html += '</div>';
-  
-  // Full catalog products (if any)
-  var prods = s.products || [];
-  if(prods.length) {
-    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
-    html += '<h3 style="font-size:.95rem;color:var(--text);margin:0 0 8px">Catalogue complet ('+prods.length+')</h3>';
-    // Category filters for products
-    var prodCats = [];
-    prods.forEach(function(p){ if(p.category && prodCats.indexOf(p.category)<0) prodCats.push(p.category); });
-    html += '<div id="suppProdFilters" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">';
-    html += '<button class="filter-btn active" onclick="suppFilterProds('+s.id+',\'all\',this)">Tous</button>';
-    prodCats.forEach(function(c){ html += '<button class="filter-btn" onclick="suppFilterProds('+s.id+',\''+c.replace(/'/g,"\'")+'',this)">'+escHtml(c)+'</button>'; });
-    html += '</div>';
-    html += '<div id="suppProdList" style="max-height:400px;overflow-y:auto">';
-    prods.slice(0,50).forEach(function(p){
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">';
-      html += '<div style="flex:1"><div style="font-size:.8rem;font-weight:500;color:var(--text)">'+escHtml(p.name||p.reference||'')+'</div>';
-      html += '<div style="font-size:.7rem;color:var(--text3)">'+escHtml(p.category||'')+' | Réf: '+escHtml(p.reference||'')+'</div></div>';
-      html += '<button onclick="suppSelectProd('+s.id+','+JSON.stringify(p).replace(/"/g,'&quot;').replace(/'/g,"\'")+')" style="padding:3px 8px;border:1px solid var(--accent);border-radius:4px;background:transparent;color:var(--accent);cursor:pointer;font-size:.7rem">+</button>';
-      html += '</div>';
-    });
-    html += '</div></div>';
-  }
-  
-  document.getElementById('suppDetailContent').innerHTML = html;
-}
 
 async function suppDelete(id) {
   if(!confirm('Supprimer ce fournisseur?')) return;
@@ -2324,7 +2296,7 @@ function renderSuppliers() {
   suppliers.forEach(function(s){ if(s.category) allCats[s.category]=1; });
   var catHtml = '<button class="filter-btn '+(suppCatFilter==='all'?'active':'')+'" onclick="suppFilterCat(\'all\',this)">Tous</button>';
   Object.keys(allCats).sort().forEach(function(c){
-    catHtml += '<button class="filter-btn '+(suppCatFilter===c?'active':'')+'" onclick="suppFilterCat(\''+c.replace(/'/g,"\\'")+'\'\',this)">'+escHtml(c)+'</button>';
+    catHtml += '<button class="filter-btn '+(suppCatFilter===c?'active':'')+'" data-supplistcat="'+escHtml(c)+'">'+escHtml(c)+'</button>';
   });
   if(catDiv) catDiv.innerHTML = catHtml;
   
@@ -2412,110 +2384,6 @@ function suppBackToList() {
 var suppProdFilter = 'all';
 var suppViewMode = 'info'; // info, products, selections
 
-async function suppShowDetail(id) {
-  var s = suppliers.find(function(x){return x.id===id});
-  if(!s) return;
-  document.getElementById('suppListView').style.display='none';
-  document.getElementById('suppFormView').style.display='none';
-  document.getElementById('suppDetailView').style.display='block';
-  document.getElementById('suppDetailTitle').textContent = s.name;
-  suppRenderDetail(s);
-}
-
-function suppRenderDetail(s) {
-  var html = '';
-  
-  // Tabs
-  html += '<div style="display:flex;gap:6px;margin-bottom:12px">';
-  html += '<button onclick="suppViewMode=\'info\';suppRenderDetail(suppliers.find(function(x){return x.id==='+s.id+'}))" style="padding:6px 14px;border-radius:8px;border:'+(suppViewMode==='info'?'2px solid var(--accent)':'1px solid var(--border)')+';background:'+(suppViewMode==='info'?'var(--accent)':'transparent')+';color:'+(suppViewMode==='info'?'#fff':'var(--text2)')+';cursor:pointer;font-size:.8rem">Infos</button>';
-  html += '<button onclick="suppViewMode=\'products\';suppRenderDetail(suppliers.find(function(x){return x.id==='+s.id+'}))" style="padding:6px 14px;border-radius:8px;border:'+(suppViewMode==='products'?'2px solid var(--accent)':'1px solid var(--border)')+';background:'+(suppViewMode==='products'?'var(--accent)':'transparent')+';color:'+(suppViewMode==='products'?'#fff':'var(--text2)')+';cursor:pointer;font-size:.8rem">Catalogue ('+(s.products||[]).length+')</button>';
-  html += '<button onclick="suppViewMode=\'selections\';suppRenderDetail(suppliers.find(function(x){return x.id==='+s.id+'}))" style="padding:6px 14px;border-radius:8px;border:'+(suppViewMode==='selections'?'2px solid var(--accent)':'1px solid var(--border)')+';background:'+(suppViewMode==='selections'?'var(--accent)':'transparent')+';color:'+(suppViewMode==='selections'?'#fff':'var(--text2)')+';cursor:pointer;font-size:.8rem">Mes sélections ('+(s.mySelections||[]).length+')</button>';
-  html += '</div>';
-  
-  if(suppViewMode==='info') {
-    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
-    var fields = [
-      {l:'Catégorie',v:s.category},{l:'Site web',v:s.website,link:true},{l:'Téléphone',v:s.phone},
-      {l:'Email',v:s.email},{l:'Contact',v:s.contact},{l:'Notes',v:s.notes}
-    ];
-    fields.forEach(function(f){
-      var val = f.v ? (f.link ? '<a href="'+escHtml(f.v)+'" target="_blank" style="color:var(--accent)">'+escHtml(f.v)+'</a>' : escHtml(f.v)) : '—';
-      html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:90px">'+f.l+'</span><span style="font-size:.85rem;color:'+(f.v?'var(--text)':'var(--text3)')+'">'+val+'</span></div>';
-    });
-    html += '<div style="display:flex;gap:6px;margin-top:12px">';
-    html += '<button onclick="suppShowAddForm('+s.id+')" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">Modifier</button>';
-    html += '<button onclick="suppDelete('+s.id+')" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#e55;cursor:pointer;font-size:.78rem">Supprimer</button>';
-    html += '</div></div>';
-    
-  } else if(suppViewMode==='products') {
-    var prods = s.products || [];
-    var prodCats = {};
-    prods.forEach(function(p){ if(p.category) prodCats[p.category]=1; });
-    
-    html += '<div style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap;max-height:80px;overflow-y:auto">';
-    html += '<button class="filter-btn '+(suppProdFilter==='all'?'active':'')+'" onclick="suppProdFilter=\'all\';suppRenderDetail(suppliers.find(function(x){return x.id==='+s.id+'}))" style="font-size:.7rem;padding:3px 8px">Tous</button>';
-    Object.keys(prodCats).sort().forEach(function(c){
-      html += '<button class="filter-btn '+(suppProdFilter===c?'active':'')+'" onclick="suppProdFilter=\''+c.replace(/'/g,"\\'")+'\'\';suppRenderDetail(suppliers.find(function(x){return x.id==='+s.id+'}))" style="font-size:.7rem;padding:3px 8px">'+escHtml(c)+'</button>';
-    });
-    html += '</div>';
-    
-    html += '<input id="suppSearch" type="text" placeholder="Rechercher un produit..." oninput="suppSearchProducts('+s.id+')" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;margin-bottom:10px;box-sizing:border-box">';
-    
-    var filtered = suppProdFilter==='all' ? prods : prods.filter(function(p){return p.category===suppProdFilter});
-    html += '<div id="suppProdList" style="max-height:400px;overflow-y:auto">';
-    filtered.slice(0,50).forEach(function(p, i){
-      var isSelected = (s.mySelections||[]).some(function(ms){return ms.ref===p.reference});
-      html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:6px">';
-      html += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
-      html += '<div style="flex:1"><div style="font-size:.85rem;font-weight:600;color:var(--text)">'+escHtml(p.reference||'')+' — '+escHtml(p.name||'')+'</div>';
-      html += '<div style="font-size:.75rem;color:var(--text3);margin-top:2px">'+escHtml(p.category||'')+'</div></div>';
-      html += '<button onclick="suppAddSelection('+s.id+',\''+escHtml(p.reference||'').replace(/'/g,"\\'")+'\'\',\''+escHtml(p.name||'').replace(/'/g,"\\'")+'\'\',\''+escHtml(p.category||'').replace(/'/g,"\\'")+'\'\') " style="padding:4px 10px;border:none;border-radius:6px;background:'+(isSelected?'#22c55e':'var(--accent)')+';color:#fff;cursor:pointer;font-size:.7rem;white-space:nowrap">'+(isSelected?'Ajouté':'+ Sélection')+'</button>';
-      html += '</div></div>';
-    });
-    if(filtered.length>50) html += '<p style="font-size:.8rem;color:var(--text3);text-align:center">'+filtered.length+' produits — affinez avec la recherche</p>';
-    html += '</div>';
-    
-  } else if(suppViewMode==='selections') {
-    var sels = s.mySelections || [];
-    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="font-size:.95rem;color:var(--text);margin:0">Mes produits habituels</h3>';
-    html += '<button onclick="suppAddCustomSelection('+s.id+')" style="padding:5px 10px;border:1px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">+ Ajouter</button></div>';
-    if(!sels.length) html += '<p style="font-size:.8rem;color:var(--text3)">Aucune sélection — ajoutez des produits depuis le catalogue</p>';
-    sels.forEach(function(sel, i){
-      html += '<div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">';
-      html += '<div style="flex:1"><div style="font-size:.85rem;font-weight:600;color:var(--text)">'+escHtml(sel.ref||'')+' — '+escHtml(sel.name||'')+'</div>';
-      html += '<div style="font-size:.75rem;color:var(--text3)">'+escHtml(sel.category||'')+(sel.myNote?' — '+escHtml(sel.myNote):'')+'</div></div>';
-      html += '<button onclick="suppRemoveSelection('+s.id+','+i+')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.9rem">x</button>';
-      html += '</div>';
-    });
-    html += '</div>';
-  }
-  
-  document.getElementById('suppDetailContent').innerHTML = html;
-}
-
-function suppSearchProducts(suppId) {
-  var q = (document.getElementById('suppSearch').value||'').toLowerCase();
-  var s = suppliers.find(function(x){return x.id===suppId});
-  if(!s) return;
-  var prods = s.products||[];
-  var filtered = suppProdFilter==='all' ? prods : prods.filter(function(p){return p.category===suppProdFilter});
-  if(q) filtered = filtered.filter(function(p){return (p.name||'').toLowerCase().indexOf(q)>-1||(p.reference||'').toLowerCase().indexOf(q)>-1});
-  var list = document.getElementById('suppProdList');
-  if(!list) return;
-  var html = '';
-  filtered.slice(0,50).forEach(function(p){
-    var isSelected = (s.mySelections||[]).some(function(ms){return ms.ref===p.reference});
-    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:6px">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
-    html += '<div style="flex:1"><div style="font-size:.85rem;font-weight:600;color:var(--text)">'+escHtml(p.reference||'')+' — '+escHtml(p.name||'')+'</div>';
-    html += '<div style="font-size:.75rem;color:var(--text3);margin-top:2px">'+escHtml(p.category||'')+'</div></div>';
-    html += '<button onclick="suppAddSelection('+s.id+',\''+escHtml(p.reference||'').replace(/'/g,"\\'")+'\'\',\''+escHtml(p.name||'').replace(/'/g,"\\'")+'\'\',\''+escHtml(p.category||'').replace(/'/g,"\\'")+'\'\') " style="padding:4px 10px;border:none;border-radius:6px;background:'+(isSelected?'#22c55e':'var(--accent)')+';color:#fff;cursor:pointer;font-size:.7rem;white-space:nowrap">'+(isSelected?'Ajouté':'+ Sélection')+'</button>';
-    html += '</div></div>';
-  });
-  if(filtered.length>50) html += '<p style="font-size:.8rem;color:var(--text3);text-align:center">'+filtered.length+' résultats</p>';
-  list.innerHTML = html;
-}
 
 async function suppAddSelection(suppId, ref, name, category) {
   var s = suppliers.find(function(x){return x.id===suppId});
@@ -2559,6 +2427,23 @@ async function suppDelete(id) {
   await fetch(PROJ_API+'/suppliers/'+id, {method:'DELETE', headers:{'Authorization':'Basic '+token}});
   suppBackToList();
   await loadSuppliers();
+}
+
+// Event delegation for supplier buttons
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('[data-supptab]');
+  if(btn) { suppViewMode = btn.getAttribute('data-supptab'); var sid=parseInt(btn.getAttribute('data-sid')); suppRenderDetail(suppliers.find(function(x){return x.id===sid})); return; }
+  
+  btn = e.target.closest('[data-supplistcat]');
+  if(btn) { suppFilterCat(btn.getAttribute('data-supplistcat'), btn); return; }
+  
+  btn = e.target.closest('[data-suppcat]');
+  if(btn) { var sid=parseInt(btn.getAttribute('data-suppid')); var cats=Object.keys({}); var s=suppliers.find(function(x){return x.id===sid}); if(s){var pc={};(s.products||[]).forEach(function(p){if(p.category)pc[p.category]=1});var sortedCats=Object.keys(pc).sort();suppProdFilter=sortedCats[parseInt(btn.getAttribute('data-suppcat'))]||'all';suppRenderDetail(s);} return; }
+  
+  btn = e.target.closest('[data-addsel]');
+  if(btn) { var sid=parseInt(btn.getAttribute('data-addsel')); var pidx=parseInt(btn.getAttribute('data-pidx')); var s=suppliers.find(function(x){return x.id===sid}); if(s){var prods=s.products||[];var filtered=suppProdFilter==='all'?prods:prods.filter(function(p){return p.category===suppProdFilter});var q=(document.getElementById('suppSearch')||{}).value;if(q)filtered=filtered.filter(function(p){return(p.name||'').toLowerCase().indexOf(q.toLowerCase())>-1||(p.reference||'').toLowerCase().indexOf(q.toLowerCase())>-1});var prod=filtered[pidx];if(prod)suppAddSelection(sid,prod.reference,prod.name,prod.category);} return; }
+});
+
 }
 </script>
 </body>
