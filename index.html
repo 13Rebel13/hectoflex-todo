@@ -1953,45 +1953,106 @@ async function suppShowDetail(id) {
   await loadSuppliers();
   var s = suppliers.find(function(x){return x.id===id});
   if(!s) return;
-  
   document.getElementById('suppListView').style.display='none';
   document.getElementById('suppFormView').style.display='none';
   document.getElementById('suppDetailView').style.display='block';
   document.getElementById('suppDetailTitle').textContent = s.name;
-  
-  var html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
-  html += '<span style="padding:4px 12px;border-radius:8px;background:var(--accent);color:#fff;font-size:.8rem;font-weight:600">'+escHtml(s.category||'')+'</span>';
-  html += '<div style="display:flex;gap:6px"><button onclick="suppShowAddForm('+s.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Modifier</button>';
-  html += '<button onclick="suppDelete('+s.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#e55;cursor:pointer;font-size:.75rem">Supprimer</button></div></div>';
-  
-  var fields=[{l:'Site web',v:s.website,link:true},{l:'Téléphone',v:s.phone},{l:'Email',v:s.email},{l:'Contact',v:s.contact},{l:'Notes',v:s.notes}];
-  fields.forEach(function(f){
-    var val = f.v ? (f.link ? '<a href="'+escHtml(f.v)+'" target="_blank" style="color:var(--accent)">'+escHtml(f.v)+'</a>' : escHtml(f.v)) : '—';
-    html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:90px">'+f.l+'</span><span style="font-size:.85rem;color:var(--text)">'+val+'</span></div>';
+  suppRenderDetail(s);
+}
+
+function suppRenderDetail(s) {
+  var html = '';
+  // Tabs
+  html += '<div style="display:flex;gap:6px;margin-bottom:12px">';
+  var tabs = [{k:'info',l:'Infos'},{k:'products',l:'Catalogue ('+((s.products||[]).length)+')'},{k:'selections',l:'Mes sélections ('+((s.mySelections||[]).length)+')'}];
+  tabs.forEach(function(t){
+    var active = suppViewMode===t.k;
+    html += '<button data-supptab="'+t.k+'" data-sid="'+s.id+'" style="padding:6px 14px;border-radius:8px;border:'+(active?'2px solid var(--accent)':'1px solid var(--border)')+';background:'+(active?'var(--accent)':'transparent')+';color:'+(active?'#fff':'var(--text2)')+';cursor:pointer;font-size:.8rem">'+t.l+'</button>';
   });
   html += '</div>';
-  
-  // My selected products
-  var myProds = s.myProducts || [];
-  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="font-size:.95rem;color:var(--text);margin:0">Mes produits</h3><span style="font-size:.75rem;color:var(--text3)">'+myProds.length+' sélectionné(s)</span></div>';
-  
-  if(myProds.length) {
-    myProds.forEach(function(p, i){
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">';
-      html += '<div style="flex:1"><div style="font-size:.85rem;font-weight:500;color:var(--text)">'+escHtml(p.name)+'</div>';
-      html += '<div style="font-size:.75rem;color:var(--text3)">Réf: '+escHtml(p.reference||'—')+' | '+escHtml(p.subcategory||'')+'</div>';
-      if(p.price) html += '<div style="font-size:.8rem;color:var(--accent);font-weight:600">'+escHtml(p.price)+'</div>';
-      html += '</div>';
-      html += '<button onclick="suppRemoveMyProd('+s.id+','+i+')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.9rem">x</button>';
-      html += '</div>';
+
+  if(suppViewMode==='info') {
+    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
+    var fields = [{l:'Catégorie',v:s.category},{l:'Site web',v:s.website,link:true},{l:'Téléphone',v:s.phone},{l:'Email',v:s.email},{l:'Contact',v:s.contact},{l:'Notes',v:s.notes}];
+    fields.forEach(function(f){
+      var val = f.v ? (f.link?'<a href="'+escHtml(f.v)+'" target="_blank" style="color:var(--accent)">'+escHtml(f.v)+'</a>':escHtml(f.v)) : '—';
+      html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:90px">'+f.l+'</span><span style="font-size:.85rem;color:var(--text)">'+val+'</span></div>';
     });
+    html += '<div style="display:flex;gap:6px;margin-top:12px"><button onclick="suppShowAddForm('+s.id+')" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">Modifier</button>';
+    html += '<button onclick="suppDelete('+s.id+')" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#e55;cursor:pointer;font-size:.78rem">Supprimer</button></div></div>';
+  }
+  
+  else if(suppViewMode==='products') {
+    var prods = s.products || [];
+    var prodCats = {};
+    prods.forEach(function(p){ if(p.category) prodCats[p.category]=1; });
+    var catKeys = Object.keys(prodCats).sort();
+    
+    // Category filters
+    html += '<div style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap;max-height:100px;overflow-y:auto">';
+    html += '<button class="filter-btn '+(suppProdFilter==='all'?'active':'')+'" data-suppcat="-1" data-suppid="'+s.id+'" style="font-size:.7rem;padding:3px 8px">Tous ('+prods.length+')</button>';
+    catKeys.forEach(function(cat,ci){
+      var cnt = prods.filter(function(p){return p.category===cat}).length;
+      html += '<button class="filter-btn '+(suppProdFilter===cat?'active':'')+'" data-suppcat="'+ci+'" data-suppid="'+s.id+'" style="font-size:.7rem;padding:3px 8px">'+escHtml(cat)+' ('+cnt+')</button>';
+    });
+    html += '</div>';
+    
+    // Search
+    html += '<input id="suppSearch" type="text" placeholder="Rechercher un produit..." oninput="suppSearchProds('+s.id+')" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;margin-bottom:10px;box-sizing:border-box">';
+    
+    var filtered = suppProdFilter==='all' ? prods : prods.filter(function(p){return p.category===suppProdFilter});
+    html += '<div id="suppProdList">';
+    html += suppBuildProdCards(s, filtered.slice(0,50));
+    if(filtered.length>50) html += '<p style="font-size:.8rem;color:var(--text3);text-align:center">Affiche 50/'+filtered.length+' — utilisez la recherche</p>';
+    html += '</div>';
+  }
+  
+  else if(suppViewMode==='selections') {
+    var sels = s.mySelections || [];
+    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="font-size:.95rem;color:var(--text);margin:0">Mes produits habituels</h3>';
+    html += '<button onclick="suppAddCustomSel('+s.id+')" style="padding:5px 10px;border:1px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">+ Ajouter</button></div>';
+    if(!sels.length) html += '<p style="font-size:.8rem;color:var(--text3)">Aucune sélection — ajoutez des produits depuis le catalogue</p>';
+    sels.forEach(function(sel,i){
+      html += '<div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">';
+      html += '<div style="flex:1"><div style="font-size:.85rem;font-weight:600;color:var(--text)">'+escHtml(sel.ref||'')+' — '+escHtml(sel.name||'')+'</div>';
+      html += '<div style="font-size:.75rem;color:var(--text3)">'+escHtml(sel.category||'')+(sel.myNote?' | '+escHtml(sel.myNote):'')+'</div></div>';
+      html += '<button onclick="suppRemoveSel('+s.id+','+i+')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.9rem">x</button></div>';
+    });
+    html += '</div>';
   }
   
   document.getElementById('suppDetailContent').innerHTML = html;
 }
-  
+
+function suppBuildProdCards(s, prods) {
+  var html = '';
+  prods.forEach(function(p,i){
+    var isSel = (s.mySelections||[]).some(function(ms){return ms.ref===p.reference});
+    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:6px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+    html += '<div style="flex:1"><div style="font-size:.85rem;font-weight:600;color:var(--text)">'+escHtml(p.reference||'')+'</div>';
+    html += '<div style="font-size:.8rem;color:var(--text2)">'+escHtml(p.name||'')+'</div>';
+    html += '<div style="font-size:.7rem;color:var(--text3)">'+escHtml(p.category||'')+'</div></div>';
+    if(!isSel) html += '<button data-addsel="'+s.id+'" data-ref="'+escHtml(p.reference||'')+'" style="padding:4px 10px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer;font-size:.7rem;white-space:nowrap;align-self:center">+ Sélection</button>';
+    else html += '<span style="padding:4px 10px;border-radius:6px;background:#22c55e;color:#fff;font-size:.7rem;align-self:center">Ajouté</span>';
+    html += '</div></div>';
+  });
+  return html;
+}
+
+function suppSearchProds(suppId) {
+  var s = suppliers.find(function(x){return x.id===suppId});
+  if(!s) return;
+  var q = (document.getElementById('suppSearch')||{}).value||'';
+  q = q.toLowerCase();
+  var prods = s.products||[];
+  var filtered = suppProdFilter==='all' ? prods : prods.filter(function(p){return p.category===suppProdFilter});
+  if(q) filtered = filtered.filter(function(p){return (p.name||'').toLowerCase().indexOf(q)>-1 || (p.reference||'').toLowerCase().indexOf(q)>-1});
+  var list = document.getElementById('suppProdList');
+  if(list) list.innerHTML = suppBuildProdCards(s, filtered.slice(0,50)) + (filtered.length>50?'<p style="font-size:.8rem;color:var(--text3);text-align:center">'+filtered.length+' résultats</p>':'');
+}
+
 
 async function suppDelete(id) {
   if(!confirm('Supprimer ce fournisseur?')) return;
@@ -2160,7 +2221,7 @@ async function suppAddSelection(suppId, ref, name, category) {
   suppShowDetail(suppId);
 }
 
-async function suppAddCustomSelection(suppId) {
+async function suppAddCustomSel(suppId) {
   var ref = prompt('Référence produit:');
   if(!ref) return;
   var name = prompt('Nom du produit:');
@@ -2174,7 +2235,7 @@ async function suppAddCustomSelection(suppId) {
   suppRenderDetail(suppliers.find(function(x){return x.id===suppId}));
 }
 
-async function suppRemoveSelection(suppId, idx) {
+async function suppRemoveSel(suppId, idx) {
   var s = suppliers.find(function(x){return x.id===suppId});
   if(!s) return;
   var sels = s.mySelections || [];
@@ -2200,10 +2261,10 @@ document.addEventListener('click', function(e) {
   if(btn) { suppFilterCat(btn.getAttribute('data-supplistcat'), btn); return; }
   
   btn = e.target.closest('[data-suppcat]');
-  if(btn) { var sid=parseInt(btn.getAttribute('data-suppid')); var cats=Object.keys({}); var s=suppliers.find(function(x){return x.id===sid}); if(s){var pc={};(s.products||[]).forEach(function(p){if(p.category)pc[p.category]=1});var sortedCats=Object.keys(pc).sort();suppProdFilter=sortedCats[parseInt(btn.getAttribute('data-suppcat'))]||'all';suppRenderDetail(s);} return; }
+  if(btn) { var sid=parseInt(btn.getAttribute('data-suppid')); var ci=parseInt(btn.getAttribute('data-suppcat')); var s=suppliers.find(function(x){return x.id===sid}); if(s){if(ci===-1){suppProdFilter='all';}else{var pc={};(s.products||[]).forEach(function(p){if(p.category)pc[p.category]=1});var sortedCats=Object.keys(pc).sort();suppProdFilter=sortedCats[ci]||'all';}suppRenderDetail(s);} return; }
   
   btn = e.target.closest('[data-addsel]');
-  if(btn) { var sid=parseInt(btn.getAttribute('data-addsel')); var pidx=parseInt(btn.getAttribute('data-pidx')); var s=suppliers.find(function(x){return x.id===sid}); if(s){var prods=s.products||[];var filtered=suppProdFilter==='all'?prods:prods.filter(function(p){return p.category===suppProdFilter});var q=(document.getElementById('suppSearch')||{}).value;if(q)filtered=filtered.filter(function(p){return(p.name||'').toLowerCase().indexOf(q.toLowerCase())>-1||(p.reference||'').toLowerCase().indexOf(q.toLowerCase())>-1});var prod=filtered[pidx];if(prod)suppAddSelection(sid,prod.reference,prod.name,prod.category);} return; }
+  if(btn) { var sid=parseInt(btn.getAttribute('data-addsel')); var ref=btn.getAttribute('data-ref'); var s=suppliers.find(function(x){return x.id===sid}); if(s){var prod=(s.products||[]).find(function(p){return p.reference===ref}); if(prod)suppAddSelection(sid,prod.reference,prod.name,prod.category);} return; }
 });
 </script>
 </body>
