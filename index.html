@@ -318,7 +318,7 @@ let token=localStorage.getItem('hf_token')||'',currentUser=localStorage.getItem(
 
 if(token&&currentUser){showApp()}else{document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').focus()}
 
-async function doLogin(){const pin=document.getElementById('pinInput').value;const errEl=document.getElementById('loginError');errEl.textContent='';for(const user of['daniel','marco']){try{const res=await fetch(API+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,pin})});const data=await res.json();if(data.ok){token=data.token;currentUser=data.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);showApp();return}}catch(e){}}errEl.textContent='PIN incorrect';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
+async function doLogin(){const pin=document.getElementById('pinInput').value;const errEl=document.getElementById('loginError');errEl.textContent='';for(const user of['daniel','marco']){try{const res=await fetch(API+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,pin})});const data=await res.json();if(data.ok){token=data.token;currentUser=data.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);localStorage.setItem('hf_pin',pin);showApp();return}}catch(e){}}errEl.textContent='PIN incorrect';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
 
 function doLogout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token='';currentUser='';clearInterval(syncTimer);document.getElementById('appScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
 
@@ -427,14 +427,26 @@ function toggleThemeHF(){
 // ===== PROJECTS =====
 var projects = [];
 var projFilterVal = 'all';
+var PROJ_API = 'https://hf-tasks-api.hectoflex.workers.dev';
 
-function loadProjects() {
-  projects = JSON.parse(localStorage.getItem('hf_projects') || '[]');
+async function loadProjects() {
+  try {
+    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
+    if(r.ok) projects = await r.json();
+  } catch(e) { console.error('loadProjects',e); }
   renderProjects();
 }
 
-function saveProjects() {
-  localStorage.setItem('hf_projects', JSON.stringify(projects));
+async function saveProject(project) {
+  await fetch(PROJ_API+'/projects', {method:'POST', headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin')),'Content-Type':'application/json'}, body:JSON.stringify(project)});
+}
+
+async function updateProject(id, data) {
+  await fetch(PROJ_API+'/projects/'+id, {method:'PUT', headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin')),'Content-Type':'application/json'}, body:JSON.stringify(data)});
+}
+
+async function deleteProjectAPI(id) {
+  await fetch(PROJ_API+'/projects/'+id, {method:'DELETE', headers:{'Authorization':'Basic '+btoa(currentUser+':'+localStorage.getItem('hf_pin'))}});
 }
 
 function renderProjects() {
@@ -484,32 +496,22 @@ function projFilter(val, btn) {
   renderProjects();
 }
 
-function showAddProject() {
+async function showAddProject() {
   var name = prompt('Nom du projet:');
   if(!name) return;
   var client = prompt('Client (optionnel):') || '';
   var montant = prompt('Montant (optionnel):') || '';
   var note = prompt('Note (optionnel):') || '';
-  projects.unshift({
-    id: Date.now(),
-    name: name,
-    client: client,
-    montant: montant,
-    note: note,
-    statut: 'en_attente',
-    createdBy: currentUser,
-    date: new Date().toLocaleDateString('fr-CH')
-  });
-  saveProjects();
-  renderProjects();
+  await saveProject({name:name, client:client, montant:montant, note:note});
+  await loadProjects();
 }
 
-function projChangeStatus(id, newStatus) {
-  var p = projects.find(function(x){return x.id===id});
-  if(p) { p.statut = newStatus; saveProjects(); renderProjects(); }
+async function projChangeStatus(id, newStatus) {
+  await updateProject(id, {statut: newStatus});
+  await loadProjects();
 }
 
-function projEdit(id) {
+async function projEdit(id) {
   var p = projects.find(function(x){return x.id===id});
   if(!p) return;
   var name = prompt('Nom:', p.name);
@@ -517,19 +519,14 @@ function projEdit(id) {
   var client = prompt('Client:', p.client || '');
   var montant = prompt('Montant:', p.montant || '');
   var note = prompt('Note:', p.note || '');
-  p.name = name || p.name;
-  p.client = client !== null ? client : p.client;
-  p.montant = montant !== null ? montant : p.montant;
-  p.note = note !== null ? note : p.note;
-  saveProjects();
-  renderProjects();
+  await updateProject(id, {name: name||p.name, client: client!==null?client:p.client, montant: montant!==null?montant:p.montant, note: note!==null?note:p.note});
+  await loadProjects();
 }
 
-function projDelete(id) {
+async function projDelete(id) {
   if(!confirm('Supprimer ce projet?')) return;
-  projects = projects.filter(function(x){return x.id!==id});
-  saveProjects();
-  renderProjects();
+  await deleteProjectAPI(id);
+  await loadProjects();
 }
 
 // ===== QR CODE =====
