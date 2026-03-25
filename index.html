@@ -55,6 +55,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   #pageCustoms{margin-left:220px!important;padding:20px 30px!important}
   #pageProjects{margin-left:220px!important;padding:20px 30px!important}
   #pageLeads{margin-left:220px!important;padding:20px 30px!important}
+  #pageSuppliers{margin-left:220px!important;padding:20px 30px!important}
+  #pageSuppliers{margin-left:220px!important;padding:20px 30px!important}
   body{padding-bottom:0!important}
 }
 .container{max-width:800px;margin:0 auto;padding:20px}
@@ -162,7 +164,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <button onclick="switchNav('qr',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><line x1="21" y1="14" x2="21" y2="14.01"/><line x1="21" y1="21" x2="21" y2="21.01"/></svg></span> QR Code</button>
 <button onclick="switchNav('customs',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17h14M5 17a2 2 0 01-2-2V9a2 2 0 012-2h1l2-3h8l2 3h1a2 2 0 012 2v6a2 2 0 01-2 2M5 17a2 2 0 002 2h1a2 2 0 002-2M14 17a2 2 0 002 2h1a2 2 0 002-2"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg></span> HF Customs</button>
 <button onclick="switchNav('projects',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></span> Projets</button>
-<button onclick="switchNav('leads',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span> Leads</button></div>
+<button onclick="switchNav('leads',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span> Leads</button>
+<button onclick="switchNav('suppliers',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span> Fournisseurs</button></div>
 <div class="container">
 <div class="page active" id="pageTasks">
 <div class="list-tabs">
@@ -449,6 +452,107 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <div id="leadDetailContent"></div>
 </div>
 </div>
+<div class="page" id="pageSuppliers" style="padding:0 16px">
+<div id="suppListView">
+<div class="header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Fournisseurs</h2>
+<button onclick="suppShowAddForm()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Ajouter</button>
+</div>
+<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap" id="suppCatFilters"></div>
+<div id="suppGrid" style="display:flex;flex-direction:column;gap:10px"></div>
+<p id="suppEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun fournisseur</p>
+</div>
+<div id="suppFormView" style="display:none">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
+<button onclick="suppBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">&#8592;</button>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="suppFormTitle">Nouveau fournisseur</h2>
+</div>
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Nom *</label>
+<input id="sf_name" type="text" placeholder="Ex: Reflectiv" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Catégorie</label>
+<select id="sf_cat" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px">
+<option value="">— Choisir —</option>
+<option value="Vitrophanie">Vitrophanie</option>
+<option value="Impression">Impression</option>
+<option value="Esthétique auto">Esthétique auto</option>
+<option value="Consommables">Consommables</option>
+<option value="Encres">Encres</option>
+<option value="Supports">Supports</option>
+<option value="Autre">Autre</option>
+</select>
+<div style="display:flex;gap:10px;margin-bottom:12px">
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Site web</label>
+<input id="sf_web" type="url" placeholder="https://..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Téléphone</label>
+<input id="sf_phone" type="tel" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+</div>
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Email</label>
+<input id="sf_email" type="email" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Contact principal</label>
+<input id="sf_contact" type="text" placeholder="Nom du commercial" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Notes</label>
+<textarea id="sf_notes" rows="2" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical;margin-bottom:16px;box-sizing:border-box"></textarea>
+<input type="hidden" id="sf_editId" value="">
+<button onclick="suppSaveForm()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:.9rem;font-weight:600">Enregistrer</button>
+</div>
+</div>
+<div id="suppDetailView" style="display:none">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
+<button onclick="suppBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">&#8592;</button>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="suppDetailTitle">Fournisseur</h2>
+</div>
+<div id="suppDetailContent"></div>
+</div>
+</div>
+<div class="page" id="pageSuppliers" style="padding:0 16px">
+<div id="suppListView">
+<div class="header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Fournisseurs</h2>
+<button onclick="suppShowForm()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Ajouter</button>
+</div>
+<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap" id="suppCatFilters"></div>
+<div id="suppList" style="display:flex;flex-direction:column;gap:10px"></div>
+<p id="suppEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun fournisseur</p>
+</div>
+<div id="suppFormView" style="display:none">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
+<button onclick="suppBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">&#8592;</button>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="suppFormTitle">Nouveau fournisseur</h2>
+</div>
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Nom *</label>
+<input id="sf_name" type="text" placeholder="Ex: Mimaki, Reflectiv..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Catégorie</label>
+<input id="sf_category" type="text" placeholder="Ex: Impression, Vitrophanie, Consommables..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<div style="display:flex;gap:10px;margin-bottom:12px">
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Contact</label>
+<input id="sf_contact" type="text" placeholder="Nom du contact" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Téléphone</label>
+<input id="sf_phone" type="tel" placeholder="Tél..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+</div>
+<div style="display:flex;gap:10px;margin-bottom:12px">
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Email</label>
+<input id="sf_email" type="email" placeholder="email@..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Site web</label>
+<input id="sf_website" type="url" placeholder="https://..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
+</div>
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Adresse</label>
+<input id="sf_address" type="text" placeholder="Adresse complète" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
+<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Notes</label>
+<textarea id="sf_notes" rows="3" placeholder="Conditions, délais, remises..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical;margin-bottom:16px;box-sizing:border-box"></textarea>
+<input type="hidden" id="sf_editId" value="">
+<button onclick="suppSaveForm()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:.9rem;font-weight:600">Enregistrer</button>
+</div>
+</div>
+<div id="suppDetailView" style="display:none">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
+<button onclick="suppBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">&#8592;</button>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="suppDetailTitle">Fournisseur</h2>
+</div>
+<div id="suppDetailContent"></div>
+</div>
+</div>
 
 </div>
 <script>
@@ -543,12 +647,14 @@ function switchNav(page, btn){
   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':'pageCustoms';
+  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':page==='suppliers'?'pageSuppliers':'pageCustoms';
   var el = document.getElementById(target);
   if(el) el.classList.add('active');
   // Hide container when showing pages outside it
   var ctr = document.querySelector('.container');
   if(ctr) ctr.style.display = (page==='tasks'||page==='qr') ? 'block' : 'none';
+  if(page==='suppliers') suppInit();
+  if(page==='suppliers') loadSuppliers();
   if(page==='customs')hfcInit();
   if(page==='projects') loadProjects();
   if(page==='leads') loadLeads();
@@ -1730,6 +1836,248 @@ function copyImageUrl() {
       alert('Lien copie!');
     });
   }
+}
+
+
+
+// ===== FOURNISSEURS =====
+var suppliers = [];
+var suppCatFilter = 'all';
+var SUPP_KEY = 'hf_suppliers';
+
+var DEFAULT_SUPPLIERS = [
+  {
+    id:1, name:'Mimaki', category:'Impression',
+    contact:'Support Mimaki Europe', phone:'+31 20 462 0740',
+    email:'info@mimakieurope.com', website:'https://mimaki.com',
+    address:'Stammerdijk 7E, 1112 AA Diemen, Pays-Bas',
+    notes:'Fabricant imprimantes grand format, découpe, encres.\nModèles utilisés: CJV150, CJV330, UCJV300\nEncres SS21 (solvant), LUS-170 (UV)\nDistributeur CH: IGEPA-ADOC (Miriam Andrés)\nContact IGEPA: miriam.andres@igepa-adoc.ch',
+    products:[
+      {name:'Encre SS21 Cyan', ref:'SPC-0588C', prix:''},
+      {name:'Encre SS21 Magenta', ref:'SPC-0588M', prix:''},
+      {name:'Encre SS21 Yellow', ref:'SPC-0588Y', prix:''},
+      {name:'Encre SS21 Black', ref:'SPC-0588K', prix:''},
+      {name:'Encre SS21 White', ref:'SPC-0588W', prix:''}
+    ]
+  },
+  {
+    id:2, name:'Reflectiv', category:'Vitrophanie',
+    contact:'Service commercial', phone:'+33 1 64 79 40 40',
+    email:'contact@reflectiv.com', website:'https://www.reflectiv.com',
+    address:'France',
+    notes:'372 références de films vitrage.\nGammes: Dépolis pleins, Motifs dégressifs, Décoratifs, Opaques, Couleurs, Statiques, Anti-chaleur/solaires, Anti-UV, Sécurité/anti-effraction, Anti-graffiti.\nLivraison Europe, rouleaux standard ou découpe sur mesure.',
+    products:[
+      {name:'INT 256 Film dépoli incolore', ref:'INT256', prix:''},
+      {name:'Film anti-chaleur SOL 101', ref:'SOL101', prix:''},
+      {name:'Film sécurité SEC 054', ref:'SEC054', prix:''},
+      {name:'Film décoratif motif', ref:'DEC', prix:''},
+      {name:'Film opaque blanc', ref:'OPA001', prix:''}
+    ]
+  },
+  {
+    id:3, name:'IGEPA-ADOC', category:'Consommables / Distribution',
+    contact:'Miriam Andrés', phone:'',
+    email:'miriam.andres@igepa-adoc.ch', website:'https://www.igepa-adoc.ch',
+    address:'Suisse',
+    notes:'Distributeur Mimaki Suisse.\nFournisseur encres, médias, consommables impression.\nCommande encres SS21 passée le 20/03/2026 (5 cartouches).',
+    products:[]
+  }
+];
+
+async function loadSuppliers() {
+  try {
+    var r = await fetch(PROJ_API+'/suppliers', {headers:{'Authorization':'Basic '+token}});
+    if(r.ok) {
+      var data = await r.json();
+      suppliers = data.length ? data : DEFAULT_SUPPLIERS;
+    } else {
+      suppliers = DEFAULT_SUPPLIERS;
+    }
+  } catch(e) { suppliers = DEFAULT_SUPPLIERS; }
+  renderSuppCatFilters();
+  renderSuppliers();
+}
+
+async function saveSuppliers() {
+  await fetch(PROJ_API+'/suppliers', {method:'POST', headers:{'Authorization':'Basic '+token,'Content-Type':'application/json'}, body:JSON.stringify(suppliers)});
+}
+
+function renderSuppCatFilters() {
+  var cats = ['all'];
+  suppliers.forEach(function(s){ if(s.category && cats.indexOf(s.category)===-1) cats.push(s.category); });
+  var el = document.getElementById('suppCatFilters');
+  if(!el) return;
+  el.innerHTML = cats.map(function(c){
+    return '<button class="filter-btn'+(suppCatFilter===c?' active':'')+'" onclick="suppFilterCat(\''+c.replace(/'/g,"\\'")+'\''+',this)">'+( c==='all'?'Tous':escHtml(c))+'</button>';
+  }).join('');
+}
+
+function suppFilterCat(cat, btn) {
+  suppCatFilter = cat;
+  document.querySelectorAll('#suppCatFilters .filter-btn').forEach(function(b){b.classList.remove('active')});
+  if(btn) btn.classList.add('active');
+  renderSuppliers();
+}
+
+function renderSuppliers() {
+  var list = document.getElementById('suppList');
+  var empty = document.getElementById('suppEmpty');
+  if(!list) return;
+  var filtered = suppCatFilter==='all' ? suppliers : suppliers.filter(function(s){return s.category===suppCatFilter});
+  if(!filtered.length) { list.innerHTML=''; if(empty) empty.style.display='block'; return; }
+  if(empty) empty.style.display='none';
+  
+  var catColors = {'Impression':'#3b82f6','Vitrophanie':'#8b5cf6','Consommables / Distribution':'#f59e0b'};
+  
+  list.innerHTML = filtered.map(function(s){
+    var cc = catColors[s.category] || 'var(--accent)';
+    return '<div onclick="suppShowDetail('+s.id+')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+cc+';cursor:pointer">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'+
+        '<div style="font-weight:600;font-size:.9rem;color:var(--text)">'+escHtml(s.name)+'</div>'+
+        '<span style="padding:2px 8px;border-radius:8px;background:'+cc+';color:#fff;font-size:.7rem;font-weight:600">'+escHtml(s.category||'')+'</span>'+
+      '</div>'+
+      (s.contact?'<div style="font-size:.8rem;color:var(--text2)">'+escHtml(s.contact)+'</div>':'')+
+      (s.email?'<div style="font-size:.8rem;color:var(--text3)">'+escHtml(s.email)+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+function suppShowForm(editId) {
+  document.getElementById('suppListView').style.display='none';
+  document.getElementById('suppDetailView').style.display='none';
+  document.getElementById('suppFormView').style.display='block';
+  document.getElementById('sf_editId').value = editId||'';
+  document.getElementById('suppFormTitle').textContent = editId ? 'Modifier le fournisseur' : 'Nouveau fournisseur';
+  if(editId) {
+    var s = suppliers.find(function(x){return x.id==editId});
+    if(s) {
+      document.getElementById('sf_name').value = s.name||'';
+      document.getElementById('sf_category').value = s.category||'';
+      document.getElementById('sf_contact').value = s.contact||'';
+      document.getElementById('sf_phone').value = s.phone||'';
+      document.getElementById('sf_email').value = s.email||'';
+      document.getElementById('sf_website').value = s.website||'';
+      document.getElementById('sf_address').value = s.address||'';
+      document.getElementById('sf_notes').value = s.notes||'';
+    }
+  } else {
+    ['sf_name','sf_category','sf_contact','sf_phone','sf_email','sf_website','sf_address','sf_notes'].forEach(function(id){document.getElementById(id).value=''});
+  }
+}
+
+async function suppSaveForm() {
+  var name = document.getElementById('sf_name').value.trim();
+  if(!name) { alert('Nom requis'); return; }
+  var data = {
+    name:name, category:document.getElementById('sf_category').value.trim(),
+    contact:document.getElementById('sf_contact').value.trim(),
+    phone:document.getElementById('sf_phone').value.trim(),
+    email:document.getElementById('sf_email').value.trim(),
+    website:document.getElementById('sf_website').value.trim(),
+    address:document.getElementById('sf_address').value.trim(),
+    notes:document.getElementById('sf_notes').value.trim()
+  };
+  var editId = document.getElementById('sf_editId').value;
+  if(editId) {
+    var s = suppliers.find(function(x){return x.id==parseInt(editId)});
+    if(s) Object.assign(s, data);
+  } else {
+    data.id = Date.now();
+    data.products = [];
+    suppliers.push(data);
+  }
+  await saveSuppliers();
+  suppBackToList();
+  renderSuppCatFilters();
+  renderSuppliers();
+}
+
+function suppBackToList() {
+  document.getElementById('suppFormView').style.display='none';
+  document.getElementById('suppDetailView').style.display='none';
+  document.getElementById('suppListView').style.display='block';
+}
+
+function suppShowDetail(id) {
+  var s = suppliers.find(function(x){return x.id===id});
+  if(!s) return;
+  document.getElementById('suppListView').style.display='none';
+  document.getElementById('suppFormView').style.display='none';
+  document.getElementById('suppDetailView').style.display='block';
+  document.getElementById('suppDetailTitle').textContent = s.name;
+  
+  var html = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
+  html += '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="padding:4px 12px;border-radius:8px;background:var(--accent);color:#fff;font-size:.8rem">'+escHtml(s.category||'')+'</span>';
+  html += '<div style="display:flex;gap:6px"><button onclick="suppShowForm('+s.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Modifier</button><button onclick="suppDelete('+s.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#e55;cursor:pointer;font-size:.75rem">Supprimer</button></div></div>';
+  
+  var fields = [
+    {label:'Contact',val:s.contact},{label:'Téléphone',val:s.phone},{label:'Email',val:s.email},
+    {label:'Site web',val:s.website},{label:'Adresse',val:s.address}
+  ];
+  fields.forEach(function(f){
+    var v = f.val;
+    if(f.label==='Email'&&v) v = '<a href="mailto:'+escHtml(v)+'" style="color:var(--accent)">'+escHtml(v)+'</a>';
+    else if(f.label==='Site web'&&v) v = '<a href="'+escHtml(v)+'" target="_blank" style="color:var(--accent)">'+escHtml(v)+'</a>';
+    else if(f.label==='Téléphone'&&v) v = '<a href="tel:'+escHtml(v)+'" style="color:var(--accent)">'+escHtml(v)+'</a>';
+    else v = v ? escHtml(v) : '—';
+    html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:80px">'+f.label+'</span><span style="font-size:.85rem">'+v+'</span></div>';
+  });
+  
+  // Notes
+  if(s.notes) {
+    html += '<div style="margin-top:12px;padding:10px;background:var(--bg);border-radius:var(--radius);font-size:.85rem;color:var(--text);white-space:pre-wrap">'+escHtml(s.notes)+'</div>';
+  }
+  html += '</div>';
+  
+  // Products
+  var prods = s.products || [];
+  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="font-size:.95rem;color:var(--text);margin:0">Produits / Références</h3><button onclick="suppAddProduct('+s.id+')" style="padding:4px 10px;border:1px dashed var(--border);border-radius:var(--radius);background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">+ Ajouter</button></div>';
+  if(prods.length) {
+    prods.forEach(function(p, i){
+      html += '<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.85rem">';
+      html += '<span style="flex:2;color:var(--text)">'+escHtml(p.name)+'</span>';
+      html += '<span style="flex:1;color:var(--text3)">'+escHtml(p.ref||'')+'</span>';
+      html += '<span style="width:80px;text-align:right;color:var(--text2)">'+escHtml(p.prix||'—')+'</span>';
+      html += '<button onclick="suppRemoveProduct('+s.id+','+i+')" style="width:24px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem">x</button>';
+      html += '</div>';
+    });
+  } else {
+    html += '<p style="font-size:.8rem;color:var(--text3)">Aucun produit référencé</p>';
+  }
+  html += '</div>';
+  
+  document.getElementById('suppDetailContent').innerHTML = html;
+}
+
+async function suppDelete(id) {
+  if(!confirm('Supprimer ce fournisseur?')) return;
+  suppliers = suppliers.filter(function(s){return s.id!==id});
+  await saveSuppliers();
+  suppBackToList();
+  renderSuppCatFilters();
+  renderSuppliers();
+}
+
+async function suppAddProduct(suppId) {
+  var name = prompt('Nom du produit:');
+  if(!name) return;
+  var ref = prompt('Référence:') || '';
+  var prix = prompt('Prix (optionnel):') || '';
+  var s = suppliers.find(function(x){return x.id===suppId});
+  if(!s) return;
+  if(!s.products) s.products = [];
+  s.products.push({name:name, ref:ref, prix:prix});
+  await saveSuppliers();
+  suppShowDetail(suppId);
+}
+
+async function suppRemoveProduct(suppId, idx) {
+  var s = suppliers.find(function(x){return x.id===suppId});
+  if(!s||!s.products) return;
+  s.products.splice(idx, 1);
+  await saveSuppliers();
+  suppShowDetail(suppId);
 }
 
 </script>
