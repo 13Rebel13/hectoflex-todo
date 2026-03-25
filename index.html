@@ -541,7 +541,7 @@ function renderProjects() {
         '<span style="padding:2px 8px;border-radius:8px;background:'+sc+';color:#fff;font-size:.7rem;font-weight:600">'+sl+'</span>' +
       '</div>' +
       (p.client ? '<div style="font-size:.8rem;color:var(--text2)">'+escHtml(p.client)+(p.dept?' — '+escHtml(p.dept):'')+'</div>' : '') +
-      '<div style="display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--text2);margin-top:4px">'+(p.montant?'<span style="font-weight:600">'+escHtml(p.montant)+' CHF</span>':'<span></span>')+(p.deadline?'<span style="background:var(--accent);color:#fff;padding:3px 10px;border-radius:6px;font-size:.75rem;font-weight:600">'+escHtml(p.deadline)+'</span>':'')+'</div>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--text2);margin-top:4px">'+(p.montant?'<span style="font-weight:600">'+escHtml(p.montant)+' CHF</span>':'<span></span>')+(p.deadline?'<span style="background:var(--accent);color:#fff;padding:3px 10px;border-radius:6px;font-size:.75rem;font-weight:600">'+fmtDate(p.deadline)+'</span>':'')+'</div>' +
       (checkTotal ? '<div style="margin-top:6px;display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:var(--border);border-radius:2px"><div style="width:'+progress+'%;height:100%;background:'+sc+';border-radius:2px"></div></div><span style="font-size:.7rem;color:var(--text3)">'+checkDone+'/'+checkTotal+'</span></div>' : '') +
     '</div>';
   }).join('');
@@ -645,7 +645,7 @@ async function projShowDetail(id) {
     {label:'Client',val:p.client},
     {label:'Contact',val:p.contact},
     {label:'Montant',val:p.montant},
-    {label:'Deadline',val:p.deadline},
+    {label:'Deadline',val:p.deadline?fmtDate(p.deadline):''},
     {label:'Département',val:p.dept},
     {label:'Source',val:p.source},
     {label:'Description',val:p.description}
@@ -654,7 +654,7 @@ async function projShowDetail(id) {
     html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:100px">'+f.label+'</span><span style="font-size:.85rem;color:'+(f.val?'var(--text)':'var(--text3)')+'">'+( f.val ? escHtml(f.val) : '—')+'</span></div>';
   });
   html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:100px">Créé par</span><span style="font-size:.85rem;color:var(--text)">'+(p.created_by||'—')+'</span></div>';
-  html += '<div style="display:flex;gap:8px;padding:8px 0"><span style="font-size:.8rem;color:var(--text3);min-width:100px">Date création</span><span style="font-size:.85rem;color:var(--text)">'+(p.created_at?new Date(p.created_at).toLocaleDateString('fr-CH'):'—')+'</span></div>';
+  html += '<div style="display:flex;gap:8px;padding:8px 0"><span style="font-size:.8rem;color:var(--text3);min-width:100px">Date création</span><span style="font-size:.85rem;color:var(--text)">'+(p.created_at?fmtDate(p.created_at):'—')+'</span></div>';
   html += '</div>';
   
   // Checklist section
