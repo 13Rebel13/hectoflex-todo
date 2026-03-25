@@ -2029,14 +2029,22 @@ function suppBuildProdCards(s, prods) {
   var html = '';
   prods.forEach(function(p,i){
     var isSel = (s.mySelections||[]).some(function(ms){return ms.ref===p.reference});
-    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:6px">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
-    html += '<div style="flex:1"><div style="font-size:.85rem;font-weight:600;color:var(--text)">'+escHtml(p.reference||'')+'</div>';
-    html += '<div style="font-size:.8rem;color:var(--text2)">'+escHtml(p.name||'')+'</div>';
-    html += '<div style="font-size:.7rem;color:var(--text3)">'+escHtml(p.category||'')+'</div></div>';
-    if(!isSel) html += '<button data-addsel="'+s.id+'" data-ref="'+escHtml(p.reference||'')+'" style="padding:4px 10px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer;font-size:.7rem;white-space:nowrap;align-self:center">+ Sélection</button>';
-    else html += '<span style="padding:4px 10px;border-radius:6px;background:#22c55e;color:#fff;font-size:.7rem;align-self:center">Ajouté</span>';
-    html += '</div></div>';
+    html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px;margin-bottom:8px">';
+    html += '<div style="display:flex;gap:10px">';
+    if(p.image) html += '<img src="'+escHtml(p.image)+'" style="width:60px;height:60px;object-fit:cover;border-radius:6px;flex-shrink:0" onerror="this.style.display=\'none\'">';
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px">';
+    html += '<div><div style="font-size:.85rem;font-weight:700;color:var(--accent)">'+escHtml(p.reference||'')+'</div>';
+    html += '<div style="font-size:.8rem;font-weight:500;color:var(--text)">'+escHtml(p.name||'')+'</div></div>';
+    if(p.price) html += '<span style="font-size:.75rem;font-weight:600;color:var(--text);white-space:nowrap">'+escHtml(p.price)+'</span>';
+    html += '</div>';
+    html += '<div style="font-size:.7rem;color:var(--text3);margin-top:2px">'+escHtml(p.category||'')+'</div>';
+    if(p.description) html += '<div style="font-size:.75rem;color:var(--text2);margin-top:4px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+escHtml(p.description)+'</div>';
+    html += '<div style="display:flex;gap:6px;margin-top:6px;align-items:center">';
+    if(!isSel) html += '<button data-addsel="'+s.id+'" data-ref="'+escHtml(p.reference||'')+'" style="padding:3px 10px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer;font-size:.7rem">+ Sélection</button>';
+    else html += '<span style="padding:3px 10px;border-radius:6px;background:#22c55e;color:#fff;font-size:.7rem">Ajouté</span>';
+    if(p.url) html += '<a href="'+escHtml(p.url)+'" target="_blank" style="font-size:.7rem;color:var(--accent);text-decoration:none">Voir sur site</a>';
+    html += '</div></div></div></div>';
   });
   return html;
 }
