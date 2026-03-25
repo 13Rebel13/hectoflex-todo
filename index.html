@@ -541,7 +541,7 @@ function renderProjects() {
         '<span style="padding:2px 8px;border-radius:8px;background:'+sc+';color:#fff;font-size:.7rem;font-weight:600">'+sl+'</span>' +
       '</div>' +
       (p.client ? '<div style="font-size:.8rem;color:var(--text2)">'+escHtml(p.client)+(p.dept?' — '+escHtml(p.dept):'')+'</div>' : '') +
-      (p.montant ? '<div style="font-size:.8rem;color:var(--text2)">'+escHtml(p.montant)+'</div>' : '') +
+      (p.montant||p.deadline ? '<div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--text2)">'+(p.montant?escHtml(p.montant):'')+(p.deadline?'<span style="color:var(--text3)">'+escHtml(p.deadline)+'</span>':'')+'</div>' : '') +
       (checkTotal ? '<div style="margin-top:6px;display:flex;align-items:center;gap:8px"><div style="flex:1;height:4px;background:var(--border);border-radius:2px"><div style="width:'+progress+'%;height:100%;background:'+sc+';border-radius:2px"></div></div><span style="font-size:.7rem;color:var(--text3)">'+checkDone+'/'+checkTotal+'</span></div>' : '') +
     '</div>';
   }).join('');
