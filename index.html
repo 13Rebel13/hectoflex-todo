@@ -141,6 +141,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";</script>
 </head>
 <body>
 <div id="loginScreen" class="login-screen">
@@ -2888,36 +2890,35 @@ async function dtfToggleAccordion(id) {
 function dtfRenderAccordionDetail(panel, o, id) {
   var parsed = dtfParseAddress(o.billing_address);
 
-  // Copy buttons row
   var copyRow = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin:10px 0">';
-  copyRow += dtfCopyBtn(parsed.nom, 'Nom');
-  copyRow += dtfCopyBtn(o.email, 'Email');
-  copyRow += dtfCopyBtn(parsed.tel, 'Tél');
-  copyRow += dtfCopyBtn(parsed.adresse, 'Adresse');
-  copyRow += dtfCopyBtn(parsed.npa, 'NPA');
-  copyRow += dtfCopyBtn(parsed.ville, 'Ville');
-  copyRow += dtfCopyBtn(parsed.pays, 'Pays');
+  var copyFields = [
+    [parsed.nom, 'Nom'], [o.email, 'Email'], [parsed.tel, 'Tél'],
+    [parsed.adresse, 'Adresse'], [parsed.npa, 'NPA'], [parsed.ville, 'Ville'], [parsed.pays, 'Pays']
+  ];
+  for (var ci = 0; ci < copyFields.length; ci++) {
+    var cv = copyFields[ci][0], cl = copyFields[ci][1];
+    if (cv) copyRow += '<button data-copy="' + escHtml(cv) + '" style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(227,6,19,.08);border:1px solid rgba(227,6,19,.2);border-radius:6px;color:' + DTF_RED + ';cursor:pointer;font-size:.78rem"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> ' + escHtml(cl) + '</button>';
+  }
   copyRow += '</div>';
 
-  // Actions row
   var traiteBtn = o.traite
-    ? '<button onclick="event.stopPropagation();dtfToggleTraite(\'' + id + '\',false)" style="padding:6px 14px;background:#6b7280;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.8rem">Non traité</button>'
-    : '<button onclick="event.stopPropagation();dtfToggleTraite(\'' + id + '\',true)" style="padding:6px 14px;background:#22c55e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.8rem">Traité</button>';
+    ? '<button data-dtf-traite="' + id + '" data-val="false" style="padding:6px 14px;background:#6b7280;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.8rem">Non traité</button>'
+    : '<button data-dtf-traite="' + id + '" data-val="true" style="padding:6px 14px;background:#22c55e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.8rem">Traité</button>';
 
-  // Tracking
   var trackHtml = '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
-    '<input id="dtfTrack_' + id + '" type="text" placeholder="N° suivi" value="' + escHtml(o.tracking_number || '') + '" onclick="event.stopPropagation()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.8rem;width:180px">' +
-    '<button onclick="event.stopPropagation();dtfSaveTrackingInline(\'' + id + '\')" style="padding:6px 12px;background:' + DTF_RED + ';color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.8rem">Suivi</button>' +
+    '<input id="dtfTrack_' + id + '" type="text" placeholder="N° suivi" value="' + escHtml(o.tracking_number || '') + '" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.8rem;width:180px">' +
+    '<button data-dtf-track="' + id + '" style="padding:6px 12px;background:' + DTF_RED + ';color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.8rem">Suivi</button>' +
     '<span id="dtfTrackSt_' + id + '" style="font-size:.75rem"></span></div>';
 
-  // Files with preview
-  var filesHtml = (o.items || []).map(function(it, idx) {
+  var filesHtml = '';
+  var items = o.items || [];
+  for (var fi = 0; fi < items.length; fi++) {
+    var it = items[fi];
     var dlUrl = it.public_url || '';
     if (!dlUrl && it.file_path) dlUrl = DTF_API + '/dtf/download?bucket=' + encodeURIComponent(it.bucket || 'planches') + '&path=' + encodeURIComponent(it.file_path) + '&token=' + btoa(currentUser + ':' + localStorage.getItem('hf_pin'));
-    var pvId = 'dtfPv_' + id + '_' + idx;
+    var pvId = 'dtfPv_' + id + '_' + fi;
     var ext = (it.filename || '').split('.').pop().toLowerCase();
-    var isImage = ['jpg','jpeg','png','gif','webp','svg'].indexOf(ext) >= 0;
-    var isPdf = ext === 'pdf';
+    var isImg = ['jpg','jpeg','png','gif','webp','svg'].indexOf(ext) >= 0;
 
     var chips = [
       it.format ? 'Format: ' + it.format : '',
@@ -2929,29 +2930,65 @@ function dtfRenderAccordionDetail(panel, o, id) {
       return '<span style="padding:1px 7px;border-radius:8px;font-size:.7rem;background:rgba(227,6,19,.06);color:' + DTF_RED + ';border:1px solid rgba(227,6,19,.12)">' + c + '</span>';
     }).join(' ');
 
-    return '<div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;margin-bottom:6px">' +
+    filesHtml += '<div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;margin-bottom:6px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">' +
       '<div style="flex:1;min-width:0"><div style="font-size:.83rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(it.filename || 'Fichier') + '</div>' +
       '<div style="font-size:.75rem;color:var(--text3);margin-top:2px">' + (it.quantity || 1) + 'x · ' + (it.line_total_ht || 0) + ' CHF HT</div>' +
       '<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:3px">' + chips + '</div></div>' +
-      '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0">' +
-      
-      (dlUrl ? '<a href="' + escHtml(dlUrl) + '" target="_blank" onclick="event.stopPropagation()" style="padding:4px 10px;background:' + DTF_RED + ';color:#fff;border-radius:6px;text-decoration:none;font-size:.78rem">DL</a>' : '') +
-      '</div></div>' +
-      '<div id="' + pvId + '" style="margin-top:8px;border-radius:8px;overflow:hidden;position:relative">' +
-      '<div style="position:absolute;top:6px;right:6px;display:flex;gap:4px;z-index:2">' +
-      '<button onclick="event.stopPropagation();dtfPvBg(\'' + pvId + '\',\'#111\')" style="width:22px;height:22px;border-radius:50%;background:#111;border:2px solid #555;cursor:pointer" title="Fond sombre"></button>' +
-      '<button onclick="event.stopPropagation();dtfPvBg(\'' + pvId + '\',\'#fff\')" style="width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #ccc;cursor:pointer" title="Fond clair"></button>' +
-      '<button onclick="event.stopPropagation();dtfPvBg(\'' + pvId + '\',\'repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 50% / 20px 20px\')" style="width:22px;height:22px;border-radius:50%;background:repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 50% / 10px 10px;border:2px solid #ccc;cursor:pointer" title="Damier"></button>' +
+      (dlUrl ? '<a href="' + escHtml(dlUrl) + '" target="_blank" style="padding:4px 10px;background:' + DTF_RED + ';color:#fff;border-radius:6px;text-decoration:none;font-size:.78rem;flex-shrink:0">DL</a>' : '') +
       '</div>' +
-      '<div id="' + pvId + '_content" style="background:#111;padding:10px;min-height:80px;display:flex;align-items:center;justify-content:center;border-radius:8px">' + (isImage ? '<img src="' + escHtml(dlUrl) + '" style="max-width:100%;max-height:350px;object-fit:contain" onerror="this.outerHTML=\'<a href=\\\'' + escHtml(dlUrl) + '\\\' target=\\_blank\\\' style=\\\' display:inline-block;padding:10px 20px;background:' + DTF_RED + ';color:#fff;border-radius:8px;text-decoration:none\\\'>Télécharger</a>\'">' : isPdf ? '<div style="text-align:center;padding:20px"><div style="font-size:.85rem;color:var(--text3);margin-bottom:10px">' + escHtml(it.filename || 'PDF') + '</div><a href="' + escHtml(dlUrl) + '" target="_blank" style="display:inline-block;padding:10px 24px;background:' + DTF_RED + ';color:#fff;border-radius:8px;text-decoration:none;font-size:.9rem">Ouvrir le PDF</a></div>' : '<a href="' + escHtml(dlUrl) + '" target="_blank" style="color:' + DTF_RED + '">Ouvrir</a>') + '</div></div>' +
-      '</div>';
-  }).join('');
+      '<div style="margin-top:8px;border-radius:8px;overflow:hidden;position:relative">' +
+      '<div style="position:absolute;top:6px;right:6px;display:flex;gap:4px;z-index:2">' +
+      '<button data-bgset="dark" data-target="' + pvId + '" style="width:22px;height:22px;border-radius:50%;background:#111;border:2px solid #555;cursor:pointer"></button>' +
+      '<button data-bgset="light" data-target="' + pvId + '" style="width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #ccc;cursor:pointer"></button>' +
+      '<button data-bgset="checker" data-target="' + pvId + '" style="width:22px;height:22px;border-radius:50%;background:repeating-conic-gradient(#ddd 0% 25%,#fff 0% 50%) 50%/10px 10px;border:2px solid #ccc;cursor:pointer"></button>' +
+      '</div>' +
+      '<div id="' + pvId + '" data-url="' + escHtml(dlUrl) + '" data-ext="' + ext + '" style="background:#111;padding:10px;min-height:80px;display:flex;align-items:center;justify-content:center;border-radius:8px">' +
+      (isImg ? '<img src="' + escHtml(dlUrl) + '" style="max-width:100%;max-height:350px;object-fit:contain">' : '<div style="text-align:center;color:var(--text3);font-size:.8rem">Chargement PDF...</div>') +
+      '</div></div></div>';
+  }
 
   panel.innerHTML = copyRow +
     '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">' + traiteBtn + trackHtml + '</div>' +
-    '<div style="font-size:.85rem;font-weight:600;margin:10px 0 6px">Fichiers (' + (o.items || []).length + ')</div>' + filesHtml;
+    '<div style="font-size:.85rem;font-weight:600;margin:10px 0 6px">Fichiers (' + items.length + ')</div>' + filesHtml;
+
+  // Render PDFs with pdf.js
+  for (var pi = 0; pi < items.length; pi++) {
+    var pExt = (items[pi].filename || '').split('.').pop().toLowerCase();
+    if (pExt === 'pdf') {
+      var pPvId = 'dtfPv_' + id + '_' + pi;
+      dtfRenderPdf(pPvId);
+    }
+  }
 }
+
+function dtfRenderPdf(pvId) {
+  var el = document.getElementById(pvId);
+  if (!el || !el.dataset.url) return;
+  var url = el.dataset.url;
+  if (typeof pdfjsLib === 'undefined') { el.innerHTML = '<a href="' + url + '" target="_blank" style="color:' + DTF_RED + '">Ouvrir PDF</a>'; return; }
+  pdfjsLib.getDocument(url).promise.then(function(pdf) {
+    pdf.getPage(1).then(function(page) {
+      var scale = 1.5;
+      var vp = page.getViewport({ scale: scale });
+      var canvas = document.createElement('canvas');
+      canvas.width = vp.width;
+      canvas.height = vp.height;
+      canvas.style.maxWidth = '100%';
+      canvas.style.height = 'auto';
+      canvas.style.display = 'block';
+      canvas.style.margin = '0 auto';
+      var ctx = canvas.getContext('2d');
+      page.render({ canvasContext: ctx, viewport: vp }).promise.then(function() {
+        el.innerHTML = '';
+        el.appendChild(canvas);
+      });
+    });
+  }).catch(function(e) {
+    el.innerHTML = '<a href="' + url + '" target="_blank" style="display:inline-block;padding:10px 20px;background:' + DTF_RED + ';color:#fff;border-radius:8px;text-decoration:none">Ouvrir PDF</a>';
+  });
+}
+
 
 function dtfTogglePreview(pvId, url, ext) {
   var container = document.getElementById(pvId);
@@ -2994,6 +3031,28 @@ async function dtfSaveTrackingInline(id) {
   } catch(e) { if(st) st.innerHTML = '<span style="color:' + DTF_RED + '">Erreur</span>'; }
 }
 
+
+
+// DTF event delegation
+document.addEventListener('click', function(e) {
+  var t = e.target.closest('[data-copy]');
+  if (t) { e.stopPropagation(); navigator.clipboard.writeText(t.dataset.copy); t.style.color='#22c55e'; setTimeout(function(){t.style.color=DTF_RED},1500); return; }
+  var tr = e.target.closest('[data-dtf-traite]');
+  if (tr) { e.stopPropagation(); dtfToggleTraite(tr.dataset.dtfTraite, tr.dataset.val === 'true'); return; }
+  var tk = e.target.closest('[data-dtf-track]');
+  if (tk) { e.stopPropagation(); dtfSaveTrackingInline(tk.dataset.dtfTrack); return; }
+  var bg = e.target.closest('[data-bgset]');
+  if (bg && bg.dataset.target) {
+    e.stopPropagation();
+    var pvEl = document.getElementById(bg.dataset.target);
+    if (pvEl) {
+      if (bg.dataset.bgset === 'dark') pvEl.style.background = '#111';
+      else if (bg.dataset.bgset === 'light') pvEl.style.background = '#fff';
+      else pvEl.style.background = 'repeating-conic-gradient(#ddd 0% 25%,#fff 0% 50%) 50%/20px 20px';
+    }
+    return;
+  }
+});
 
 </script>
 </body>
