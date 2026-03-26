@@ -1051,17 +1051,23 @@ async function projUploadDoc(projId, input) {
   var file = input.files[0];
   if(!file) return;
   if(file.size > 20*1024*1024) { alert('Fichier trop volumineux (max 20 Mo)'); return; }
-  var fd = new FormData();
-  fd.append('file', file);
+  setSyncState('syncing');
   try {
-    var r = await fetch(PROJ_API+'/projects/'+projId+'/files', {method:'POST', headers:{'Authorization':'Basic '+token}, body:fd});
-    if(r.ok) projShowDetail(projId);
-    else alert('Erreur upload');
-  } catch(e) { alert('Erreur: '+e.message); }
-}
-
-function projDownloadDoc(projId, docIdx) {
-  window.open(PROJ_API+'/projects/'+projId+'/files/'+docIdx, '_blank');
+    var reader = new FileReader();
+    reader.onload = async function() {
+      var b64 = reader.result.split(',')[1];
+      var r = await fetch(PROJ_API+'/projects/'+projId+'/files', {
+        method:'POST',
+        headers:{'Authorization':'Basic '+token,'Content-Type':'application/json'},
+        body:JSON.stringify({data:b64, filename:file.name, type:file.type})
+      });
+      var res = await r.json();
+      if(res.ok) { setSyncState('ok'); await loadProjects(); projShowDetail(projId); }
+      else { setSyncState('error'); alert('Erreur: '+(res.error||'upload failed')); }
+    };
+    reader.readAsDataURL(file);
+  } catch(e) { setSyncState('error'); console.error(e); }
+  input.value = '';
 }
 
 async function projRemoveDoc(projId, docIdx) {
