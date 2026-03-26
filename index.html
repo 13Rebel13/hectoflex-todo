@@ -2932,16 +2932,16 @@ function dtfRenderAccordionDetail(panel, o, id) {
       '<div style="font-size:.75rem;color:var(--text3);margin-top:2px">' + (it.quantity || 1) + 'x · ' + (it.line_total_ht || 0) + ' CHF HT</div>' +
       '<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:3px">' + chips + '</div></div>' +
       '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0">' +
-      '<button onclick="event.stopPropagation();dtfTogglePreview(\'' + pvId + '\',\'' + escHtml(dlUrl) + '\',\'' + ext + '\')" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);cursor:pointer;font-size:.78rem">Aperçu</button>' +
+      
       (dlUrl ? '<a href="' + escHtml(dlUrl) + '" target="_blank" onclick="event.stopPropagation()" style="padding:4px 10px;background:' + DTF_RED + ';color:#fff;border-radius:6px;text-decoration:none;font-size:.78rem">DL</a>' : '') +
       '</div></div>' +
-      '<div id="' + pvId + '" style="display:none;margin-top:8px;border-radius:8px;overflow:hidden;position:relative">' +
+      '<div id="' + pvId + '" style="margin-top:8px;border-radius:8px;overflow:hidden;position:relative">' +
       '<div style="position:absolute;top:6px;right:6px;display:flex;gap:4px;z-index:2">' +
       '<button onclick="event.stopPropagation();dtfPvBg(\'' + pvId + '\',\'#111\')" style="width:22px;height:22px;border-radius:50%;background:#111;border:2px solid #555;cursor:pointer" title="Fond sombre"></button>' +
       '<button onclick="event.stopPropagation();dtfPvBg(\'' + pvId + '\',\'#fff\')" style="width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #ccc;cursor:pointer" title="Fond clair"></button>' +
       '<button onclick="event.stopPropagation();dtfPvBg(\'' + pvId + '\',\'repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 50% / 20px 20px\')" style="width:22px;height:22px;border-radius:50%;background:repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 50% / 10px 10px;border:2px solid #ccc;cursor:pointer" title="Damier"></button>' +
       '</div>' +
-      '<div id="' + pvId + '_content" style="background:#111;padding:10px;min-height:100px;display:flex;align-items:center;justify-content:center;border-radius:8px"></div></div>' +
+      '<div id="' + pvId + '_content" style="background:#111;padding:10px;min-height:80px;display:flex;align-items:center;justify-content:center;border-radius:8px">' + (isImage ? '<img src="' + escHtml(dlUrl) + '" style="max-width:100%;max-height:350px;object-fit:contain">' : isPdf ? '<iframe src="' + escHtml(dlUrl) + '" style="width:100%;height:350px;border:none;border-radius:6px"></iframe>' : '<a href="' + escHtml(dlUrl) + '" target="_blank" style="color:' + DTF_RED + '">Ouvrir</a>') + '</div></div>' +
       '</div>';
   }).join('');
 
