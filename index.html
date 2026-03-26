@@ -2848,6 +2848,20 @@ function dtfCopyBtn(value, label) {
   return '<button onclick="navigator.clipboard.writeText(\'' + escHtml(value).replace(/'/g,"\\'") + '\');this.style.color=\'#22c55e\';setTimeout(function(){}.bind(this),1000)" style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(227,6,19,.08);border:1px solid rgba(227,6,19,.2);border-radius:6px;color:' + DTF_RED + ';cursor:pointer;font-size:.78rem;transition:.2s" onmouseover="this.style.background=\'rgba(227,6,19,.15)\'" onmouseout="this.style.background=\'rgba(227,6,19,.08)\'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> ' + escHtml(label) + '</button>';
 }
 
+function dtfExtractClientName(o) {
+  var addr = (o.billing_address || '').split('\n')[0];
+  if (addr && addr !== 'client@local') return addr;
+  // Try to extract from first filename: 1x-Client-Name-dd_mm_yy-hash.ext
+  var items = o.items || o.files || [];
+  if (items.length) {
+    var fn = items[0].filename || '';
+    var m = fn.match(/^\d+x-(.+?)-\d{2}_\d{2}_\d{2}-/);
+    if (m) return m[1].replace(/-/g, ' ');
+  }
+  if (o.email && o.email !== 'client@local') return o.email;
+  return 'Client local';
+}
+
 function dtfRenderOrders() {
   var el = document.getElementById('dtfList');
   if (!el) return;
