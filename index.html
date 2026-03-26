@@ -2860,7 +2860,7 @@ function dtfRenderOrders() {
     return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden">' +
       '<div onclick="dtfToggleAccordion(\'' + o.id + '\')" style="padding:14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;transition:background .15s" onmouseover="this.style.background=\'rgba(227,6,19,.03)\'" onmouseout="this.style.background=\'transparent\'">' +
       '<div style="flex:1;min-width:0">' +
-      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><strong>' + escHtml(o.email || '') + '</strong> ' + badge + '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><strong>' + escHtml((o.billing_address||'').split('\n')[0] || o.email || '') + '</strong> ' + badge + '</div>' +
       '<div style="display:flex;gap:14px;margin-top:4px;font-size:.82rem;color:var(--text3);flex-wrap:wrap">' +
       '<span>' + fmtDate(o.created_at) + '</span><span style="font-weight:600">' + (o.total_amount_ttc ? o.total_amount_ttc.toFixed(2) + ' CHF' : '-') + '</span><span>' + (o.file_count || o.total_qty || 0) + ' fichiers</span><span>' + livr + '</span>' +
       (o.tracking_number ? '<span style="color:#22c55e">Suivi: ' + escHtml(o.tracking_number) + '</span>' : '') +
