@@ -69,6 +69,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .list-tab{padding:10px 22px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.9rem;font-weight:600;transition:all .2s}
 .list-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .list-tab:hover{border-color:var(--accent)}
+#pageDtf .list-tab.active{background:#E30613;color:#fff;border-color:#E30613}
+#pageDtf .list-tab:hover{border-color:#E30613}
+
 .cat-tabs{display:flex;gap:6px;margin-bottom:15px;flex-wrap:wrap}
 .cat-tab{padding:6px 14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-size:.8rem;transition:all .2s}
 .cat-tab.active{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
@@ -562,12 +565,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
 </div>
 <div class="page" id="pageDtf" style="padding:0 16px">
-<h2 style="margin:16px 0 8px;font-size:1.3rem;font-weight:700">DTF Swiss — Commandes</h2>
+<div id="dtfHeader">
+<div style="display:flex;align-items:center;gap:12px;margin:16px 0 8px">
+<img src="https://horhrwwvcyhghevwchoh.supabase.co/storage/v1/object/public/logos/DTF%20Swiss%20logo.png" style="height:36px;width:auto">
+<h2 style="margin:0;font-size:1.3rem;font-weight:700">Commandes</h2>
+</div>
 <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap" id="dtfStats"></div>
 <div class="list-tabs" id="dtfTabs">
-<button class="list-tab active" data-filter="all" onclick="dtfFilter('all',this)">Toutes</button>
+<button class="list-tab active" data-filter="all" onclick="dtfFilter('all',this)" style="--accent:#E30613">Toutes</button>
 <button class="list-tab" data-filter="pending" onclick="dtfFilter('pending',this)">Non traitées</button>
 <button class="list-tab" data-filter="done" onclick="dtfFilter('done',this)">Traitées</button>
+</div>
 </div>
 <div id="dtfList"></div>
 <div id="dtfDetail" style="display:none"></div>
@@ -2762,31 +2770,35 @@ function renderBalance() {
 // ===== DTF SWISS =====
 var dtfOrders = [];
 var dtfCurrentFilter = 'all';
+var DTF_RED = '#E30613';
+var DTF_API = 'https://hf-tasks-api.hectoflex.workers.dev';
 
 async function dtfInit() {
   await dtfLoadStats();
   await dtfLoadOrders();
 }
 
+function dtfAuth() {
+  return 'Basic ' + btoa(currentUser + ':' + localStorage.getItem('hf_pin'));
+}
+
 async function dtfLoadStats() {
   try {
-    var r = await fetch('https://hf-tasks-api.hectoflex.workers.dev/dtf/stats', {
-      headers: {'Authorization': 'Basic ' + btoa(currentUser + ':' + localStorage.getItem('hf_pin'))}
-    });
+    var r = await fetch(DTF_API + '/dtf/stats', { headers: {'Authorization': dtfAuth()} });
     var s = await r.json();
     var el = document.getElementById('dtfStats');
-    if (el) el.innerHTML = '<div style="padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;flex:1;min-width:120px"><div style="font-size:.8rem;color:var(--text3)">Total</div><div style="font-size:1.5rem;font-weight:700">' + s.total + '</div></div>' +
-      '<div style="padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;flex:1;min-width:120px"><div style="font-size:.8rem;color:var(--text3)">Non traitées</div><div style="font-size:1.5rem;font-weight:700;color:#FF7300">' + s.non_traite + '</div></div>' +
-      '<div style="padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;flex:1;min-width:120px"><div style="font-size:.8rem;color:var(--text3)">Traitées</div><div style="font-size:1.5rem;font-weight:700;color:#22c55e">' + s.traite + '</div></div>';
+    if (!el) return;
+    var card = function(label, val, color) {
+      return '<div style="padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;flex:1;min-width:100px"><div style="font-size:.75rem;color:var(--text3)">' + label + '</div><div style="font-size:1.4rem;font-weight:700;color:' + (color||'var(--text)') + '">' + val + '</div></div>';
+    };
+    el.innerHTML = card('Total', s.total, '') + card('Non traitées', s.non_traite, DTF_RED) + card('Traitées', s.traite, '#22c55e');
   } catch(e) { console.error('dtfLoadStats', e); }
 }
 
 async function dtfLoadOrders() {
   try {
     var filter = dtfCurrentFilter === 'pending' ? '&traite=false' : dtfCurrentFilter === 'done' ? '&traite=true' : '';
-    var r = await fetch('https://hf-tasks-api.hectoflex.workers.dev/dtf/orders?limit=100' + filter, {
-      headers: {'Authorization': 'Basic ' + btoa(currentUser + ':' + localStorage.getItem('hf_pin'))}
-    });
+    var r = await fetch(DTF_API + '/dtf/orders?limit=200' + filter, { headers: {'Authorization': dtfAuth()} });
     dtfOrders = await r.json();
     dtfRenderOrders();
   } catch(e) { console.error('dtfLoadOrders', e); }
@@ -2799,64 +2811,117 @@ function dtfFilter(f, btn) {
   dtfLoadOrders();
 }
 
+function dtfParseAddress(addr) {
+  if (!addr) return {};
+  var lines = addr.split('\n').map(function(l){return l.trim()}).filter(Boolean);
+  var result = {};
+  if (lines.length >= 1) result.nom = lines[0];
+  for (var i = 1; i < lines.length; i++) {
+    var l = lines[i];
+    if (l.match(/^[\w.+-]+@[\w.-]+$/)) result.email = l;
+    else if (l.match(/^[\+0-9\s]{7,}/)) result.tel = l;
+    else if (l.match(/^\d{4,5}\s/)) { var m = l.match(/^(\d{4,5})\s+(.*)/); if (m) { result.npa = m[1]; result.ville = m[2]; } }
+    else if (['Suisse','Schweiz','Switzerland','France','Deutschland'].indexOf(l) >= 0) result.pays = l;
+    else if (!result.adresse) result.adresse = l;
+  }
+  return result;
+}
+
+function dtfCopyBtn(value, label) {
+  if (!value) return '';
+  return '<button onclick="navigator.clipboard.writeText(\'' + escHtml(value).replace(/'/g,"\\'") + '\');this.style.color=\'#22c55e\';setTimeout(function(){}.bind(this),1000)" style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(227,6,19,.08);border:1px solid rgba(227,6,19,.2);border-radius:6px;color:' + DTF_RED + ';cursor:pointer;font-size:.78rem;transition:.2s" onmouseover="this.style.background=\'rgba(227,6,19,.15)\'" onmouseout="this.style.background=\'rgba(227,6,19,.08)\'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> ' + escHtml(label) + '</button>';
+}
+
 function dtfRenderOrders() {
   var el = document.getElementById('dtfList');
   if (!el) return;
   if (!dtfOrders.length) { el.innerHTML = '<p style="color:var(--text3);text-align:center;padding:40px">Aucune commande</p>'; return; }
   el.innerHTML = dtfOrders.map(function(o) {
-    var traite = o.traite;
-    var badge = traite ? '<span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:8px;font-size:.75rem">Traité</span>' : '<span style="background:#FF7300;color:#fff;padding:2px 8px;border-radius:8px;font-size:.75rem">Non traité</span>';
-    var email = escHtml(o.email || '');
-    var date = fmtDate(o.created_at);
-    var montant = o.total_amount_ttc ? o.total_amount_ttc.toFixed(2) + ' CHF' : '-';
-    var livraison = o.delivery_method === 'pickup' ? 'Retrait' : 'Livraison';
-    var fichiers = o.file_count || o.total_qty || 0;
-    return '<div onclick="dtfShowDetail(\'' + o.id + '\')" style="padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">' +
+    var badge = o.traite
+      ? '<span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:8px;font-size:.72rem">Traité</span>'
+      : '<span style="background:' + DTF_RED + ';color:#fff;padding:2px 8px;border-radius:8px;font-size:.72rem">Non traité</span>';
+    var livr = o.delivery_method === 'pickup' ? 'Retrait' : 'Livraison';
+    var prod = '';
+    return '<div data-id="' + o.id + '" onclick="dtfShowDetail(\'' + o.id + '\')" style="padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor=\'' + DTF_RED + '\'" onmouseout="this.style.borderColor=\'var(--border)\'">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">' +
-      '<div><strong>' + email + '</strong></div>' + badge + '</div>' +
-      '<div style="display:flex;gap:16px;margin-top:6px;font-size:.85rem;color:var(--text3);flex-wrap:wrap">' +
-      '<span>' + date + '</span><span>' + montant + '</span><span>' + fichiers + ' fichiers</span><span>' + livraison + '</span>' +
+      '<div><strong>' + escHtml(o.email || '') + '</strong></div>' + badge + '</div>' +
+      '<div style="display:flex;gap:16px;margin-top:6px;font-size:.82rem;color:var(--text3);flex-wrap:wrap">' +
+      '<span>' + fmtDate(o.created_at) + '</span><span style="font-weight:600">' + (o.total_amount_ttc ? o.total_amount_ttc.toFixed(2) + ' CHF' : '-') + '</span><span>' + (o.file_count || o.total_qty || 0) + ' fichiers</span><span>' + livr + '</span>' +
+      (o.tracking_number ? '<span style="color:#22c55e">Suivi: ' + escHtml(o.tracking_number) + '</span>' : '') +
       '</div></div>';
   }).join('');
 }
 
 async function dtfShowDetail(id) {
   var el = document.getElementById('dtfDetail');
+  var hdr = document.getElementById('dtfHeader');
   var listEl = document.getElementById('dtfList');
   if (!el || !listEl) return;
   el.style.display = 'block';
   listEl.style.display = 'none';
-  document.getElementById('dtfStats').style.display = 'none';
-  document.getElementById('dtfTabs').style.display = 'none';
+  if (hdr) hdr.style.display = 'none';
   el.innerHTML = '<p style="color:var(--text3)">Chargement...</p>';
   try {
-    var r = await fetch('https://hf-tasks-api.hectoflex.workers.dev/dtf/orders/' + id, {
-      headers: {'Authorization': 'Basic ' + btoa(currentUser + ':' + localStorage.getItem('hf_pin'))}
-    });
+    var r = await fetch(DTF_API + '/dtf/orders/' + id, { headers: {'Authorization': dtfAuth()} });
     var o = await r.json();
+    var parsed = dtfParseAddress(o.billing_address);
+
+    // Address with copy buttons
+    var addrHtml = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin:8px 0">';
+    addrHtml += dtfCopyBtn(parsed.nom, 'Nom');
+    addrHtml += dtfCopyBtn(o.email, 'Email');
+    addrHtml += dtfCopyBtn(parsed.tel, 'Tél');
+    addrHtml += dtfCopyBtn(parsed.adresse, 'Adresse');
+    addrHtml += dtfCopyBtn(parsed.npa, 'NPA');
+    addrHtml += dtfCopyBtn(parsed.ville, 'Ville');
+    addrHtml += dtfCopyBtn(parsed.pays, 'Pays');
+    addrHtml += '</div>';
+
+    // Traité toggle
     var traiteBtn = o.traite
       ? '<button onclick="dtfToggleTraite(\'' + id + '\',false)" style="padding:8px 16px;background:#6b7280;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem">Marquer non traité</button>'
       : '<button onclick="dtfToggleTraite(\'' + id + '\',true)" style="padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem">Marquer traité</button>';
-    var addr = escHtml((o.billing_address || '').replace(/\n/g, ', '));
+
+    // Tracking
+    var trackHtml = '<div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap">' +
+      '<input id="dtfTrackInput" type="text" placeholder="N° de suivi (Poste)" value="' + escHtml(o.tracking_number || '') + '" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.85rem;flex:1;min-width:150px">' +
+      '<button onclick="dtfSaveTracking(\'' + id + '\')" style="padding:8px 14px;background:' + DTF_RED + ';color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem">Enregistrer suivi</button>' +
+      '</div><div id="dtfTrackStatus" style="font-size:.8rem;margin-top:4px"></div>';
+
+    // Files
     var filesHtml = (o.items || []).map(function(it, idx) {
-      var dlBtn = '';
-      if (it.public_url) {
-        dlBtn = '<a href="' + escHtml(it.public_url) + '" target="_blank" style="color:var(--accent);text-decoration:none;font-size:.85rem">Télécharger</a>';
-      } else if (it.file_path) {
-        dlBtn = '<a href="https://hf-tasks-api.hectoflex.workers.dev/dtf/download?bucket=' + encodeURIComponent(it.bucket || 'planches') + '&path=' + encodeURIComponent(it.file_path) + '&token=' + btoa(currentUser + ':' + localStorage.getItem('hf_pin')) + '" target="_blank" style="color:var(--accent);text-decoration:none;font-size:.85rem">Télécharger</a>';
+      var dlUrl = it.public_url || '';
+      if (!dlUrl && it.file_path) {
+        dlUrl = DTF_API + '/dtf/download?bucket=' + encodeURIComponent(it.bucket || 'planches') + '&path=' + encodeURIComponent(it.file_path) + '&token=' + btoa(currentUser + ':' + localStorage.getItem('hf_pin'));
       }
-      return '<div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">' +
-        '<div><strong style="font-size:.85rem">' + escHtml(it.filename || 'Fichier') + '</strong><br><span style="font-size:.8rem;color:var(--text3)">' + escHtml(it.dims || '') + ' | ' + (it.quantity || 1) + 'x | ' + (it.line_total_ht || 0) + ' CHF HT | ' + escHtml(it.production || '') + ' | Colle: ' + escHtml(it.glue || '') + '</span></div>' +
-        dlBtn + '</div>';
+      var chips = [
+        it.format ? 'Format: ' + it.format : '',
+        it.dims ? 'Dim: ' + it.dims : '',
+        it.glue ? 'Colle: ' + (it.glue === 'anti' ? 'Anti-sublim.' : it.glue) : '',
+        it.production ? 'Prod: ' + (it.production === 'urgent24h' ? 'Urgent 24h' : it.production === 'express' ? 'Express' : 'Standard') : '',
+        it.has_bat ? 'BAT: Oui' : ''
+      ].filter(Boolean).map(function(c) {
+        return '<span style="padding:2px 8px;border-radius:10px;font-size:.72rem;background:rgba(227,6,19,.08);color:' + DTF_RED + ';border:1px solid rgba(227,6,19,.15)">' + c + '</span>';
+      }).join(' ');
+
+      return '<div style="padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;margin-bottom:8px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px">' +
+        '<div><strong style="font-size:.85rem">' + escHtml(it.filename || 'Fichier') + '</strong>' +
+        '<div style="font-size:.8rem;color:var(--text3);margin-top:2px">Qté: ' + (it.quantity || 1) + ' · PU HT: ' + (it.unit_price_ht || 0) + ' CHF · Total HT: ' + (it.line_total_ht || 0) + ' CHF</div>' +
+        '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">' + chips + '</div></div>' +
+        (dlUrl ? '<a href="' + escHtml(dlUrl) + '" target="_blank" style="padding:6px 12px;background:' + DTF_RED + ';color:#fff;border-radius:8px;text-decoration:none;font-size:.8rem;white-space:nowrap">Télécharger</a>' : '') +
+        '</div></div>';
     }).join('');
-    el.innerHTML = '<button onclick="dtfBackToList()" style="padding:6px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;margin-bottom:12px;font-size:.85rem">Retour</button>' +
-      '<div style="padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px">' +
-      '<div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:12px;margin-bottom:16px">' +
-      '<div><h3 style="margin:0;font-size:1.1rem">' + escHtml(o.email) + '</h3><p style="color:var(--text3);margin:4px 0;font-size:.85rem">' + addr + '</p>' +
-      '<p style="font-size:.85rem;color:var(--text3)">Commande du ' + fmtDate(o.created_at) + ' | ' + (o.delivery_method === 'pickup' ? 'Retrait' : 'Livraison') + ' | ' + (o.payment_method || '') + '</p></div>' +
-      '<div style="text-align:right"><div style="font-size:1.3rem;font-weight:700">' + (o.total_amount_ttc || 0).toFixed(2) + ' CHF</div><div style="font-size:.8rem;color:var(--text3)">' + (o.total_amount_ht || 0).toFixed(2) + ' CHF HT</div></div></div>' +
-      '<div style="margin-bottom:16px">' + traiteBtn + '</div>' +
-      '<h4 style="margin:0 0 8px;font-size:.95rem">Fichiers (' + (o.items || []).length + ')</h4>' + filesHtml +
+
+    el.innerHTML = '<button onclick="dtfBackToList()" style="padding:6px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;margin-bottom:12px;font-size:.85rem;display:inline-flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7l-7 7 7 7"/></svg> Retour</button>' +
+      '<div style="padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:16px;margin-bottom:16px">' +
+      '<div><h3 style="margin:0;font-size:1.1rem">' + escHtml(o.email) + '</h3>' + addrHtml +
+      '<p style="font-size:.85rem;color:var(--text3);margin:4px 0">' + fmtDate(o.created_at) + ' · ' + (o.delivery_method === 'pickup' ? 'Retrait' : 'Livraison') + ' · ' + (o.payment_method || '') + '</p></div>' +
+      '<div style="text-align:right"><div style="font-size:1.4rem;font-weight:700;color:' + DTF_RED + '">' + (o.total_amount_ttc || 0).toFixed(2) + ' CHF</div><div style="font-size:.8rem;color:var(--text3)">' + (o.total_amount_ht || 0).toFixed(2) + ' CHF HT</div></div></div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">' + traiteBtn + '</div>' +
+      trackHtml +
+      '<h4 style="margin:20px 0 10px;font-size:.95rem">Fichiers (' + (o.items || []).length + ')</h4>' + filesHtml +
       '</div>';
   } catch(e) { el.innerHTML = '<p style="color:red">Erreur: ' + e.message + '</p>'; }
 }
@@ -2864,20 +2929,39 @@ async function dtfShowDetail(id) {
 function dtfBackToList() {
   document.getElementById('dtfDetail').style.display = 'none';
   document.getElementById('dtfList').style.display = 'block';
-  document.getElementById('dtfStats').style.display = 'flex';
-  document.getElementById('dtfTabs').style.display = 'flex';
+  var hdr = document.getElementById('dtfHeader');
+  if (hdr) hdr.style.display = 'block';
+  dtfLoadOrders();
+  dtfLoadStats();
 }
 
 async function dtfToggleTraite(id, val) {
   try {
-    await fetch('https://hf-tasks-api.hectoflex.workers.dev/dtf/orders/' + id, {
+    await fetch(DTF_API + '/dtf/orders/' + id, {
       method: 'PATCH',
-      headers: {'Authorization': 'Basic ' + btoa(currentUser + ':' + localStorage.getItem('hf_pin')), 'Content-Type': 'application/json'},
+      headers: {'Authorization': dtfAuth(), 'Content-Type': 'application/json'},
       body: JSON.stringify({traite: val})
     });
     dtfShowDetail(id);
     dtfLoadStats();
   } catch(e) { console.error('dtfToggleTraite', e); }
+}
+
+async function dtfSaveTracking(id) {
+  var input = document.getElementById('dtfTrackInput');
+  var status = document.getElementById('dtfTrackStatus');
+  if (!input) return;
+  var num = input.value.trim();
+  if (!num) { if(status) status.innerHTML = '<span style="color:' + DTF_RED + '">Entrez un numéro de suivi</span>'; return; }
+  if(status) status.innerHTML = '<span style="color:var(--text3)">Envoi en cours...</span>';
+  try {
+    await fetch(DTF_API + '/dtf/orders/' + id, {
+      method: 'PATCH',
+      headers: {'Authorization': dtfAuth(), 'Content-Type': 'application/json'},
+      body: JSON.stringify({tracking_number: num})
+    });
+    if(status) status.innerHTML = '<span style="color:#22c55e">N° de suivi enregistré</span>';
+  } catch(e) { if(status) status.innerHTML = '<span style="color:' + DTF_RED + '">Erreur</span>'; }
 }
 
 </script>
