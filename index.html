@@ -162,6 +162,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .force-desktop .sidebar-logo img{height:70px!important;max-width:80%!important}
 .force-desktop .nav-bar{flex-wrap:nowrap!important}
 .force-desktop .nav-bar>div:first-child span{font-size:.9rem!important}
+.force-mobile .bottom-nav{position:fixed!important;bottom:0!important;left:0!important;right:0!important;top:auto!important;width:100%!important;flex-direction:row!important;justify-content:flex-start!important;padding:8px 0 calc(8px + env(safe-area-inset-bottom))!important;border-top:1px solid var(--border)!important;border-right:none!important;overflow-x:auto!important;height:auto!important}
+.force-mobile .bottom-nav button{padding:6px 10px!important;width:auto!important;text-align:center!important;font-size:.7rem!important;flex-direction:column!important;align-items:center!important;gap:3px!important;min-width:60px!important;flex-shrink:0!important}
+.force-mobile .bottom-nav button.active{background:none!important;border-left:none!important;color:var(--accent)!important}
+.force-mobile .sidebar-logo{display:none!important}
+.force-mobile .container{margin-left:0!important;padding-bottom:70px!important}
+.force-mobile #pageCustoms{margin-left:0!important}
+.force-mobile #pageDtf{margin-left:0!important}
+.force-mobile .header{margin-left:0!important}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -3150,12 +3158,15 @@ function toggleViewMode() {
   var body = document.body;
   var label = document.getElementById('viewToggleLabel');
   var icon = document.getElementById('viewToggleIcon');
-  if (body.classList.contains('force-desktop')) {
+  var isDesktop = body.classList.contains('force-desktop') || (!body.classList.contains('force-mobile') && window.innerWidth >= 768);
+  if (isDesktop) {
     body.classList.remove('force-desktop');
+    body.classList.add('force-mobile');
     localStorage.setItem('hf_view', 'mobile');
     if(label) label.textContent = 'PC';
     if(icon) icon.innerHTML = '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>';
   } else {
+    body.classList.remove('force-mobile');
     body.classList.add('force-desktop');
     localStorage.setItem('hf_view', 'desktop');
     if(label) label.textContent = 'Mobile';
@@ -3164,10 +3175,13 @@ function toggleViewMode() {
 }
 // Restore view mode on load
 (function(){
-  if (localStorage.getItem('hf_view') === 'desktop') {
+  var view = localStorage.getItem('hf_view');
+  if (view === 'desktop') {
     document.body.classList.add('force-desktop');
     var l = document.getElementById('viewToggleLabel'); if(l) l.textContent = 'Mobile';
     var i = document.getElementById('viewToggleIcon'); if(i) i.innerHTML = '<rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>';
+  } else if (view === 'mobile') {
+    document.body.classList.add('force-mobile');
   }
 })();
 
