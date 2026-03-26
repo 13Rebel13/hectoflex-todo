@@ -69,6 +69,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .list-tab{padding:10px 22px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.9rem;font-weight:600;transition:all .2s}
 .list-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .list-tab:hover{border-color:var(--accent)}
+.dtf-checker-dark{
+  background-color:#0f172a;
+  background-image:linear-gradient(45deg,rgba(255,255,255,.08) 25%,transparent 25%),linear-gradient(-45deg,rgba(255,255,255,.08) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(255,255,255,.08) 75%),linear-gradient(-45deg,transparent 75%,rgba(255,255,255,.08) 75%);
+  background-size:16px 16px;border-radius:.7rem}
+.dtf-checker-light{
+  background-color:#f1f5f9;
+  background-image:linear-gradient(45deg,rgba(0,0,0,.06) 25%,transparent 25%),linear-gradient(-45deg,rgba(0,0,0,.06) 25%,transparent 25%),linear-gradient(45deg,transparent 75%,rgba(0,0,0,.06) 75%),linear-gradient(-45deg,transparent 75%,rgba(0,0,0,.06) 75%);
+  background-size:16px 16px;border-radius:.7rem}
+.dtf-pv-box{max-width:360px}
+.dtf-pv-stage{position:relative;overflow:hidden;padding:8px;border-radius:.5rem}
+
 #pageDtf .list-tab.active{background:#E30613;color:#fff;border-color:#E30613}
 #pageDtf .list-tab:hover{border-color:#E30613}
 
@@ -2887,6 +2898,47 @@ async function dtfToggleAccordion(id) {
   }
 }
 
+function dtfRenderPreview(url, ext, container) {
+  if (!container) return;
+  container.className = 'dtf-pv-box';
+  container.innerHTML = '';
+  var stage = document.createElement('div');
+  stage.className = 'dtf-pv-stage';
+  container.appendChild(stage);
+  dtfSetPreviewBg(container, container.dataset.bg || 'dark');
+  if (!url) { stage.innerHTML = '<div style="font-size:.8rem;color:var(--text3);padding:4px">Aucun fichier.</div>'; return; }
+  ext = (ext || '').toLowerCase();
+  if (ext === 'pdf') { dtfRenderPdf(url, stage); return; }
+  if (ext === 'svg') {
+    fetch(url, { mode:'cors', credentials:'omit', referrerPolicy:'no-referrer' })
+      .then(function(r){ return r.text(); })
+      .then(function(t){ stage.innerHTML = t; })
+      .catch(function(){ stage.innerHTML = '<div style="font-size:.8rem;color:#f87171">SVG indisponible</div>'; });
+    return;
+  }
+  if (['png','jpg','jpeg','webp'].indexOf(ext) >= 0) {
+    var img = new Image();
+    img.referrerPolicy = 'no-referrer';
+    img.src = url;
+    img.alt = 'aperçu';
+    img.style.maxWidth = '100%';
+    img.style.width = '320px';
+    img.style.height = 'auto';
+    img.style.borderRadius = '.5rem';
+    img.onerror = function() { stage.innerHTML = '<div style="font-size:.8rem;color:#f87171">Image indisponible</div>'; };
+    stage.appendChild(img);
+    return;
+  }
+  stage.innerHTML = '<div style="font-size:.8rem;color:var(--text3)">Type non prévisualisable.</div>';
+}
+
+function dtfSetPreviewBg(container, mode) {
+  var stage = container.querySelector('.dtf-pv-stage') || container;
+  stage.classList.remove('dtf-checker-dark', 'dtf-checker-light');
+  if (mode === 'dark') stage.classList.add('dtf-checker-dark');
+  if (mode === 'light') stage.classList.add('dtf-checker-light');
+}
+
 function dtfRenderAccordionDetail(panel, o, id) {
   var parsed = dtfParseAddress(o.billing_address);
 
@@ -2937,83 +2989,55 @@ function dtfRenderAccordionDetail(panel, o, id) {
       '<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:3px">' + chips + '</div></div>' +
       (dlUrl ? '<a href="' + escHtml(dlUrl) + '" target="_blank" style="padding:4px 10px;background:' + DTF_RED + ';color:#fff;border-radius:6px;text-decoration:none;font-size:.78rem;flex-shrink:0">DL</a>' : '') +
       '</div>' +
-      '<div style="margin-top:8px;border-radius:8px;overflow:hidden;position:relative">' +
+      '<div style="margin-top:8px;position:relative">' +
       '<div style="position:absolute;top:6px;right:6px;display:flex;gap:4px;z-index:2">' +
-      '<button data-bgset="dark" data-target="' + pvId + '" style="width:22px;height:22px;border-radius:50%;background:#111;border:2px solid #555;cursor:pointer"></button>' +
-      '<button data-bgset="light" data-target="' + pvId + '" style="width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #ccc;cursor:pointer"></button>' +
-      '<button data-bgset="checker" data-target="' + pvId + '" style="width:22px;height:22px;border-radius:50%;background:repeating-conic-gradient(#ddd 0% 25%,#fff 0% 50%) 50%/10px 10px;border:2px solid #ccc;cursor:pointer"></button>' +
+      '<button data-bgset="dark" data-target="' + pvId + '" style="width:26px;height:22px;border-radius:.5rem;border:1px solid rgba(148,163,184,.45);background:#0f172a;color:#e5e7eb;cursor:pointer;font-size:11px">🌓</button>' +
+      '<button data-bgset="light" data-target="' + pvId + '" style="width:26px;height:22px;border-radius:.5rem;border:1px solid rgba(148,163,184,.45);background:#fff;cursor:pointer"></button>' +
       '</div>' +
-      '<div id="' + pvId + '" data-url="' + escHtml(dlUrl) + '" data-ext="' + ext + '" style="background:#fff;padding:10px;min-height:80px;display:flex;align-items:center;justify-content:center;border-radius:8px">' +
-      (isImg ? '<img src="' + escHtml(dlUrl) + '" style="max-width:100%;max-height:350px;object-fit:contain">' : '<div style="text-align:center;color:var(--text3);font-size:.8rem">Chargement PDF...</div>') +
-      '</div></div></div>';
+      '<div id="' + pvId + '" data-autopv="1" data-url="' + escHtml(dlUrl) + '" data-ext="' + ext + '" data-bg="dark"></div>' +
+      '</div></div>';
   }
 
   panel.innerHTML = copyRow +
     '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">' + traiteBtn + trackHtml + '</div>' +
     '<div style="font-size:.85rem;font-weight:600;margin:10px 0 6px">Fichiers (' + items.length + ')</div>' + filesHtml;
 
-  // Render PDFs with pdf.js
-  for (var pi = 0; pi < items.length; pi++) {
-    var pExt = (items[pi].filename || '').split('.').pop().toLowerCase();
-    if (pExt === 'pdf') {
-      var pPvId = 'dtfPv_' + id + '_' + pi;
-      dtfRenderPdf(pPvId);
-    }
-  }
-}
-
-function dtfRenderPdf(pvId) {
-  var el = document.getElementById(pvId);
-  if (!el || !el.dataset.url) return;
-  var url = el.dataset.url;
-  if (typeof pdfjsLib === 'undefined') { el.innerHTML = '<a href="' + url + '" target="_blank" style="color:' + DTF_RED + '">Ouvrir PDF</a>'; return; }
-  pdfjsLib.getDocument(url).promise.then(function(pdf) {
-    pdf.getPage(1).then(function(page) {
-      var scale = 1.5;
-      var vp = page.getViewport({ scale: scale });
-      var canvas = document.createElement('canvas');
-      canvas.width = vp.width;
-      canvas.height = vp.height;
-      canvas.style.maxWidth = '100%';
-      canvas.style.height = 'auto';
-      canvas.style.display = 'block';
-      canvas.style.margin = '0 auto';
-      var ctx = canvas.getContext('2d');
-      page.render({ canvasContext: ctx, viewport: vp }).promise.then(function() {
-        el.innerHTML = '';
-        el.appendChild(canvas);
-      });
-    });
-  }).catch(function(e) {
-    el.innerHTML = '<a href="' + url + '" target="_blank" style="display:inline-block;padding:10px 20px;background:' + DTF_RED + ';color:#fff;border-radius:8px;text-decoration:none">Ouvrir PDF</a>';
+  // Auto-render all previews (like BlackBox data-autopv)
+  var holders = panel.querySelectorAll('[data-autopv="1"]');
+  holders.forEach(function(h) {
+    var url = h.dataset.url;
+    var ext = h.dataset.ext;
+    if (url) dtfRenderPreview(url, ext, h);
   });
 }
 
-
-function dtfTogglePreview(pvId, url, ext) {
-  var container = document.getElementById(pvId);
-  if (!container) return;
-  if (container.style.display !== 'none') { container.style.display = 'none'; return; }
-  container.style.display = 'block';
-  var content = document.getElementById(pvId + '_content');
-  if (!content || content.dataset.loaded) return;
-  content.dataset.loaded = '1';
-  var isImage = ['jpg','jpeg','png','gif','webp','svg'].indexOf(ext) >= 0;
-  if (isImage) {
-    content.innerHTML = '<img src="' + url + '" style="max-width:100%;max-height:400px;object-fit:contain">';
-  } else if (ext === 'pdf') {
-    content.innerHTML = '<iframe src="' + url + '" style="width:100%;height:400px;border:none;border-radius:6px"></iframe>';
-  } else {
-    content.innerHTML = '<a href="' + url + '" target="_blank" style="color:' + DTF_RED + '">Ouvrir le fichier</a>';
-  }
+function dtfRenderPdf(url, stage) {
+  if (!url || typeof pdfjsLib === 'undefined') { stage.innerHTML='<div style="font-size:.8rem;color:#f87171;padding:4px">PDF non disponible</div>'; return; }
+  fetch(url, { mode:'cors', credentials:'omit', referrerPolicy:'no-referrer' })
+    .then(function(r) { if(!r.ok) throw new Error('fetch'); return r.arrayBuffer(); })
+    .then(function(buf) { return pdfjsLib.getDocument({ data: buf }).promise; })
+    .then(function(pdf) { return pdf.getPage(1); })
+    .then(function(page) {
+      var base = page.getViewport({ scale: 1 });
+      var maxW = 320;
+      var scale = Math.min(1.0, maxW / base.width);
+      var vp = page.getViewport({ scale: scale });
+      var c = document.createElement('canvas');
+      c.width = vp.width | 0;
+      c.height = vp.height | 0;
+      var ctx = c.getContext('2d', { alpha: true });
+      page.render({ canvasContext: ctx, viewport: vp, background: 'rgba(0,0,0,0)' }).promise.then(function() {
+        stage.innerHTML = '';
+        stage.appendChild(c);
+      });
+    })
+    .catch(function() {
+      stage.innerHTML = '<div style="font-size:.8rem;color:#f87171;padding:4px">Impossible d\'afficher ce PDF.</div>';
+    });
 }
 
-function dtfPvBg(pvId, bg) {
-  var content = document.getElementById(pvId + '_content');
-  if (!content) return;
-  if (bg.includes('conic')) content.style.background = bg;
-  else content.style.background = bg;
-}
+
+
 
 async function dtfSaveTrackingInline(id) {
   var input = document.getElementById('dtfTrack_' + id);
@@ -3045,11 +3069,7 @@ document.addEventListener('click', function(e) {
   if (bg && bg.dataset.target) {
     e.stopPropagation();
     var pvEl = document.getElementById(bg.dataset.target);
-    if (pvEl) {
-      if (bg.dataset.bgset === 'dark') pvEl.style.background = '#111';
-      else if (bg.dataset.bgset === 'light') pvEl.style.background = '#fff';
-      else pvEl.style.background = 'repeating-conic-gradient(#ddd 0% 25%,#fff 0% 50%) 50%/20px 20px';
-    }
+    if (pvEl) dtfSetPreviewBg(pvEl, bg.dataset.bgset);
     return;
   }
 });
