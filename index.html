@@ -704,7 +704,7 @@ async function deleteProjectAPI(id) {
   await fetch(PROJ_API+'/projects/'+id, {method:'DELETE', headers:{'Authorization':'Basic '+token}});
 }
 
-var projSortVal = 'recent';
+var projSortVal = 'manual';
 function projSortChange(val) { projSortVal = val; renderProjects(); }
 function renderProjects() {
   var list = document.getElementById('projList');
@@ -741,8 +741,9 @@ function renderProjects() {
     var checkDone = (p.checklist||[]).filter(function(c){return c.done}).length;
     var checkTotal = (p.checklist||[]).length;
     var progress = checkTotal ? Math.round(checkDone/checkTotal*100) : 0;
-    var moveBtns = projSortVal==='manual' ? '<div style="display:flex;flex-direction:column;gap:2px;margin-right:10px" onclick="event.stopPropagation()"><button onclick="projMove('+p.id+',-1)" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:2px 6px;color:var(--text2);font-size:.7rem">&#9650;</button><button onclick="projMove('+p.id+',1)" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:2px 6px;color:var(--text2);font-size:.7rem">&#9660;</button></div>' : '';
-    return '<div onclick="projShowDetail('+p.id+')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+sc+';cursor:pointer;display:flex;align-items:center">' + moveBtns + '<div style="flex:1">' +
+    return '<div onclick="projShowDetail('+p.id+')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+sc+';cursor:pointer;display:flex;align-items:center">' +
+      '<div style="display:flex;flex-direction:column;gap:2px;margin-right:10px" onclick="event.stopPropagation()"><button onclick="projMove('+p.id+',-1)" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:4px 8px;color:var(--text2);font-size:.75rem">&#9650;</button><button onclick="projMove('+p.id+',1)" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:4px 8px;color:var(--text2);font-size:.75rem">&#9660;</button></div>' +
+      '<div style="flex:1">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
         '<div style="font-weight:600;font-size:.9rem;color:var(--text)">'+escHtml(p.name)+'</div>' +
         '<span style="padding:2px 8px;border-radius:8px;background:'+sc+';color:#fff;font-size:.7rem;font-weight:600">'+sl+'</span>' +
@@ -755,22 +756,23 @@ function renderProjects() {
 }
 
 async function projMove(id, direction) {
-  // Get current filtered list
-  var filtered = projFilterVal==='all' ? projects.slice() : projects.filter(function(p){return p.statut===projFilterVal});
-  filtered.sort(function(a,b){return (a.sortOrder||9999)-(b.sortOrder||9999)});
-  var idx = filtered.findIndex(function(p){return p.id===id});
+  var list = projects.slice();
+  list.sort(function(a,b){return (a.sortOrder||9999)-(b.sortOrder||9999)});
+  var idx = list.findIndex(function(p){return p.id===id});
   if(idx<0) return;
   var newIdx = idx + direction;
-  if(newIdx<0 || newIdx>=filtered.length) return;
-  // Swap sortOrder
-  var temp = filtered[idx];
-  filtered[idx] = filtered[newIdx];
-  filtered[newIdx] = temp;
-  // Assign new sortOrder
-  for(var i=0;i<filtered.length;i++){
-    await updateProject(filtered[i].id, {sortOrder: i});
+  if(newIdx<0 || newIdx>=list.length) return;
+  // Swap
+  var temp = list[idx];
+  list[idx] = list[newIdx];
+  list[newIdx] = temp;
+  // Save all sortOrders
+  for(var i=0;i<list.length;i++){
+    list[i].sortOrder = i;
+    await updateProject(list[i].id, {sortOrder: i});
   }
-  await loadProjects();
+  projects = list;
+  renderProjects();
 }
 
 function projFilter(val, btn) {
