@@ -3095,6 +3095,39 @@ async function dtfSaveTrackingInline(id) {
 
 
 
+
+async function dtfToggleTraite(id, val) {
+  try {
+    var r = await fetch(DTF_API + '/dtf/orders/' + id, {
+      method: 'PATCH',
+      headers: {'Authorization': dtfAuth(), 'Content-Type': 'application/json'},
+      body: JSON.stringify({traite: val})
+    });
+    if (!r.ok) throw new Error('PATCH ' + r.status);
+    // Refresh panel + list + stats
+    var panel = document.getElementById('dtfExpand_' + id);
+    if (panel) panel.dataset.loaded = '';
+    await dtfLoadStats();
+    await dtfLoadOrders();
+  } catch(e) { console.error('dtfToggleTraite', e); alert('Erreur: ' + e.message); }
+}
+
+async function dtfSaveTrackingInline(id) {
+  var input = document.getElementById('dtfTrack_' + id);
+  var st = document.getElementById('dtfTrackSt_' + id);
+  if (!input) return;
+  var num = input.value.trim();
+  if (!num) { if(st) st.innerHTML = '<span style="color:' + DTF_RED + '">Entrez un n\u00b0</span>'; return; }
+  try {
+    await fetch(DTF_API + '/dtf/orders/' + id, {
+      method: 'PATCH',
+      headers: {'Authorization': dtfAuth(), 'Content-Type': 'application/json'},
+      body: JSON.stringify({tracking_number: num})
+    });
+    if(st) st.innerHTML = '<span style="color:#22c55e">Enregistr\u00e9</span>';
+  } catch(e) { if(st) st.innerHTML = '<span style="color:' + DTF_RED + '">Erreur</span>'; }
+}
+
 // DTF event delegation
 document.addEventListener('click', function(e) {
   var t = e.target.closest('[data-copy]');
