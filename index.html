@@ -184,11 +184,11 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 <div id="appScreen" style="display:none">
 <div class="header">
 <div><span id="welcomeHF" style="font-weight:600;font-size:1.1rem">HectoFlex</span></div>
-<div style="display:flex;align-items:center;gap:10px">
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
 <span style="display:flex;align-items:center;gap:6px"><span id="syncDot" class="sync-indicator" style="width:8px;height:8px;border-radius:50%;display:inline-block"></span> <span id="userName"></span></span>
-<button id="viewToggle" onclick="toggleViewMode()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:4px 8px;cursor:pointer;color:var(--text2);display:inline-flex;align-items:center;gap:4px;font-size:.72rem" title="Basculer vue"><svg id="viewToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span id="viewToggleLabel">PC</span></button>
+<button id="viewToggle" onclick="toggleViewMode()" style="background:rgba(255,115,0,.1);border:1px solid #FF7300;border-radius:8px;padding:4px 8px;cursor:pointer;color:#FF7300;display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:600" title="Basculer vue"><svg id="viewToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span id="viewToggleLabel">PC</span></button>
 <button id="themeToggle" onclick="toggleThemeHF()" style="background:none;border:none;cursor:pointer;color:var(--text);padding:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
-<button onclick="doLogout()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:.85rem">Déconnexion</button>
+<button onclick="doLogout()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:3px 8px;border-radius:var(--radius);cursor:pointer;font-size:.72rem">Sortir</button>
 </div></div>
 
 </div>
