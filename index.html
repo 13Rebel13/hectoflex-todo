@@ -2851,12 +2851,21 @@ function dtfCopyBtn(value, label) {
 function dtfExtractClientName(o) {
   var addr = (o.billing_address || '').split('\n')[0];
   if (addr && addr !== 'client@local') return addr;
-  // Try to extract from first filename: 1x-Client-Name-dd_mm_yy-hash.ext
   var items = o.items || o.files || [];
   if (items.length) {
     var fn = items[0].filename || '';
-    var m = fn.match(/^\d+x-(.+?)-\d{2}_\d{2}_\d{2}-/);
-    if (m) return m[1].replace(/-/g, ' ');
+    // Remove qty prefix: "1x-"
+    var rest = fn.replace(/^\d+x-/, '');
+    // Split by dash, take leading name-like parts (stop at dates, hashes, descriptions)
+    var parts = rest.split('-');
+    var name = [];
+    for (var i = 0; i < parts.length && i < 4; i++) {
+      var p = parts[i];
+      if (p.match(/^\d{1,2}_/) || p.match(/^[a-z0-9]{5,}$/) || p.match(/^\d{4}$/) || p === '' || p.match(/_\d/)) break;
+      if (p.match(/^(logo|dtf|print|planches|brod|par|ici|cest|pas|plus)$/i) && name.length > 0) break;
+      name.push(p);
+    }
+    if (name.length) return name.join(' ');
   }
   if (o.email && o.email !== 'client@local') return o.email;
   return 'Client local';
