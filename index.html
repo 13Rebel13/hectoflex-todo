@@ -915,8 +915,9 @@ async function projShowDetail(id) {
     var desc = c.label || '';
     if(c.type==='heures' && c.hours && c.rate) desc += ' ('+c.hours+'h x '+c.rate+' CHF/h)';
     html += '<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.85rem">';
-    html += '<span style="flex:2;color:var(--text)">'+escHtml(desc)+'</span>';
-    html += '<span style="flex:1;text-align:right;color:var(--text);font-weight:500">'+parseFloat(c.amount||0).toFixed(2)+' CHF</span>';
+    html += '<input type="text" value="'+escHtml(desc)+'" data-costdesc="'+p.id+'-'+i+'" onblur="projEditCostDesc('+p.id+','+i+',this.value)" style="flex:2;color:var(--text);background:transparent;border:1px solid transparent;border-radius:4px;padding:2px 4px;font-size:.85rem" onfocus="this.style.borderColor=\'var(--accent)\'" onblurx="this.style.borderColor=\'transparent\'">';
+    html += '<input type="number" value="'+parseFloat(c.amount||0).toFixed(2)+'" data-costamt="'+p.id+'-'+i+'" onblur="projEditCostAmt('+p.id+','+i+',this.value)" style="flex:1;text-align:right;color:var(--text);font-weight:500;background:transparent;border:1px solid transparent;border-radius:4px;padding:2px 4px;font-size:.85rem;width:80px" onfocus="this.style.borderColor=\'var(--accent)\'">';
+    html += '<span style="font-size:.75rem;color:var(--text3);margin-left:2px">CHF</span>';
     html += '<button onclick="projRemoveCost('+p.id+','+i+')" style="width:30px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:.9rem;text-align:center">x</button>';
     html += '</div>';
   });
@@ -1092,6 +1093,21 @@ async function projAddCostLine(projId, type) {
   var costs = p.costs || [];
   costs.push({type:type, label:label, amount:amount, hours:hours, rate:rate, added:new Date().toISOString()});
   await updateProject(projId, {costs:costs});
+  projShowDetail(projId);
+}
+
+async function projEditCostDesc(projId, idx, val) {
+  var p = projects.find(function(x){return x.id===projId});
+  if(!p || !p.costs || !p.costs[idx]) return;
+  p.costs[idx].label = val;
+  await updateProject(projId, {costs: p.costs});
+}
+
+async function projEditCostAmt(projId, idx, val) {
+  var p = projects.find(function(x){return x.id===projId});
+  if(!p || !p.costs || !p.costs[idx]) return;
+  p.costs[idx].amount = parseFloat(val)||0;
+  await updateProject(projId, {costs: p.costs});
   projShowDetail(projId);
 }
 
