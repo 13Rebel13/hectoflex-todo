@@ -40,8 +40,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .logout-btn{padding:8px 16px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.85rem;transition:all .15s}
 .logout-btn:hover{border-color:var(--accent);color:var(--accent)}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);display:flex;justify-content:space-around;padding:8px 0 calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--border);z-index:100;box-shadow:0 -1px 3px rgba(0,0,0,.08)}
-.bottom-nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;font-size:.75rem;color:var(--text2);cursor:pointer;border:none;background:none;transition:color .15s}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);display:flex;justify-content:flex-start;padding:8px 0 calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--border);z-index:100;box-shadow:0 -1px 3px rgba(0,0,0,.08);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.bottom-nav::-webkit-scrollbar{display:none}
+.bottom-nav button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 10px;font-size:.7rem;color:var(--text2);cursor:pointer;border:none;background:none;transition:color .15s;flex-shrink:0;min-width:60px}
 .bottom-nav button.active{color:var(--accent)}
 .bottom-nav button span.nav-icon{font-size:1.4rem;display:flex;align-items:center;justify-content:center}
 .sidebar-logo{display:none;padding:15px 5px 10px;border-bottom:1px solid var(--border);text-align:center;overflow:visible;box-sizing:border-box;width:100%}
