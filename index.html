@@ -658,6 +658,13 @@ function switchNav(page, btn){
   if(page==='customs')hfcInit();
   if(page==='projects') loadProjects();
   if(page==='leads') loadLeads();
+  // Auto-refresh: reload data for active tab every 15s
+  clearInterval(window._autoRefresh);
+  window._autoRefresh = setInterval(function(){
+    if(currentPage==='projects') loadProjects();
+    else if(currentPage==='leads') loadLeads();
+    else if(currentPage==='suppliers') loadSuppliers().then(function(){renderSuppliers()});
+  }, 15000);
   if(page==='qr') renderSavedQR();
 }
 
