@@ -2779,7 +2779,10 @@ async function dtfInit() {
 }
 
 function dtfAuth() {
-  return 'Basic ' + btoa(currentUser + ':' + localStorage.getItem('hf_pin'));
+  var pin = localStorage.getItem('hf_pin');
+  if (currentUser && pin) return 'Basic ' + btoa(currentUser + ':' + pin);
+  if (token) return 'Bearer ' + token;
+  return '';
 }
 
 async function dtfLoadStats() {
@@ -2791,7 +2794,7 @@ async function dtfLoadStats() {
     var card = function(label, val, color) {
       return '<div style="padding:12px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;flex:1;min-width:100px"><div style="font-size:.75rem;color:var(--text3)">' + label + '</div><div style="font-size:1.4rem;font-weight:700;color:' + (color||'var(--text)') + '">' + val + '</div></div>';
     };
-    el.innerHTML = card('Total', s.total, '') + card('Non traitées', s.non_traite, DTF_RED) + card('Traitées', s.traite, '#22c55e');
+    el.innerHTML = card('Total', s.total||0, '') + card('Non traitées', s.non_traite||0, DTF_RED) + card('Traitées', s.traite||0, '#22c55e');
   } catch(e) { console.error('dtfLoadStats', e); }
 }
 
@@ -2799,7 +2802,7 @@ async function dtfLoadOrders() {
   try {
     var filter = dtfCurrentFilter === 'pending' ? '&traite=false' : dtfCurrentFilter === 'done' ? '&traite=true' : '';
     var r = await fetch(DTF_API + '/dtf/orders?limit=200' + filter, { headers: {'Authorization': dtfAuth()} });
-    dtfOrders = await r.json();
+    var data = await r.json(); dtfOrders = Array.isArray(data) ? data : [];
     dtfRenderOrders();
   } catch(e) { console.error('dtfLoadOrders', e); }
 }
