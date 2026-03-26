@@ -2841,128 +2841,156 @@ function dtfRenderOrders() {
       ? '<span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:8px;font-size:.72rem">Traité</span>'
       : '<span style="background:' + DTF_RED + ';color:#fff;padding:2px 8px;border-radius:8px;font-size:.72rem">Non traité</span>';
     var livr = o.delivery_method === 'pickup' ? 'Retrait' : 'Livraison';
-    var prod = '';
-    return '<div data-id="' + o.id + '" onclick="dtfShowDetail(\'' + o.id + '\')" style="padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor=\'' + DTF_RED + '\'" onmouseout="this.style.borderColor=\'var(--border)\'">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">' +
-      '<div><strong>' + escHtml(o.email || '') + '</strong></div>' + badge + '</div>' +
-      '<div style="display:flex;gap:16px;margin-top:6px;font-size:.82rem;color:var(--text3);flex-wrap:wrap">' +
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden">' +
+      '<div onclick="dtfToggleAccordion(\'' + o.id + '\')" style="padding:14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;transition:background .15s" onmouseover="this.style.background=\'rgba(227,6,19,.03)\'" onmouseout="this.style.background=\'transparent\'">' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><strong>' + escHtml(o.email || '') + '</strong> ' + badge + '</div>' +
+      '<div style="display:flex;gap:14px;margin-top:4px;font-size:.82rem;color:var(--text3);flex-wrap:wrap">' +
       '<span>' + fmtDate(o.created_at) + '</span><span style="font-weight:600">' + (o.total_amount_ttc ? o.total_amount_ttc.toFixed(2) + ' CHF' : '-') + '</span><span>' + (o.file_count || o.total_qty || 0) + ' fichiers</span><span>' + livr + '</span>' +
       (o.tracking_number ? '<span style="color:#22c55e">Suivi: ' + escHtml(o.tracking_number) + '</span>' : '') +
-      '</div></div>';
+      '</div></div>' +
+      '<svg id="dtfArrow_' + o.id + '" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2" style="transition:transform .2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>' +
+      '</div>' +
+      '<div id="dtfExpand_' + o.id + '" style="display:none;padding:0 14px 14px;border-top:1px solid var(--border)"></div>' +
+      '</div>';
   }).join('');
 }
 
-async function dtfShowDetail(id) {
-  var el = document.getElementById('dtfDetail');
-  var hdr = document.getElementById('dtfHeader');
-  var listEl = document.getElementById('dtfList');
-  if (!el || !listEl) return;
-  el.style.display = 'block';
-  listEl.style.display = 'none';
-  if (hdr) hdr.style.display = 'none';
-  el.innerHTML = '<p style="color:var(--text3)">Chargement...</p>';
-  try {
-    var r = await fetch(DTF_API + '/dtf/orders/' + id, { headers: {'Authorization': dtfAuth()} });
-    var o = await r.json();
-    var parsed = dtfParseAddress(o.billing_address);
+async function dtfToggleAccordion(id) {
+  var panel = document.getElementById('dtfExpand_' + id);
+  var arrow = document.getElementById('dtfArrow_' + id);
+  if (!panel) return;
+  if (panel.style.display !== 'none') {
+    panel.style.display = 'none';
+    if (arrow) arrow.style.transform = 'rotate(0deg)';
+    return;
+  }
+  // Close others
+  document.querySelectorAll('[id^="dtfExpand_"]').forEach(function(p) { p.style.display = 'none'; });
+  document.querySelectorAll('[id^="dtfArrow_"]').forEach(function(a) { a.style.transform = 'rotate(0deg)'; });
+  panel.style.display = 'block';
+  if (arrow) arrow.style.transform = 'rotate(180deg)';
+  // Load detail if not loaded
+  if (!panel.dataset.loaded) {
+    panel.innerHTML = '<p style="color:var(--text3);padding:10px 0;font-size:.85rem">Chargement...</p>';
+    try {
+      var r = await fetch(DTF_API + '/dtf/orders/' + id, { headers: {'Authorization': dtfAuth()} });
+      var o = await r.json();
+      panel.dataset.loaded = '1';
+      dtfRenderAccordionDetail(panel, o, id);
+    } catch(e) { panel.innerHTML = '<p style="color:red">Erreur</p>'; }
+  }
+}
 
-    // Address with copy buttons
-    var addrHtml = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin:8px 0">';
-    addrHtml += dtfCopyBtn(parsed.nom, 'Nom');
-    addrHtml += dtfCopyBtn(o.email, 'Email');
-    addrHtml += dtfCopyBtn(parsed.tel, 'Tél');
-    addrHtml += dtfCopyBtn(parsed.adresse, 'Adresse');
-    addrHtml += dtfCopyBtn(parsed.npa, 'NPA');
-    addrHtml += dtfCopyBtn(parsed.ville, 'Ville');
-    addrHtml += dtfCopyBtn(parsed.pays, 'Pays');
-    addrHtml += '</div>';
+function dtfRenderAccordionDetail(panel, o, id) {
+  var parsed = dtfParseAddress(o.billing_address);
 
-    // Traité toggle
-    var traiteBtn = o.traite
-      ? '<button onclick="dtfToggleTraite(\'' + id + '\',false)" style="padding:8px 16px;background:#6b7280;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem">Marquer non traité</button>'
-      : '<button onclick="dtfToggleTraite(\'' + id + '\',true)" style="padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem">Marquer traité</button>';
+  // Copy buttons row
+  var copyRow = '<div style="display:flex;flex-wrap:wrap;gap:4px;margin:10px 0">';
+  copyRow += dtfCopyBtn(parsed.nom, 'Nom');
+  copyRow += dtfCopyBtn(o.email, 'Email');
+  copyRow += dtfCopyBtn(parsed.tel, 'Tél');
+  copyRow += dtfCopyBtn(parsed.adresse, 'Adresse');
+  copyRow += dtfCopyBtn(parsed.npa, 'NPA');
+  copyRow += dtfCopyBtn(parsed.ville, 'Ville');
+  copyRow += dtfCopyBtn(parsed.pays, 'Pays');
+  copyRow += '</div>';
 
-    // Tracking
-    var trackHtml = '<div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap">' +
-      '<input id="dtfTrackInput" type="text" placeholder="N° de suivi (Poste)" value="' + escHtml(o.tracking_number || '') + '" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.85rem;flex:1;min-width:150px">' +
-      '<button onclick="dtfSaveTracking(\'' + id + '\')" style="padding:8px 14px;background:' + DTF_RED + ';color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem">Enregistrer suivi</button>' +
-      '</div><div id="dtfTrackStatus" style="font-size:.8rem;margin-top:4px"></div>';
+  // Actions row
+  var traiteBtn = o.traite
+    ? '<button onclick="event.stopPropagation();dtfToggleTraite(\'' + id + '\',false)" style="padding:6px 14px;background:#6b7280;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.8rem">Non traité</button>'
+    : '<button onclick="event.stopPropagation();dtfToggleTraite(\'' + id + '\',true)" style="padding:6px 14px;background:#22c55e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.8rem">Traité</button>';
 
-    // Files
-    var filesHtml = (o.items || []).map(function(it, idx) {
-      var dlUrl = it.public_url || '';
-      if (!dlUrl && it.file_path) {
-        dlUrl = DTF_API + '/dtf/download?bucket=' + encodeURIComponent(it.bucket || 'planches') + '&path=' + encodeURIComponent(it.file_path) + '&token=' + btoa(currentUser + ':' + localStorage.getItem('hf_pin'));
-      }
-      var chips = [
-        it.format ? 'Format: ' + it.format : '',
-        it.dims ? 'Dim: ' + it.dims : '',
-        it.glue ? 'Colle: ' + (it.glue === 'anti' ? 'Anti-sublim.' : it.glue) : '',
-        it.production ? 'Prod: ' + (it.production === 'urgent24h' ? 'Urgent 24h' : it.production === 'express' ? 'Express' : 'Standard') : '',
-        it.has_bat ? 'BAT: Oui' : ''
-      ].filter(Boolean).map(function(c) {
-        return '<span style="padding:2px 8px;border-radius:10px;font-size:.72rem;background:rgba(227,6,19,.08);color:' + DTF_RED + ';border:1px solid rgba(227,6,19,.15)">' + c + '</span>';
-      }).join(' ');
+  // Tracking
+  var trackHtml = '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
+    '<input id="dtfTrack_' + id + '" type="text" placeholder="N° suivi" value="' + escHtml(o.tracking_number || '') + '" onclick="event.stopPropagation()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:.8rem;width:180px">' +
+    '<button onclick="event.stopPropagation();dtfSaveTrackingInline(\'' + id + '\')" style="padding:6px 12px;background:' + DTF_RED + ';color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.8rem">Suivi</button>' +
+    '<span id="dtfTrackSt_' + id + '" style="font-size:.75rem"></span></div>';
 
-      return '<div style="padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;margin-bottom:8px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px">' +
-        '<div><strong style="font-size:.85rem">' + escHtml(it.filename || 'Fichier') + '</strong>' +
-        '<div style="font-size:.8rem;color:var(--text3);margin-top:2px">Qté: ' + (it.quantity || 1) + ' · PU HT: ' + (it.unit_price_ht || 0) + ' CHF · Total HT: ' + (it.line_total_ht || 0) + ' CHF</div>' +
-        '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">' + chips + '</div></div>' +
-        (dlUrl ? '<a href="' + escHtml(dlUrl) + '" target="_blank" style="padding:6px 12px;background:' + DTF_RED + ';color:#fff;border-radius:8px;text-decoration:none;font-size:.8rem;white-space:nowrap">Télécharger</a>' : '') +
-        '</div></div>';
-    }).join('');
+  // Files with preview
+  var filesHtml = (o.items || []).map(function(it, idx) {
+    var dlUrl = it.public_url || '';
+    if (!dlUrl && it.file_path) dlUrl = DTF_API + '/dtf/download?bucket=' + encodeURIComponent(it.bucket || 'planches') + '&path=' + encodeURIComponent(it.file_path) + '&token=' + btoa(currentUser + ':' + localStorage.getItem('hf_pin'));
+    var pvId = 'dtfPv_' + id + '_' + idx;
+    var ext = (it.filename || '').split('.').pop().toLowerCase();
+    var isImage = ['jpg','jpeg','png','gif','webp','svg'].indexOf(ext) >= 0;
+    var isPdf = ext === 'pdf';
 
-    el.innerHTML = '<button onclick="dtfBackToList()" style="padding:6px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;cursor:pointer;margin-bottom:12px;font-size:.85rem;display:inline-flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5m7-7l-7 7 7 7"/></svg> Retour</button>' +
-      '<div style="padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px">' +
-      '<div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:16px;margin-bottom:16px">' +
-      '<div><h3 style="margin:0;font-size:1.1rem">' + escHtml(o.email) + '</h3>' + addrHtml +
-      '<p style="font-size:.85rem;color:var(--text3);margin:4px 0">' + fmtDate(o.created_at) + ' · ' + (o.delivery_method === 'pickup' ? 'Retrait' : 'Livraison') + ' · ' + (o.payment_method || '') + '</p></div>' +
-      '<div style="text-align:right"><div style="font-size:1.4rem;font-weight:700;color:' + DTF_RED + '">' + (o.total_amount_ttc || 0).toFixed(2) + ' CHF</div><div style="font-size:.8rem;color:var(--text3)">' + (o.total_amount_ht || 0).toFixed(2) + ' CHF HT</div></div></div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">' + traiteBtn + '</div>' +
-      trackHtml +
-      '<h4 style="margin:20px 0 10px;font-size:.95rem">Fichiers (' + (o.items || []).length + ')</h4>' + filesHtml +
+    var chips = [
+      it.format ? 'Format: ' + it.format : '',
+      it.dims ? it.dims : '',
+      it.glue ? 'Colle: ' + (it.glue === 'anti' ? 'Anti-sub.' : it.glue) : '',
+      it.production ? (it.production === 'urgent24h' ? 'Urgent 24h' : it.production === 'express' ? 'Express' : 'Standard') : '',
+      it.has_bat ? 'BAT' : ''
+    ].filter(Boolean).map(function(c) {
+      return '<span style="padding:1px 7px;border-radius:8px;font-size:.7rem;background:rgba(227,6,19,.06);color:' + DTF_RED + ';border:1px solid rgba(227,6,19,.12)">' + c + '</span>';
+    }).join(' ');
+
+    return '<div style="padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;margin-bottom:6px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">' +
+      '<div style="flex:1;min-width:0"><div style="font-size:.83rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(it.filename || 'Fichier') + '</div>' +
+      '<div style="font-size:.75rem;color:var(--text3);margin-top:2px">' + (it.quantity || 1) + 'x · ' + (it.line_total_ht || 0) + ' CHF HT</div>' +
+      '<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:3px">' + chips + '</div></div>' +
+      '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0">' +
+      '<button onclick="event.stopPropagation();dtfTogglePreview(\'' + pvId + '\',\'' + escHtml(dlUrl) + '\',\'' + ext + '\')" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);cursor:pointer;font-size:.78rem">Aperçu</button>' +
+      (dlUrl ? '<a href="' + escHtml(dlUrl) + '" target="_blank" onclick="event.stopPropagation()" style="padding:4px 10px;background:' + DTF_RED + ';color:#fff;border-radius:6px;text-decoration:none;font-size:.78rem">DL</a>' : '') +
+      '</div></div>' +
+      '<div id="' + pvId + '" style="display:none;margin-top:8px;border-radius:8px;overflow:hidden;position:relative">' +
+      '<div style="position:absolute;top:6px;right:6px;display:flex;gap:4px;z-index:2">' +
+      '<button onclick="event.stopPropagation();dtfPvBg(\'' + pvId + '\',\'#111\')" style="width:22px;height:22px;border-radius:50%;background:#111;border:2px solid #555;cursor:pointer" title="Fond sombre"></button>' +
+      '<button onclick="event.stopPropagation();dtfPvBg(\'' + pvId + '\',\'#fff\')" style="width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #ccc;cursor:pointer" title="Fond clair"></button>' +
+      '<button onclick="event.stopPropagation();dtfPvBg(\'' + pvId + '\',\'repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 50% / 20px 20px\')" style="width:22px;height:22px;border-radius:50%;background:repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 50% / 10px 10px;border:2px solid #ccc;cursor:pointer" title="Damier"></button>' +
+      '</div>' +
+      '<div id="' + pvId + '_content" style="background:#111;padding:10px;min-height:100px;display:flex;align-items:center;justify-content:center;border-radius:8px"></div></div>' +
       '</div>';
-  } catch(e) { el.innerHTML = '<p style="color:red">Erreur: ' + e.message + '</p>'; }
+  }).join('');
+
+  panel.innerHTML = copyRow +
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">' + traiteBtn + trackHtml + '</div>' +
+    '<div style="font-size:.85rem;font-weight:600;margin:10px 0 6px">Fichiers (' + (o.items || []).length + ')</div>' + filesHtml;
 }
 
-function dtfBackToList() {
-  document.getElementById('dtfDetail').style.display = 'none';
-  document.getElementById('dtfList').style.display = 'block';
-  var hdr = document.getElementById('dtfHeader');
-  if (hdr) hdr.style.display = 'block';
-  dtfLoadOrders();
-  dtfLoadStats();
+function dtfTogglePreview(pvId, url, ext) {
+  var container = document.getElementById(pvId);
+  if (!container) return;
+  if (container.style.display !== 'none') { container.style.display = 'none'; return; }
+  container.style.display = 'block';
+  var content = document.getElementById(pvId + '_content');
+  if (!content || content.dataset.loaded) return;
+  content.dataset.loaded = '1';
+  var isImage = ['jpg','jpeg','png','gif','webp','svg'].indexOf(ext) >= 0;
+  if (isImage) {
+    content.innerHTML = '<img src="' + url + '" style="max-width:100%;max-height:400px;object-fit:contain">';
+  } else if (ext === 'pdf') {
+    content.innerHTML = '<iframe src="' + url + '" style="width:100%;height:400px;border:none;border-radius:6px"></iframe>';
+  } else {
+    content.innerHTML = '<a href="' + url + '" target="_blank" style="color:' + DTF_RED + '">Ouvrir le fichier</a>';
+  }
 }
 
-async function dtfToggleTraite(id, val) {
-  try {
-    await fetch(DTF_API + '/dtf/orders/' + id, {
-      method: 'PATCH',
-      headers: {'Authorization': dtfAuth(), 'Content-Type': 'application/json'},
-      body: JSON.stringify({traite: val})
-    });
-    dtfShowDetail(id);
-    dtfLoadStats();
-  } catch(e) { console.error('dtfToggleTraite', e); }
+function dtfPvBg(pvId, bg) {
+  var content = document.getElementById(pvId + '_content');
+  if (!content) return;
+  if (bg.includes('conic')) content.style.background = bg;
+  else content.style.background = bg;
 }
 
-async function dtfSaveTracking(id) {
-  var input = document.getElementById('dtfTrackInput');
-  var status = document.getElementById('dtfTrackStatus');
+async function dtfSaveTrackingInline(id) {
+  var input = document.getElementById('dtfTrack_' + id);
+  var st = document.getElementById('dtfTrackSt_' + id);
   if (!input) return;
   var num = input.value.trim();
-  if (!num) { if(status) status.innerHTML = '<span style="color:' + DTF_RED + '">Entrez un numéro de suivi</span>'; return; }
-  if(status) status.innerHTML = '<span style="color:var(--text3)">Envoi en cours...</span>';
+  if (!num) { if(st) st.innerHTML = '<span style="color:' + DTF_RED + '">Entrez un n°</span>'; return; }
   try {
     await fetch(DTF_API + '/dtf/orders/' + id, {
       method: 'PATCH',
       headers: {'Authorization': dtfAuth(), 'Content-Type': 'application/json'},
       body: JSON.stringify({tracking_number: num})
     });
-    if(status) status.innerHTML = '<span style="color:#22c55e">N° de suivi enregistré</span>';
-  } catch(e) { if(status) status.innerHTML = '<span style="color:' + DTF_RED + '">Erreur</span>'; }
+    if(st) st.innerHTML = '<span style="color:#22c55e">Enregistré</span>';
+  } catch(e) { if(st) st.innerHTML = '<span style="color:' + DTF_RED + '">Erreur</span>'; }
 }
+
 
 </script>
 </body>
