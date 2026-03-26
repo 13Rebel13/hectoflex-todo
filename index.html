@@ -312,6 +312,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <button class="filter-btn" onclick="projFilter('termine',this)">Terminé</button>
 <button class="filter-btn" onclick="projFilter('facture',this)">Facturé</button>
 </div>
+<input id="projSearch" type="text" placeholder="Rechercher par client, projet, contact..." oninput="renderProjects()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;margin-bottom:10px;box-sizing:border-box">
 <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
 <span style="font-size:.75rem;color:var(--text3)">Trier:</span>
 <select id="projSort" onchange="projSortChange(this.value)" style="padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem">
@@ -720,6 +721,8 @@ function renderProjects() {
   if(!list) return;
   
   var filtered = projFilterVal === 'all' ? projects : projects.filter(function(p){return p.statut===projFilterVal});
+  var sq = (document.getElementById('projSearch')||{}).value||'';
+  if(sq) { sq=sq.toLowerCase(); filtered=filtered.filter(function(p){ return (p.name||'').toLowerCase().indexOf(sq)>-1 || (p.client||'').toLowerCase().indexOf(sq)>-1 || (p.contact||'').toLowerCase().indexOf(sq)>-1 || (p.dept||'').toLowerCase().indexOf(sq)>-1 || (p.description||'').toLowerCase().indexOf(sq)>-1; }); }
   var cours = projects.filter(function(p){return p.statut==='en_cours'}).length;
   var termine = projects.filter(function(p){return p.statut==='termine'}).length;
   var facture = projects.filter(function(p){return p.statut==='facture'}).length;
