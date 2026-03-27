@@ -263,6 +263,7 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 <button onclick="switchNav('dtf',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span> DTF Swiss</button>
 <button onclick="switchNav('devismain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg></span> Devis</button>
 <button onclick="switchNav('facturesmain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span> Factures</button>
+<button onclick="switchNav('clientsmain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg></span> Clients</button>
 <button onclick="switchNav('compta',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/></svg></span> Compta</button></div>
 <div class="container">
 <div class="page active" id="pageTasks">
@@ -684,6 +685,13 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 <div id="facturesMainContent"></div>
 </div>
 
+<div class="page" id="pageClientsMain" style="padding:0 16px">
+<div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Clients</h2>
+</div>
+<div id="clientsMainContent"></div>
+</div>
+
 <div class="page" id="pageCompta" style="padding:0 16px">
 <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
@@ -790,7 +798,7 @@ function switchNav(page, btn){
   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':page==='suppliers'?'pageSuppliers':page==='dtf'?'pageDtf':page==='devismain'?'pageDevisMain':page==='facturesmain'?'pageFacturesMain':page==='compta'?'pageCompta':'pageCustoms';
+  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':page==='suppliers'?'pageSuppliers':page==='dtf'?'pageDtf':page==='devismain'?'pageDevisMain':page==='facturesmain'?'pageFacturesMain':page==='clientsmain'?'pageClientsMain':page==='compta'?'pageCompta':'pageCustoms';
   var el = document.getElementById(target);
   if(el) el.classList.add('active');
   // Hide container when showing pages outside it
@@ -802,6 +810,7 @@ function switchNav(page, btn){
   if(page==='dtf') dtfInit();
   if(page==='devismain') { window.comptaTargetId='devisMainContent'; loadDevis(); }
   if(page==='facturesmain') { window.comptaTargetId='facturesMainContent'; loadFactures(); }
+  if(page==='clientsmain') { window.comptaTargetId='clientsMainContent'; loadComptaClients(); }
   if(page==='compta') { window.comptaTargetId='comptaContent'; comptaInit(); }
   if(page==='projects') loadProjects();
   if(page==='leads') loadLeads();
@@ -814,6 +823,7 @@ function switchNav(page, btn){
     else if(currentPage==='dtf') dtfLoadOrders();
     else if(currentPage==='devismain') { window.comptaTargetId='devisMainContent'; loadDevis(); }
     else if(currentPage==='facturesmain') { window.comptaTargetId='facturesMainContent'; loadFactures(); }
+    else if(currentPage==='clientsmain') { window.comptaTargetId='clientsMainContent'; loadComptaClients(); }
     else if(currentPage==='compta') { window.comptaTargetId='comptaContent'; loadComptaSynthese(); }
   }, 15000);
   if(page==='qr') renderSavedQR();
@@ -2752,9 +2762,12 @@ async function loadComptaClients() {
 
 function renderComptaClients() {
   var el = getComptaContentEl();
-  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem;color:var(--text)">Clients (' + comptaClients.length + ')</h3><button class="add-btn" onclick="comptaClientForm()">+ Nouveau</button></div>';
+  var q = (window.comptaClientSearch||'').toLowerCase();
+  var list = q ? comptaClients.filter(function(c){ return (c.nom||'').toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q) || (c.telephone||c.tel||'').toLowerCase().includes(q); }) : comptaClients;
+  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem;color:var(--text)">Clients (' + list.length + ')</h3><button class="add-btn" onclick="comptaClientForm()">+ Nouveau</button></div>';
+  html += '<input id="comptaClientSearch" placeholder="Rechercher client (nom, email, téléphone)" value="'+(window.comptaClientSearch||'').replace(/"/g,'&quot;')+'" oninput="window.comptaClientSearch=this.value;renderComptaClients()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);margin-bottom:10px">';
   html += '<div style="display:flex;flex-direction:column;gap:8px">';
-  comptaClients.forEach(function(c) {
+  list.forEach(function(c) {
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;justify-content:space-between;align-items:center">' +
       '<div><strong>' + (c.nom||'') + '</strong><br><span style="font-size:.8rem;color:var(--text2)">' + (c.email||'') + ' | ' + (c.tel||'') + '</span></div>' +
       '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px;cursor:pointer;color:var(--text2);font-size:.8rem" onclick="comptaClientForm(' + c.id + ')">Modifier</button></div>';
