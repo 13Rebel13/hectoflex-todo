@@ -674,13 +674,10 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 <h2 style="font-size:1.1rem;color:var(--accent);margin:0">Comptabilit&eacute;</h2>
 </div>
 <div class="list-tabs" id="comptaTabs">
-<button class="list-tab active" onclick="comptaSwitchTab('dashboard')">Dashboard</button>
-<button class="list-tab" onclick="comptaSwitchTab('clients')">Clients</button>
+<button class="list-tab active" onclick="comptaSwitchTab('synthese')">Synthèse</button>
 <button class="list-tab" onclick="comptaSwitchTab('devis')">Devis</button>
-<button class="list-tab" onclick="comptaSwitchTab('factures')">Factures</button>
-<button class="list-tab" onclick="comptaSwitchTab('factfourn')">Fact. Fourn.</button>
-<button class="list-tab" onclick="comptaSwitchTab('journal')">Journal</button>
-<button class="list-tab" onclick="comptaSwitchTab('balance')">Balance</button>
+<button class="list-tab" onclick="comptaSwitchTab('factures')">Factures clients</button>
+<button class="list-tab" onclick="comptaSwitchTab('factfourn')">Factures fournisseurs</button>
 </div>
 <div id="comptaContent"></div>
 </div>
@@ -799,7 +796,7 @@ function switchNav(page, btn){
     else if(currentPage==='leads') loadLeads();
     else if(currentPage==='suppliers') loadSuppliers().then(function(){renderSuppliers()});
     else if(currentPage==='dtf') dtfLoadOrders();
-    else if(currentPage==='compta') loadComptaDashboard();
+    else if(currentPage==='compta') loadComptaSynthese();
   }, 15000);
   if(page==='qr') renderSavedQR();
 }
@@ -2660,53 +2657,68 @@ var comptaFactFourn = [];
 var comptaJournal = [];
 var comptaBalance = [];
 var comptaPlanComptable = [];
-var comptaCurrentTab = 'dashboard';
+var comptaCurrentTab = 'synthese';
 var devisLines = [];
 
 function comptaInit() {
-  comptaSwitchTab('dashboard');
+  comptaSwitchTab('synthese');
 }
 
 function comptaSwitchTab(tab) {
   comptaCurrentTab = tab;
   document.querySelectorAll('#comptaTabs .list-tab').forEach(function(b){ b.classList.remove('active'); });
   var tabs = document.querySelectorAll('#comptaTabs .list-tab');
-  var map = ['dashboard','clients','devis','factures','factfourn','journal','balance'];
+  var map = ['synthese','devis','factures','factfourn'];
   var idx = map.indexOf(tab);
   if(idx >= 0 && tabs[idx]) tabs[idx].classList.add('active');
-  if(tab === 'dashboard') loadComptaDashboard();
-  else if(tab === 'clients') loadComptaClients();
+  if(tab === 'synthese') loadComptaSynthese();
   else if(tab === 'devis') loadDevis();
   else if(tab === 'factures') loadFactures();
   else if(tab === 'factfourn') loadFactFournisseurs();
-  else if(tab === 'journal') loadJournal();
-  else if(tab === 'balance') loadBalance();
 }
 
-// --- Dashboard ---
-async function loadComptaDashboard() {
+// --- Synthèse fiduciaire ---
+async function loadComptaSynthese() {
   var el = document.getElementById('comptaContent');
   el.innerHTML = '<p style="color:var(--text2)">Chargement...</p>';
-  var clients = await apiFetch('/clients');
-  var devis = await apiFetch('/devis');
-  var factures = await apiFetch('/factures');
-  var factFourn = await apiFetch('/factures-fournisseurs');
-  var bal = await apiFetch('/compta/balance');
-  var nbClients = Array.isArray(clients) ? clients.length : 0;
-  var devisEnCours = Array.isArray(devis) ? devis.filter(function(d){ return d.status === 'brouillon' || d.status === 'envoye'; }).length : 0;
-  var factImpayees = Array.isArray(factures) ? factures.filter(function(f){ return f.status !== 'payee'; }).length : 0;
-  var fournAPayer = Array.isArray(factFourn) ? factFourn.filter(function(f){ return f.status !== 'payee'; }).length : 0;
-  var solde = 0;
-  if(Array.isArray(bal)) {
-    bal.forEach(function(b){ solde += (b.total_debit||0) - (b.total_credit||0); });
-  }
-  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:10px">' +
-    cardHtml('Clients', nbClients, 'var(--blue)') +
-    cardHtml('Devis en cours', devisEnCours, 'var(--accent)') +
-    cardHtml('Factures impayees', factImpayees, 'var(--red)') +
-    cardHtml('Fournisseurs a payer', fournAPayer, '#9333ea') +
-    cardHtml('Solde', 'CHF ' + solde.toFixed(2), 'var(--green)') +
+  var devis = await apiFetch('/devis') || [];
+  var factures = await apiFetch('/factures') || [];
+  var factFourn = await apiFetch('/factures-fournisseurs') || [];
+
+  var caFacture = 0, caEncaisse = 0, achatFourn = 0, achatPaye = 0, missingDocs = 0;
+  factures.forEach(function(f){
+    var t = parseFloat(f.total||0) || 0;
+    caFacture += t;
+    if(f.status==='payee') caEncaisse += t;
+    if(!Array.isArray(f.pieces) || !f.pieces.length) missingDocs++;
+  });
+  factFourn.forEach(function(f){
+    var t = parseFloat(f.total||0) || 0;
+    achatFourn += t;
+    if(f.status==='payee') achatPaye += t;
+    if(!Array.isArray(f.pieces) || !f.pieces.length) missingDocs++;
+  });
+
+  var aEncaisser = caFacture - caEncaisse;
+  var aPayer = achatFourn - achatPaye;
+  var margeBrute = caFacture - achatFourn;
+  var devisOuverts = devis.filter(function(d){ return d.status==='brouillon' || d.status==='envoye'; }).length;
+
+  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:10px">' +
+    cardHtml('CA facturé', 'CHF '+caFacture.toFixed(2), 'var(--accent)') +
+    cardHtml('Achats fournisseurs', 'CHF '+achatFourn.toFixed(2), '#9333ea') +
+    cardHtml('Marge brute', 'CHF '+margeBrute.toFixed(2), margeBrute>=0?'var(--green)':'var(--red)') +
+    cardHtml('À encaisser', 'CHF '+aEncaisser.toFixed(2), 'var(--blue)') +
+    cardHtml('À payer', 'CHF '+aPayer.toFixed(2), 'var(--red)') +
+    cardHtml('Devis ouverts', devisOuverts, 'var(--text)') +
+    cardHtml('Pièces manquantes', missingDocs, missingDocs? 'var(--red)' : 'var(--green)') +
     '</div>';
+
+  html += '<div style="margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px">';
+  html += '<div style="font-weight:600;margin-bottom:6px">Dossier fiduciaire</div>';
+  html += '<div style="font-size:.85rem;color:var(--text2)">Ajoute les PDF factures/tickets directement dans chaque facture client/fournisseur (onglets ci-dessus). La fiduciaire reçoit un dossier propre sans ressaisie.</div>';
+  html += '</div>';
+  el.innerHTML = html;
 }
 
 function cardHtml(title, value, color) {
@@ -2857,6 +2869,15 @@ async function devisToFacture(id) {
 }
 
 // --- Factures ---
+async function uploadComptaPiece(file) {
+  var fd = new FormData();
+  fd.append('file', file);
+  var r = await fetch(API + '/upload', { method:'POST', headers:{'Authorization':'Basic '+token}, body: fd });
+  var j = await r.json();
+  if(!r.ok || !j.ok) throw new Error((j&&j.error) || 'upload failed');
+  return { key:j.key, url:j.url, name:file.name, type:file.type || 'application/octet-stream', uploaded:new Date().toISOString() };
+}
+
 async function loadFactures() {
   comptaFactures = await apiFetch('/factures') || [];
   comptaClients = await apiFetch('/clients') || [];
@@ -2875,9 +2896,12 @@ function renderFactures() {
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
       '<div><strong>' + (f.numero||'F-'+f.id) + '</strong> - ' + (cl?cl.nom:'?') + '<br><span style="font-size:.8rem;color:var(--text2)">' + (f.date?fmtDate(f.date):'') + '</span></div>' +
       '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (f.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (f.total||0).toFixed(2) + '</strong></div></div>';
-    if(f.status !== 'payee') {
-      html += '<div style="margin-top:8px"><button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="facturePay(' + f.id + ')">Encaisser</button></div>';
-    }
+    var pieces = Array.isArray(f.pieces) ? f.pieces : [];
+    html += '<div style="margin-top:8px;font-size:.78rem;color:var(--text2)">Pièces: ' + (pieces.length? pieces.map(function(p){return '<a target="_blank" href="'+p.url+'" style="color:var(--accent)">'+(p.name||'PDF')+'</a>';}).join(' · ') : '<span style="color:var(--red)">Aucune</span>') + '</div>';
+    html += '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">';
+    html += '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:.75rem" onclick="factureForm(' + f.id + ')">Modifier</button>';
+    if(f.status !== 'payee') html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="facturePay(' + f.id + ')">Encaisser</button>';
+    html += '</div>';
     html += '</div>';
   });
   html += '</div>';
@@ -2897,6 +2921,7 @@ function factureForm(editId) {
   html += '<div id="devisLinesContainer"></div>';
   html += '<button style="margin:8px 0;background:none;border:1px dashed var(--accent);border-radius:var(--radius);padding:6px 14px;cursor:pointer;color:var(--accent);font-size:.8rem" onclick="devisAddLine()">+ Ajouter ligne</button>';
   html += '<div id="devisTotals" style="margin:10px 0;padding:10px;background:var(--surface2);border-radius:var(--radius)"></div>';
+  html += '<div style="margin-top:8px"><label style="font-size:.8rem;color:var(--text2)">Joindre PDF / ticket</label><input id="fc_piece" type="file" accept="application/pdf,image/*" style="display:block;margin-top:4px"></div>';
   html += '<div style="display:flex;gap:8px;margin-top:10px"><button class="add-btn" onclick="factureSave(' + (editId||'null') + ')">Enregistrer</button><button class="logout-btn" onclick="loadFactures()">Annuler</button></div>';
   el.innerHTML = html;
   renderDevisLines();
@@ -2907,6 +2932,16 @@ async function factureSave(editId) {
     client_id: parseInt(document.getElementById('dv_client').value),
     lignes: devisLines
   };
+  if(editId) {
+    var cur = comptaFactures.find(function(x){return x.id===editId});
+    body.pieces = (cur && Array.isArray(cur.pieces)) ? cur.pieces.slice() : [];
+  }
+  var f = document.getElementById('fc_piece');
+  if(f && f.files && f.files[0]) {
+    var piece = await uploadComptaPiece(f.files[0]);
+    body.pieces = body.pieces || [];
+    body.pieces.push(piece);
+  }
   if(editId) {
     await apiFetch('/factures/' + editId, {method:'PUT', body:JSON.stringify(body)});
   } else {
@@ -2939,27 +2974,32 @@ function renderFactFournisseurs() {
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
       '<div><strong>' + (f.fournisseur||'?') + '</strong><br><span style="font-size:.8rem;color:var(--text2)">' + (f.date?fmtDate(f.date):'') + ' | ' + (f.reference||'') + '</span></div>' +
       '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (f.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (f.total||0).toFixed(2) + '</strong></div></div>';
-    if(f.status !== 'payee') {
-      html += '<div style="margin-top:8px"><button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="factFournPay(' + f.id + ')">Payer</button></div>';
-    }
+    var pieces = Array.isArray(f.pieces) ? f.pieces : [];
+    html += '<div style="margin-top:8px;font-size:.78rem;color:var(--text2)">Pièces: ' + (pieces.length? pieces.map(function(p){return '<a target="_blank" href="'+p.url+'" style="color:var(--accent)">'+(p.name||'PDF')+'</a>';}).join(' · ') : '<span style="color:var(--red)">Aucune</span>') + '</div>';
+    html += '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">';
+    html += '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:.75rem" onclick="factFournForm(' + f.id + ')">Modifier</button>';
+    if(f.status !== 'payee') html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="factFournPay(' + f.id + ')">Payer</button>';
+    html += '</div>';
     html += '</div>';
   });
   html += '</div>';
   el.innerHTML = html;
 }
 
-function factFournForm() {
-  devisLines = [{description:'', quantite:1, prix_unitaire:0, compte:''}];
+function factFournForm(editId) {
+  var f = editId ? comptaFactFourn.find(function(x){return x.id===editId}) : null;
+  devisLines = f && f.lignes ? JSON.parse(JSON.stringify(f.lignes)) : [{description:'', quantite:1, prix_unitaire:0, compte:''}];
   var el = document.getElementById('comptaContent');
   var html = '<h3 style="margin:10px 0;font-size:1rem">Nouvelle facture fournisseur</h3>';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">';
-  html += '<div><label style="font-size:.8rem;color:var(--text2)">Fournisseur</label><input id="ff_fourn" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)"></div>';
-  html += '<div><label style="font-size:.8rem;color:var(--text2)">Reference</label><input id="ff_ref" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)"></div>';
+  html += '<div><label style="font-size:.8rem;color:var(--text2)">Fournisseur</label><input id="ff_fourn" value="'+((f&&f.fournisseur)?String(f.fournisseur).replace(/"/g,'&quot;'):'')+'" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)"></div>';
+  html += '<div><label style="font-size:.8rem;color:var(--text2)">Reference</label><input id="ff_ref" value="'+((f&&f.reference)?String(f.reference).replace(/"/g,'&quot;'):'')+'" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)"></div>';
   html += '</div>';
   html += '<div id="ffLinesContainer"></div>';
   html += '<button style="margin:8px 0;background:none;border:1px dashed var(--accent);border-radius:var(--radius);padding:6px 14px;cursor:pointer;color:var(--accent);font-size:.8rem" onclick="ffAddLine()">+ Ajouter ligne</button>';
   html += '<div id="devisTotals" style="margin:10px 0;padding:10px;background:var(--surface2);border-radius:var(--radius)"></div>';
-  html += '<div style="display:flex;gap:8px;margin-top:10px"><button class="add-btn" onclick="factFournSave()">Enregistrer</button><button class="logout-btn" onclick="loadFactFournisseurs()">Annuler</button></div>';
+  html += '<div style="margin-top:8px"><label style="font-size:.8rem;color:var(--text2)">Joindre PDF / ticket</label><input id="ff_piece" type="file" accept="application/pdf,image/*" style="display:block;margin-top:4px"></div>';
+  html += '<div style="display:flex;gap:8px;margin-top:10px"><button class="add-btn" onclick="factFournSave(' + (editId||'null') + ')">Enregistrer</button><button class="logout-btn" onclick="loadFactFournisseurs()">Annuler</button></div>';
   el.innerHTML = html;
   renderFFLines();
 }
@@ -2990,13 +3030,24 @@ function renderFFLines() {
 
 function ffAddLine() { devisLines.push({description:'', quantite:1, prix_unitaire:0, compte:''}); renderFFLines(); }
 
-async function factFournSave() {
+async function factFournSave(editId) {
   var body = {
     fournisseur: document.getElementById('ff_fourn').value,
     reference: document.getElementById('ff_ref').value,
     lignes: devisLines
   };
-  await apiFetch('/factures-fournisseurs', {method:'POST', body:JSON.stringify(body)});
+  if(editId) {
+    var cur = comptaFactFourn.find(function(x){return x.id===editId});
+    body.pieces = (cur && Array.isArray(cur.pieces)) ? cur.pieces.slice() : [];
+  }
+  var f = document.getElementById('ff_piece');
+  if(f && f.files && f.files[0]) {
+    var piece = await uploadComptaPiece(f.files[0]);
+    body.pieces = body.pieces || [];
+    body.pieces.push(piece);
+  }
+  if(editId) await apiFetch('/factures-fournisseurs/' + editId, {method:'PUT', body:JSON.stringify(body)});
+  else await apiFetch('/factures-fournisseurs', {method:'POST', body:JSON.stringify(body)});
   loadFactFournisseurs();
 }
 
