@@ -3092,78 +3092,172 @@ function generateComptaPdf(docType, obj, client) {
   if(!(window.jspdf && window.jspdf.jsPDF)) { alert('Librairie PDF non chargée. Recharge la page.'); return; }
   var jsPDF = window.jspdf.jsPDF;
   var doc = new jsPDF({unit:'mm', format:'a4'});
-  var y = 14;
-  var left = 12;
-  var right = 198;
+
+  var pageW = 210, pageH = 297;
+  var margin = 12;
+  var contentW = pageW - margin*2;
+  var brand = [255,115,0];
+  var dark = [24,24,27];
+  var soft = [245,246,248];
+
+  function money(v){ return 'CHF ' + (parseFloat(v||0).toFixed(2)); }
+  function safe(v){ return v==null?'':String(v); }
+
+  // Background header
+  doc.setFillColor(dark[0],dark[1],dark[2]);
+  doc.rect(0,0,pageW,38,'F');
+  doc.setFillColor(brand[0],brand[1],brand[2]);
+  doc.rect(0,36,pageW,2,'F');
+
+  // Brand left
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(18);
+  doc.text('HECTOFLEX', margin, 16);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.text('hectoflex.ch', margin, 22);
+  doc.text('info@hectoflex.ch', margin, 27);
+
+  // Doc right
+  var num = safe(obj.numero || ((docType==='DEVIS'?'D-':'F-') + obj.id));
   doc.setFont('helvetica','bold');
   doc.setFontSize(16);
-  doc.text('HECTOFLEX', left, y);
-  doc.setFontSize(9);
+  doc.text(docType, pageW-margin, 16, {align:'right'});
+  doc.setFontSize(11);
+  doc.text(num, pageW-margin, 23, {align:'right'});
   doc.setFont('helvetica','normal');
-  doc.text('hectoflex.ch', left, y+5);
+  doc.setFontSize(9);
+  doc.text('Date: ' + safe(obj.date || obj.date_facture || ''), pageW-margin, 29, {align:'right'});
+
+  // Client card
+  var y = 46;
+  doc.setFillColor(soft[0],soft[1],soft[2]);
+  doc.roundedRect(margin, y, contentW, 30, 2, 2, 'F');
+  doc.setDrawColor(230,231,234);
+  doc.roundedRect(margin, y, contentW, 30, 2, 2, 'S');
+
+  doc.setTextColor(80,82,89);
   doc.setFont('helvetica','bold');
-  doc.setFontSize(14);
-  var num = _pdfSafe(obj.numero || ((docType==='DEVIS'?'D-':'F-') + obj.id));
-  doc.text(docType + ' ' + num, right, y, {align:'right'});
+  doc.setFontSize(9);
+  doc.text('CLIENT', margin+3, y+6);
+  doc.setTextColor(20,20,20);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10);
+  doc.text(safe((client&&client.nom) || obj.client_name || '-'), margin+3, y+12);
+  var addr = safe((client&&client.adresse) || obj.client_adresse || '');
+  if(addr) doc.text(addr, margin+3, y+17);
+  var city = (safe((client&&client.npa)||'') + ' ' + safe((client&&client.ville)||'')).trim();
+  if(city) doc.text(city, margin+3, y+22);
+  var mail = safe((client&&client.email) || obj.client_email || '');
+  if(mail) doc.text(mail, margin+3, y+27);
+
+  // Table header
+  y = 84;
+  doc.setFillColor(brand[0],brand[1],brand[2]);
+  doc.roundedRect(margin, y, contentW, 9, 2, 2, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  doc.text('Description', margin+2, y+6);
+  doc.text('Qté', margin+118, y+6, {align:'right'});
+  doc.text('Unité', margin+134, y+6, {align:'right'});
+  doc.text('PU', margin+160, y+6, {align:'right'});
+  doc.text('Total', pageW-margin-2, y+6, {align:'right'});
 
   y += 12;
-  doc.setDrawColor(220); doc.line(left, y, right, y);
-  y += 6;
-  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.text('Client', left, y);
+  doc.setTextColor(20,20,20);
   doc.setFont('helvetica','normal');
-  y += 5; doc.text(_pdfSafe((client&&client.nom) || obj.client_name || '-'), left, y);
-  y += 4; doc.text(_pdfSafe((client&&client.adresse) || obj.client_adresse || ''), left, y);
-  y += 4; doc.text((_pdfSafe((client&&client.npa)||'') + ' ' + _pdfSafe((client&&client.ville)||'')).trim(), left, y);
-  y += 4; doc.text(_pdfSafe((client&&client.email) || obj.client_email || ''), left, y);
+  doc.setFontSize(9);
 
-  var dateTxt = obj.date || obj.date_facture || '';
-  doc.setFont('helvetica','normal');
-  doc.text('Date: ' + _pdfSafe(dateTxt), right, y-12, {align:'right'});
-
-  y += 8;
-  doc.setDrawColor(220); doc.line(left, y, right, y);
-  y += 6;
-  doc.setFont('helvetica','bold'); doc.setFontSize(9);
-  doc.text('Description', left, y);
-  doc.text('Qté', 124, y, {align:'right'});
-  doc.text('Unité', 142, y, {align:'right'});
-  doc.text('PU', 168, y, {align:'right'});
-  doc.text('Total', right, y, {align:'right'});
-  y += 2; doc.setDrawColor(235); doc.line(left, y, right, y); y += 5;
-
-  doc.setFont('helvetica','normal');
-  (obj.lignes||[]).forEach(function(l){
+  var ht=0;
+  (obj.lignes||[]).forEach(function(l, idx){
     var q = parseFloat(l.quantite||0);
     var pu = parseFloat(l.prix_unitaire||0);
     var lt = q*pu;
-    if(y > 255){ doc.addPage(); y = 15; }
-    doc.text(_pdfSafe(l.description||'-').slice(0,70), left, y);
-    doc.text(String(q||0), 124, y, {align:'right'});
-    doc.text(_pdfSafe(l.unite||''), 142, y, {align:'right'});
-    doc.text((pu||0).toFixed(2), 168, y, {align:'right'});
-    doc.text((lt||0).toFixed(2), right, y, {align:'right'});
-    y += 4;
+    ht += lt;
+
+    var h = (l.note?10:6);
+    if(y + h > 248){
+      doc.addPage();
+      y = 18;
+      doc.setFillColor(brand[0],brand[1],brand[2]);
+      doc.roundedRect(margin, y, contentW, 9, 2, 2, 'F');
+      doc.setTextColor(255,255,255);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+      doc.text('Description', margin+2, y+6);
+      doc.text('Qté', margin+118, y+6, {align:'right'});
+      doc.text('Unité', margin+134, y+6, {align:'right'});
+      doc.text('PU', margin+160, y+6, {align:'right'});
+      doc.text('Total', pageW-margin-2, y+6, {align:'right'});
+      y += 12;
+      doc.setTextColor(20,20,20);
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+    }
+
+    if(idx%2===0){
+      doc.setFillColor(250,250,251);
+      doc.rect(margin, y-4.5, contentW, h, 'F');
+    }
+
+    doc.text(safe(l.description||'-').slice(0,68), margin+2, y);
+    doc.text((q||0).toString(), margin+118, y, {align:'right'});
+    doc.text(safe(l.unite||''), margin+134, y, {align:'right'});
+    doc.text((pu||0).toFixed(2), margin+160, y, {align:'right'});
+    doc.text((lt||0).toFixed(2), pageW-margin-2, y, {align:'right'});
+
     if(l.note){
-      doc.setTextColor(110); doc.setFontSize(8);
-      doc.text(('Note: ' + _pdfSafe(l.note)).slice(0,100), left+2, y);
-      doc.setTextColor(0); doc.setFontSize(9);
-      y += 4;
+      doc.setTextColor(90,90,95);
+      doc.setFontSize(8);
+      doc.text('• ' + safe(l.note).slice(0,100), margin+4, y+4);
+      doc.setTextColor(20,20,20);
+      doc.setFontSize(9);
+      y += 10;
+    } else {
+      y += 6;
     }
   });
 
-  y += 2; doc.setDrawColor(220); doc.line(120, y, right, y); y += 6;
-  doc.setFont('helvetica','normal');
-  var ht = parseFloat(obj.sous_total_ht || obj.ht || 0);
+  // Totals card
   var tva = parseFloat(obj.tva_montant || (ht*0.081));
-  var ttc = parseFloat(obj.total_ttc || obj.total || (ht+tva));
-  doc.text('Sous-total HT', 150, y, {align:'right'}); doc.text((ht||0).toFixed(2), right, y, {align:'right'});
-  y += 5; doc.text('TVA 8.1%', 150, y, {align:'right'}); doc.text((tva||0).toFixed(2), right, y, {align:'right'});
-  y += 6; doc.setFont('helvetica','bold'); doc.text('TOTAL TTC', 150, y, {align:'right'}); doc.text((ttc||0).toFixed(2), right, y, {align:'right'});
+  var ttc = parseFloat(obj.total_ttc || (ht+tva));
 
-  y += 10; doc.setFont('helvetica','normal'); doc.setFontSize(8);
-  if(obj.conditions) doc.text(('Référence/Conditions: ' + _pdfSafe(obj.conditions)).slice(0,120), left, y);
-  y += 4;
-  if(obj.notes) doc.text(('Note générale: ' + _pdfSafe(obj.notes)).slice(0,120), left, y);
+  y += 5;
+  doc.setFillColor(248,248,249);
+  doc.roundedRect(pageW-80-margin, y, 80, 24, 2,2,'F');
+  doc.setDrawColor(230,231,234);
+  doc.roundedRect(pageW-80-margin, y, 80, 24, 2,2,'S');
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(9);
+  doc.text('Sous-total HT', pageW-35-margin, y+7, {align:'right'});
+  doc.text((ht||0).toFixed(2), pageW-margin-3, y+7, {align:'right'});
+  doc.text('TVA 8.1%', pageW-35-margin, y+13, {align:'right'});
+  doc.text((tva||0).toFixed(2), pageW-margin-3, y+13, {align:'right'});
+  doc.setFont('helvetica','bold');
+  doc.setTextColor(brand[0],brand[1],brand[2]);
+  doc.text('TOTAL TTC', pageW-35-margin, y+20, {align:'right'});
+  doc.text((ttc||0).toFixed(2), pageW-margin-3, y+20, {align:'right'});
+  doc.setTextColor(20,20,20);
+
+  // Notes / conditions
+  var ny = y + 32;
+  if(obj.conditions){
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text('Référence / Conditions', margin, ny);
+    doc.setFont('helvetica','normal'); doc.text(safe(obj.conditions).slice(0,120), margin, ny+4);
+    ny += 9;
+  }
+  if(obj.notes){
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.text('Note générale', margin, ny);
+    doc.setFont('helvetica','normal'); doc.text(safe(obj.notes).slice(0,120), margin, ny+4);
+  }
+
+  // Footer
+  doc.setDrawColor(230,231,234); doc.line(margin, pageH-16, pageW-margin, pageH-16);
+  doc.setTextColor(120,120,125); doc.setFontSize(8);
+  doc.text('Document généré via HECTOFLEX • Merci pour votre confiance', margin, pageH-10);
 
   var filename = (docType==='DEVIS'?'Devis_':'Facture_') + num.replace(/[^a-zA-Z0-9_-]/g,'_') + '.pdf';
   doc.save(filename);
