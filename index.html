@@ -83,7 +83,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .dtf-pv-box{max-width:360px}
 .dtf-pv-stage{position:relative;overflow:hidden;padding:8px;border-radius:.5rem}
 
-@media(max-width:1023px){#viewToggle{display:none!important}}
 #pageDtf .list-tab.active{background:#E30613;color:#fff;border-color:#E30613}
 #pageDtf .list-tab:hover{border-color:#E30613}
 
@@ -153,23 +152,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .qr-logo-remove:hover{color:var(--accent);border-color:var(--accent)}
 .sync-indicator{background:#4ecb71}.sync-indicator.syncing{background:#f0ad4e}.sync-indicator.error{background:#e74c3c}
 #themeToggle{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 8px;border-radius:var(--radius);cursor:pointer;font-size:.85rem}
-.force-desktop .bottom-nav{position:fixed!important;left:0!important;top:0!important;bottom:0!important;right:auto!important;width:160px!important;flex-direction:column!important;justify-content:flex-start!important;padding:0!important;border-top:none!important;border-right:1px solid var(--border)!important;box-shadow:var(--shadow)!important;z-index:99;overflow-x:visible!important;overflow-y:auto!important}
-.force-desktop .bottom-nav button{padding:10px 14px!important;width:100%!important;text-align:left!important;font-size:.78rem!important;flex-direction:row!important;justify-content:flex-start!important;gap:8px!important;border-radius:0!important;min-width:auto!important}
-.force-desktop .bottom-nav button.active{background:var(--accent-dim)!important;border-left:3px solid var(--accent)!important;color:var(--accent)!important}
-.force-desktop .container{margin-left:160px!important;padding-bottom:0!important}
-.force-desktop #pageCustoms{margin-left:160px!important}
-.force-desktop #pageDtf{margin-left:160px!important}
-.force-desktop .sidebar-logo{display:block!important}
-.force-desktop .sidebar-logo img{height:70px!important;max-width:80%!important}
-.force-desktop .nav-bar{flex-wrap:nowrap!important}
-.force-desktop .nav-bar>div:first-child span{font-size:.9rem!important}
-.force-mobile .bottom-nav{position:fixed!important;bottom:0!important;left:0!important;right:0!important;top:auto!important;width:100%!important;flex-direction:row!important;justify-content:flex-start!important;padding:8px 0 calc(8px + env(safe-area-inset-bottom))!important;border-top:1px solid var(--border)!important;border-right:none!important;overflow-x:auto!important;height:auto!important}
-.force-mobile .bottom-nav button{padding:6px 10px!important;width:auto!important;text-align:center!important;font-size:.7rem!important;flex-direction:column!important;align-items:center!important;gap:3px!important;min-width:60px!important;flex-shrink:0!important}
-.force-mobile .bottom-nav button.active{background:none!important;border-left:none!important;color:var(--accent)!important}
-.force-mobile .sidebar-logo{display:none!important}
-.force-mobile .header{margin-left:0!important}
-.force-mobile .container{margin-left:0!important;max-width:800px!important;width:100%!important;padding:20px 16px 70px!important}
-.force-mobile #pageCustoms,.force-mobile #pageProjects,.force-mobile #pageLeads,.force-mobile #pageSuppliers,.force-mobile #pageDtf,.force-mobile #pageCompta{margin-left:0!important;padding:0 16px!important}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -194,7 +176,6 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 <div><span id="welcomeHF" style="font-weight:600;font-size:1.1rem">HectoFlex</span></div>
 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
 <span style="display:flex;align-items:center;gap:6px"><span id="syncDot" class="sync-indicator" style="width:8px;height:8px;border-radius:50%;display:inline-block"></span> <span id="userName"></span></span>
-<button id="viewToggle" onclick="toggleViewMode()" style="background:rgba(255,115,0,.1);border:1px solid #FF7300;border-radius:8px;padding:4px 8px;cursor:pointer;color:#FF7300;display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:600" title="Basculer vue"><svg id="viewToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span id="viewToggleLabel">PC</span></button>
 <button id="themeToggle" onclick="toggleThemeHF()" style="background:none;border:none;cursor:pointer;color:var(--text);padding:6px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
 <button onclick="doLogout()" style="background:transparent;border:1px solid var(--border);color:var(--text2);padding:3px 8px;border-radius:var(--radius);cursor:pointer;font-size:.72rem">Sortir</button>
 </div></div>
@@ -3154,44 +3135,28 @@ document.addEventListener('click', function(e) {
 });
 
 
-function toggleViewMode() {
-  var body = document.body;
-  var label = document.getElementById('viewToggleLabel');
-  var icon = document.getElementById('viewToggleIcon');
-  // On small screens, don't allow desktop mode
-  if (window.innerWidth < 1024) { alert('Mode PC disponible uniquement sur ordinateur'); return; }
-  var isDesktop = body.classList.contains('force-desktop') || (!body.classList.contains('force-mobile') && window.innerWidth >= 1024);
+
   if (isDesktop) {
-    body.classList.remove('force-desktop');
-    body.classList.add('force-mobile');
-    localStorage.setItem('hf_view', 'mobile');
     if(label) label.textContent = 'PC';
     if(icon) icon.innerHTML = '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>';
   } else {
-    body.classList.remove('force-mobile');
-    body.classList.add('force-desktop');
-    localStorage.setItem('hf_view', 'desktop');
     if(label) label.textContent = 'Mobile';
     if(icon) icon.innerHTML = '<rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>';
   }
 }
 // Restore view mode on load - respect screen size
 (function(){
-  var view = localStorage.getItem('hf_view');
   var isSmall = window.innerWidth < 1024;
   if (isSmall) {
     // Small screen: always mobile, clear any desktop pref
-    document.body.classList.remove('force-desktop');
-    document.body.classList.remove('force-mobile');
-    localStorage.removeItem('hf_view');
+    
+    
     return;
   }
-  // Large screen: default is desktop via @media, only apply force-mobile if explicitly set
   if (view === 'mobile') {
-    document.body.classList.add('force-mobile');
+    
     // Label stays "PC"
   }
-  // No need to force-desktop on large screens - @media handles it
 })();
 
 </script>
