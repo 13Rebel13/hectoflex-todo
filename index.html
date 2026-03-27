@@ -261,6 +261,8 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 <button onclick="switchNav('leads',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span> Leads</button>
 <button onclick="switchNav('suppliers',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span> Fournisseurs</button>
 <button onclick="switchNav('dtf',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span> DTF Swiss</button>
+<button onclick="switchNav('devismain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg></span> Devis</button>
+<button onclick="switchNav('facturesmain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span> Factures</button>
 <button onclick="switchNav('compta',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/></svg></span> Compta</button></div>
 <div class="container">
 <div class="page active" id="pageTasks">
@@ -668,6 +670,20 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 <div id="dtfList"></div>
 <div id="dtfDetail" style="display:none"></div>
 </div>
+<div class="page" id="pageDevisMain" style="padding:0 16px;display:none">
+<div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Devis</h2>
+</div>
+<div id="devisMainContent"></div>
+</div>
+
+<div class="page" id="pageFacturesMain" style="padding:0 16px;display:none">
+<div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Factures clients</h2>
+</div>
+<div id="facturesMainContent"></div>
+</div>
+
 <div class="page" id="pageCompta" style="padding:0 16px">
 <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
@@ -675,8 +691,6 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 </div>
 <div class="list-tabs" id="comptaTabs">
 <button class="list-tab active" onclick="comptaSwitchTab('synthese')">Synthèse</button>
-<button class="list-tab" onclick="comptaSwitchTab('devis')">Devis</button>
-<button class="list-tab" onclick="comptaSwitchTab('factures')">Factures clients</button>
 <button class="list-tab" onclick="comptaSwitchTab('factfourn')">Factures fournisseurs</button>
 </div>
 <div id="comptaContent"></div>
@@ -776,7 +790,7 @@ function switchNav(page, btn){
   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':page==='suppliers'?'pageSuppliers':page==='dtf'?'pageDtf':page==='compta'?'pageCompta':'pageCustoms';
+  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':page==='suppliers'?'pageSuppliers':page==='dtf'?'pageDtf':page==='devismain'?'pageDevisMain':page==='facturesmain'?'pageFacturesMain':page==='compta'?'pageCompta':'pageCustoms';
   var el = document.getElementById(target);
   if(el) el.classList.add('active');
   // Hide container when showing pages outside it
@@ -786,7 +800,9 @@ function switchNav(page, btn){
   if(page==='suppliers') loadSuppliers();
   if(page==='customs')hfcInit();
   if(page==='dtf') dtfInit();
-  if(page==='compta') comptaInit();
+  if(page==='devismain') { window.comptaTargetId='devisMainContent'; loadDevis(); }
+  if(page==='facturesmain') { window.comptaTargetId='facturesMainContent'; loadFactures(); }
+  if(page==='compta') { window.comptaTargetId='comptaContent'; comptaInit(); }
   if(page==='projects') loadProjects();
   if(page==='leads') loadLeads();
   // Auto-refresh: reload data for active tab every 15s
@@ -796,7 +812,9 @@ function switchNav(page, btn){
     else if(currentPage==='leads') loadLeads();
     else if(currentPage==='suppliers') loadSuppliers().then(function(){renderSuppliers()});
     else if(currentPage==='dtf') dtfLoadOrders();
-    else if(currentPage==='compta') loadComptaSynthese();
+    else if(currentPage==='devismain') { window.comptaTargetId='devisMainContent'; loadDevis(); }
+    else if(currentPage==='facturesmain') { window.comptaTargetId='facturesMainContent'; loadFactures(); }
+    else if(currentPage==='compta') { window.comptaTargetId='comptaContent'; loadComptaSynthese(); }
   }, 15000);
   if(page==='qr') renderSavedQR();
 }
@@ -2659,6 +2677,7 @@ var comptaBalance = [];
 var comptaPlanComptable = [];
 var comptaCurrentTab = 'synthese';
 var devisLines = [];
+function getComptaContentEl(){ return document.getElementById(window.comptaTargetId||'comptaContent') || document.getElementById('comptaContent'); }
 
 function comptaInit() {
   comptaSwitchTab('synthese');
@@ -2668,18 +2687,16 @@ function comptaSwitchTab(tab) {
   comptaCurrentTab = tab;
   document.querySelectorAll('#comptaTabs .list-tab').forEach(function(b){ b.classList.remove('active'); });
   var tabs = document.querySelectorAll('#comptaTabs .list-tab');
-  var map = ['synthese','devis','factures','factfourn'];
+  var map = ['synthese','factfourn'];
   var idx = map.indexOf(tab);
   if(idx >= 0 && tabs[idx]) tabs[idx].classList.add('active');
   if(tab === 'synthese') loadComptaSynthese();
-  else if(tab === 'devis') loadDevis();
-  else if(tab === 'factures') loadFactures();
   else if(tab === 'factfourn') loadFactFournisseurs();
 }
 
 // --- Synthèse fiduciaire ---
 async function loadComptaSynthese() {
-  var el = document.getElementById('comptaContent');
+  var el = getComptaContentEl();
   el.innerHTML = '<p style="color:var(--text2)">Chargement...</p>';
   var devis = await apiFetch('/devis') || [];
   var factures = await apiFetch('/factures') || [];
@@ -2734,7 +2751,7 @@ async function loadComptaClients() {
 }
 
 function renderComptaClients() {
-  var el = document.getElementById('comptaContent');
+  var el = getComptaContentEl();
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem;color:var(--text)">Clients (' + comptaClients.length + ')</h3><button class="add-btn" onclick="comptaClientForm()">+ Nouveau</button></div>';
   html += '<div style="display:flex;flex-direction:column;gap:8px">';
   comptaClients.forEach(function(c) {
@@ -2749,7 +2766,7 @@ function renderComptaClients() {
 function comptaClientForm(editId) {
   var c = editId ? comptaClients.find(function(x){return x.id===editId}) : {};
   if(!c) c = {};
-  var el = document.getElementById('comptaContent');
+  var el = getComptaContentEl();
   var fields = [
     {k:'nom',l:'Nom *'},{k:'contact',l:'Contact'},{k:'email',l:'Email'},{k:'tel',l:'Tel'},
     {k:'adresse',l:'Adresse'},{k:'npa',l:'NPA'},{k:'ville',l:'Ville'}
@@ -2785,7 +2802,7 @@ async function loadDevis() {
 }
 
 function renderDevis() {
-  var el = document.getElementById('comptaContent');
+  var el = getComptaContentEl();
   var statusColors = {brouillon:'var(--text2)',envoye:'var(--accent)',accepte:'var(--green)',refuse:'var(--red)',facture:'#9333ea'};
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Devis (' + comptaDevisList.length + ')</h3><button class="add-btn" onclick="devisForm()">+ Nouveau</button></div>';
   html += '<div style="display:flex;flex-direction:column;gap:8px">';
@@ -2810,7 +2827,7 @@ function renderDevis() {
 function devisForm(editId) {
   var d = editId ? comptaDevisList.find(function(x){return x.id===editId}) : null;
   devisLines = d && d.lignes ? JSON.parse(JSON.stringify(d.lignes)) : [{description:'', quantite:1, prix_unitaire:0}];
-  var el = document.getElementById('comptaContent');
+  var el = getComptaContentEl();
   var html = '<h3 style="margin:10px 0;font-size:1rem">' + (editId ? 'Modifier devis' : 'Nouveau devis') + '</h3>';
   html += '<div style="margin-bottom:10px"><label style="font-size:.8rem;color:var(--text2)">Client</label><select id="dv_client" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)">';
   html += '<option value="">-- Choisir --</option>';
@@ -2888,7 +2905,7 @@ async function loadFactures() {
 }
 
 function renderFactures() {
-  var el = document.getElementById('comptaContent');
+  var el = getComptaContentEl();
   var statusColors = {brouillon:'var(--text2)',envoyee:'var(--accent)',payee:'var(--green)',en_retard:'var(--red)'};
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Factures (' + comptaFactures.length + ')</h3><button class="add-btn" onclick="factureForm()">+ Nouvelle</button></div>';
   html += '<div style="display:flex;flex-direction:column;gap:8px">';
@@ -2915,7 +2932,7 @@ function factureForm(editId) {
   var f = editId ? comptaFactures.find(function(x){return x.id===editId}) : null;
   var lines = f && f.lignes ? JSON.parse(JSON.stringify(f.lignes)) : [{description:'', quantite:1, prix_unitaire:0}];
   devisLines = lines;
-  var el = document.getElementById('comptaContent');
+  var el = getComptaContentEl();
   var html = '<h3 style="margin:10px 0;font-size:1rem">' + (editId ? 'Modifier facture' : 'Nouvelle facture') + '</h3>';
   html += '<div style="margin-bottom:10px"><label style="font-size:.8rem;color:var(--text2)">Client</label><select id="dv_client" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)">';
   html += '<option value="">-- Choisir --</option>';
@@ -2967,7 +2984,7 @@ async function loadFactFournisseurs() {
 }
 
 function renderFactFournisseurs() {
-  var el = document.getElementById('comptaContent');
+  var el = getComptaContentEl();
   var statusColors = {brouillon:'var(--text2)',comptabilisee:'var(--accent)',payee:'var(--green)'};
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Factures fournisseurs (' + comptaFactFourn.length + ')</h3><button class="add-btn" onclick="factFournForm()">+ Nouvelle</button></div>';
   html += '<div style="display:flex;flex-direction:column;gap:8px">';
@@ -2992,7 +3009,7 @@ function renderFactFournisseurs() {
 function factFournForm(editId) {
   var f = editId ? comptaFactFourn.find(function(x){return x.id===editId}) : null;
   devisLines = f && f.lignes ? JSON.parse(JSON.stringify(f.lignes)) : [{description:'', quantite:1, prix_unitaire:0, compte:''}];
-  var el = document.getElementById('comptaContent');
+  var el = getComptaContentEl();
   var html = '<h3 style="margin:10px 0;font-size:1rem">Nouvelle facture fournisseur</h3>';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">';
   html += '<div><label style="font-size:.8rem;color:var(--text2)">Fournisseur</label><input id="ff_fourn" value="'+((f&&f.fournisseur)?String(f.fournisseur).replace(/"/g,'&quot;'):'')+'" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)"></div>';
@@ -3067,7 +3084,7 @@ async function loadJournal() {
 }
 
 function renderJournal() {
-  var el = document.getElementById('comptaContent');
+  var el = getComptaContentEl();
   var html = '<h3 style="margin:10px 0;font-size:1rem">Journal comptable (' + comptaJournal.length + ' ecritures)</h3>';
   html += '<div style="overflow-x:auto"><table style="width:100%;font-size:.85rem;border-collapse:collapse">';
   html += '<thead><tr style="background:var(--surface2);color:var(--text2)"><th style="padding:8px;text-align:left">Date</th><th style="text-align:left;padding:8px">Compte</th><th style="text-align:left;padding:8px">Libelle</th><th style="text-align:right;padding:8px">Debit</th><th style="text-align:right;padding:8px">Credit</th></tr></thead><tbody>';
@@ -3090,7 +3107,7 @@ async function loadBalance() {
 }
 
 function renderBalance() {
-  var el = document.getElementById('comptaContent');
+  var el = getComptaContentEl();
   var html = '<h3 style="margin:10px 0;font-size:1rem">Balance des comptes</h3>';
   html += '<div style="overflow-x:auto"><table style="width:100%;font-size:.85rem;border-collapse:collapse">';
   html += '<thead><tr style="background:var(--surface2);color:var(--text2)"><th style="padding:8px;text-align:left">Compte</th><th style="text-align:left;padding:8px">Libelle</th><th style="text-align:right;padding:8px">Total Debit</th><th style="text-align:right;padding:8px">Total Credit</th><th style="text-align:right;padding:8px">Solde</th></tr></thead><tbody>';
