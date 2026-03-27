@@ -2870,12 +2870,15 @@ async function devisToFacture(id) {
 
 // --- Factures ---
 async function uploadComptaPiece(file) {
-  var fd = new FormData();
-  fd.append('file', file);
-  var r = await fetch(API + '/upload', { method:'POST', headers:{'Authorization':'Basic '+token}, body: fd });
-  var j = await r.json();
-  if(!r.ok || !j.ok) throw new Error((j&&j.error) || 'upload failed');
-  return { key:j.key, url:j.url, name:file.name, type:file.type || 'application/octet-stream', uploaded:new Date().toISOString() };
+  if(!file) throw new Error('Aucun fichier');
+  if(file.size > 8*1024*1024) throw new Error('Fichier trop volumineux (max 8 Mo)');
+  var dataUrl = await new Promise(function(resolve, reject){
+    var reader = new FileReader();
+    reader.onload = function(){ resolve(reader.result); };
+    reader.onerror = function(){ reject(new Error('Lecture fichier échouée')); };
+    reader.readAsDataURL(file);
+  });
+  return { key:'local-'+Date.now(), url:dataUrl, name:file.name, type:file.type || 'application/octet-stream', size:file.size, uploaded:new Date().toISOString() };
 }
 
 async function loadFactures() {
