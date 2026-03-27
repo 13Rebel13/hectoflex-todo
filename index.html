@@ -1510,10 +1510,22 @@ async function leadShowDetail(id) {
   if(docs.length) {
     docs.forEach(function(d,i){
       var name = d.name || ('Document '+(i+1));
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">';
-      html += '<a href="'+PROJ_API+'/projects/'+p.id+'/files/'+i+'" target="_blank" style="color:var(--accent);font-size:.85rem;text-decoration:none;flex:1">'+escHtml(name)+'</a>';
-      html += '<button onclick="leadRemoveDoc('+p.id+','+i+')" style="background:none;border:none;color:#e55;cursor:pointer;font-size:.8rem">×</button>';
-      html += '</div>';
+      var fileUrl = PROJ_API+'/projects/'+p.id+'/files/'+i;
+      var isImage = (d.type||'').indexOf('image/')===0 || /\.(png|jpe?g|webp|gif)$/i.test(name);
+      if(isImage){
+        html += '<div style="padding:8px 0;border-bottom:1px solid var(--border)">';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">';
+        html += '<a href="'+fileUrl+'" target="_blank" style="color:var(--accent);font-size:.85rem;text-decoration:none;flex:1">'+escHtml(name)+'</a>';
+        html += '<button onclick="leadRemoveDoc('+p.id+','+i+')" style="background:none;border:none;color:#e55;cursor:pointer;font-size:.8rem">×</button>';
+        html += '</div>';
+        html += '<a href="'+fileUrl+'" target="_blank"><img src="'+fileUrl+'" alt="'+escHtml(name)+'" style="width:100%;max-width:420px;height:auto;border-radius:8px;border:1px solid var(--border);display:block"></a>';
+        html += '</div>';
+      } else {
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">';
+        html += '<a href="'+fileUrl+'" target="_blank" style="color:var(--accent);font-size:.85rem;text-decoration:none;flex:1">'+escHtml(name)+'</a>';
+        html += '<button onclick="leadRemoveDoc('+p.id+','+i+')" style="background:none;border:none;color:#e55;cursor:pointer;font-size:.8rem">×</button>';
+        html += '</div>';
+      }
     });
   } else {
     html += '<p style="font-size:.8rem;color:var(--text3);margin:0 0 8px">Aucun document</p>';
