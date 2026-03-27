@@ -3061,11 +3061,13 @@ function dtfRenderAccordionDetail(panel, o, id) {
     '<span id="dtfTrackSt_' + id + '" style="font-size:.75rem"></span></div>';
 
   var filesHtml = '';
-  var items = o.items || [];
+  // API can return either detailed `items` or lightweight `files`.
+  // Fallback to `files` so the accordion still shows attachments.
+  var items = (Array.isArray(o.items) && o.items.length) ? o.items : (Array.isArray(o.files) ? o.files : []);
   for (var fi = 0; fi < items.length; fi++) {
     var it = items[fi];
     var dlUrl = it.public_url || '';
-    if (!dlUrl && it.file_path) dlUrl = DTF_API + '/dtf/download?bucket=' + encodeURIComponent(it.bucket || 'planches') + '&path=' + encodeURIComponent(it.file_path) + '&token=' + btoa(currentUser + ':' + localStorage.getItem('hf_pin'));
+    if (!dlUrl && (it.file_path || it.path)) dlUrl = DTF_API + '/dtf/download?bucket=' + encodeURIComponent(it.bucket || 'planches') + '&path=' + encodeURIComponent(it.file_path || it.path) + '&token=' + btoa(currentUser + ':' + localStorage.getItem('hf_pin'));
     var pvId = 'dtfPv_' + id + '_' + fi;
     var ext = (it.filename || '').split('.').pop().toLowerCase();
     var isImg = ['jpg','jpeg','png','gif','webp','svg'].indexOf(ext) >= 0;
