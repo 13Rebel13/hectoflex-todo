@@ -1502,7 +1502,25 @@ async function leadShowDetail(id) {
   html += '</div>';
   html += '</div>';
   html += '</div>';
-  
+
+  // Documents
+  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
+  html += '<h3 style="font-size:.95rem;color:var(--text);margin:0 0 10px">Documents</h3>';
+  var docs = p.documents || [];
+  if(docs.length) {
+    docs.forEach(function(d,i){
+      var name = d.name || ('Document '+(i+1));
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">';
+      html += '<a href="'+PROJ_API+'/projects/'+p.id+'/files/'+i+'" target="_blank" style="color:var(--accent);font-size:.85rem;text-decoration:none;flex:1">'+escHtml(name)+'</a>';
+      html += '<button onclick="leadRemoveDoc('+p.id+','+i+')" style="background:none;border:none;color:#e55;cursor:pointer;font-size:.8rem">×</button>';
+      html += '</div>';
+    });
+  } else {
+    html += '<p style="font-size:.8rem;color:var(--text3);margin:0 0 8px">Aucun document</p>';
+  }
+  html += '<div style="margin-top:8px"><label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px dashed var(--border);border-radius:var(--radius);cursor:pointer;font-size:.85rem;color:var(--text2)">Ajouter un fichier<input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display:none" onchange="leadUploadDoc('+p.id+',this)"></label></div>';
+  html += '</div>';
+
   // Notes
   html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
   html += '<h3 style="font-size:.95rem;color:var(--text);margin:0 0 10px">Notes</h3>';
@@ -1597,6 +1615,36 @@ async function leadSaveFinance(leadId) {
   var markup = parseFloat(document.getElementById('leadMarkup').value)||0;
   var montant = document.getElementById('leadPrixClient').value;
   await updateProject(leadId, {markup:markup, montant:montant});
+  leadShowDetail(leadId);
+}
+
+
+async function leadUploadDoc(leadId, input) {
+  var file = input.files[0];
+  if(!file) return;
+  if(file.size > 20*1024*1024) { alert('Fichier trop volumineux (max 20 Mo)'); return; }
+  setSyncState('syncing');
+  try {
+    var reader = new FileReader();
+    reader.onload = async function() {
+      var b64 = reader.result.split(',')[1];
+      var r = await fetch(PROJ_API+'/projects/'+leadId+'/files', {
+        method:'POST',
+        headers:{'Authorization':'Basic '+token,'Content-Type':'application/json'},
+        body:JSON.stringify({data:b64, filename:file.name, type:file.type})
+      });
+      var res = await r.json();
+      if(res.ok) { setSyncState('ok'); leadShowDetail(leadId); }
+      else { setSyncState('error'); alert('Erreur: '+(res.error||'upload failed')); }
+    };
+    reader.readAsDataURL(file);
+  } catch(e) { setSyncState('error'); console.error(e); }
+  input.value = '';
+}
+
+async function leadRemoveDoc(leadId, docIdx) {
+  if(!confirm('Supprimer ce document?')) return;
+  await fetch(PROJ_API+'/projects/'+leadId+'/files/'+docIdx, {method:'DELETE', headers:{'Authorization':'Basic '+token}});
   leadShowDetail(leadId);
 }
 
