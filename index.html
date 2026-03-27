@@ -727,6 +727,8 @@ function toggleNote(id){const el=document.getElementById('note-'+id);el.classLis
 async function saveNote(id){const note=document.getElementById('note-'+id).value;await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{note}})})}
 
 function formatDate(iso){if(!iso)return'';const d=new Date(iso);return d.toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}
+function autoGrow(el){ if(!el) return; el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
+
 function fmtDate(d){if(!d)return"";var dt=new Date(d);if(isNaN(dt))return d;var dd=String(dt.getDate()).padStart(2,"0");var mm=String(dt.getMonth()+1).padStart(2,"0");var yy=dt.getFullYear();return dd+"."+mm+"."+yy}
 function escHtml(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 
@@ -1504,10 +1506,11 @@ async function leadShowDetail(id) {
   // Notes
   html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
   html += '<h3 style="font-size:.95rem;color:var(--text);margin:0 0 10px">Notes</h3>';
-  html += '<textarea id="leadNotes" rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:.85rem;font-family:inherit;resize:vertical;box-sizing:border-box" onblur="leadSaveNotes('+p.id+')">'+(p.notes||'')+'</textarea>';
+  html += '<textarea id="leadNotes" rows="10" style="width:100%;min-height:220px;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:.85rem;font-family:inherit;resize:none;overflow:hidden;box-sizing:border-box" oninput="autoGrow(this)" onblur="leadSaveNotes('+p.id+')">'+(p.notes||'')+'</textarea>';
   html += '</div>';
   
   document.getElementById('leadDetailContent').innerHTML = html;
+  var ln=document.getElementById('leadNotes'); if(ln) autoGrow(ln);
 }
 
 async function leadChangeStatus(id, newStatus) {
