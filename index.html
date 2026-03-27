@@ -1464,6 +1464,42 @@ async function leadShowDetail(id) {
     html += '<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:.8rem;color:var(--text3);min-width:100px">'+f.label+'</span><span style="font-size:.85rem;color:'+(f.val?'var(--text)':'var(--text3)')+'">'+(f.val?escHtml(f.val):'—')+'</span></div>';
   });
   html += '</div>';
+
+  // Finances (même logique que Projets)
+  var costs = p.costs || [];
+  var totalCosts = 0;
+  costs.forEach(function(c){ totalCosts += (parseFloat(c.amount)||0); });
+  var prixClient = parseFloat(p.montant)||0;
+  var benefice = prixClient - totalCosts;
+  var margeP = prixClient > 0 ? Math.round(benefice/prixClient*100) : 0;
+
+  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px">';
+  html += '<h3 style="font-size:.95rem;color:var(--text);margin:0 0 12px">Finances (Lead)</h3>';
+  if(!costs.length) html += '<p style="font-size:.8rem;color:var(--text3);margin:0 0 8px">Aucune ligne de coût</p>';
+  costs.forEach(function(c, i){
+    var desc = (c.label||c.type||'Coût');
+    html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">';
+    html += '<input type="text" value="'+escHtml(desc)+'" onblur="leadEditCostDesc('+p.id+','+i+',this.value)" style="flex:2;color:var(--text);background:transparent;border:1px solid transparent;border-radius:4px;padding:2px 4px;font-size:.85rem" onfocus="this.style.borderColor=\'var(--accent)\'">';
+    html += '<input type="number" value="'+parseFloat(c.amount||0).toFixed(2)+'" onblur="leadEditCostAmt('+p.id+','+i+',this.value)" style="flex:1;text-align:right;color:var(--text);font-weight:500;background:transparent;border:1px solid transparent;border-radius:4px;padding:2px 4px;font-size:.85rem;width:90px" onfocus="this.style.borderColor=\'var(--accent)\'">';
+    html += '<span style="font-size:.75rem;color:var(--text3)">CHF</span>';
+    html += '<button onclick="leadRemoveCost('+p.id+','+i+')" style="margin-left:auto;background:none;border:none;color:#e55;cursor:pointer;font-size:.8rem">×</button>';
+    html += '</div>';
+  });
+  html += '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">';
+  html += '<button onclick="leadAddCostLine('+p.id+',\'matiere\')" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">+ Matière</button>';
+  html += '<button onclick="leadAddCostLine('+p.id+',\'heures\')" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">+ Heures</button>';
+  html += '<button onclick="leadAddCostLine('+p.id+',\'sous-traitance\')" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--text2);cursor:pointer;font-size:.78rem">+ Sous-traitance</button>';
+  html += '</div>';
+  html += '<div style="margin-top:12px;padding-top:10px;border-top:2px solid var(--border)">';
+  html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Total coûts</span><span style="color:var(--text);font-weight:600">'+totalCosts.toFixed(2)+' CHF</span></div>';
+  html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Prix client</span><input id="leadPrixClient" type="number" value="'+(p.montant||0)+'" style="width:120px;text-align:right;padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)"></div>';
+  html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Marge cible %</span><input id="leadMarkup" type="number" value="'+(p.markup||35)+'" style="width:80px;text-align:right;padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)"></div>';
+  html += '<div style="display:flex;justify-content:flex-end;margin-top:6px"><button onclick="leadSaveFinance('+p.id+')" style="padding:6px 10px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer;font-size:.78rem">Enregistrer finance</button></div>';
+  html += '<div style="margin-top:8px;padding-top:8px;border-top:2px solid var(--accent)">';
+  html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.9rem"><span style="font-weight:700;color:'+(benefice>=0?'#22c55e':'#ef4444')+'">Bénéfice actuel</span><span style="font-weight:700;color:'+(benefice>=0?'#22c55e':'#ef4444')+'">'+benefice.toFixed(2)+' CHF ('+margeP+'%)</span></div>';
+  html += '</div>';
+  html += '</div>';
+  html += '</div>';
   
   // Notes
   html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
@@ -1495,6 +1531,70 @@ async function leadDeleteAndBack(id) {
 async function leadSaveNotes(id) {
   var notes = document.getElementById('leadNotes').value;
   await updateProject(id, {notes: notes});
+}
+
+
+async function leadAddCostLine(leadId, type) {
+  var label = '';
+  var amount = 0;
+  var hours = 0, rate = 0;
+  if(type==='heures') {
+    var who = prompt('Qui? (ex: Daniel, Marco)');
+    if(!who) return;
+    hours = parseFloat(prompt('Nombre d'heures:'))||0;
+    rate = parseFloat(prompt('Taux horaire CHF:'))||0;
+    amount = hours * rate;
+    label = 'Heures — ' + who;
+  } else {
+    label = prompt('Description (ex: Film PPF, Encre, etc.):');
+    if(!label) return;
+    amount = parseFloat(prompt('Montant CHF:'))||0;
+  }
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var all = await r.json();
+  var p = all.find(function(x){return x.id===leadId});
+  if(!p) return;
+  var costs = p.costs || [];
+  costs.push({type:type, label:label, amount:amount, hours:hours, rate:rate, added:new Date().toISOString()});
+  await updateProject(leadId, {costs:costs});
+  leadShowDetail(leadId);
+}
+
+async function leadEditCostDesc(leadId, idx, val) {
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var all = await r.json();
+  var p = all.find(function(x){return x.id===leadId});
+  if(!p || !p.costs || !p.costs[idx]) return;
+  p.costs[idx].label = val;
+  await updateProject(leadId, {costs: p.costs});
+}
+
+async function leadEditCostAmt(leadId, idx, val) {
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var all = await r.json();
+  var p = all.find(function(x){return x.id===leadId});
+  if(!p || !p.costs || !p.costs[idx]) return;
+  p.costs[idx].amount = parseFloat(val)||0;
+  await updateProject(leadId, {costs: p.costs});
+  leadShowDetail(leadId);
+}
+
+async function leadRemoveCost(leadId, idx) {
+  if(!confirm('Supprimer cette ligne?')) return;
+  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var all = await r.json();
+  var p = all.find(function(x){return x.id===leadId});
+  if(!p||!p.costs) return;
+  p.costs.splice(idx, 1);
+  await updateProject(leadId, {costs:p.costs});
+  leadShowDetail(leadId);
+}
+
+async function leadSaveFinance(leadId) {
+  var markup = parseFloat(document.getElementById('leadMarkup').value)||0;
+  var montant = document.getElementById('leadPrixClient').value;
+  await updateProject(leadId, {markup:markup, montant:montant});
+  leadShowDetail(leadId);
 }
 
 async function leadToProject(id) {
