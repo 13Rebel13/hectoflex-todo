@@ -170,6 +170,17 @@ body.force-desktop .header{margin-left:140px!important}
 .force-mobile .container,.force-mobile #pageCustoms,.force-mobile #pageProjects,.force-mobile #pageLeads,.force-mobile #pageSuppliers,.force-mobile #pageDtf,.force-mobile #pageCompta{margin-left:0!important}
 .force-mobile .header{margin-left:0!important}
 .force-mobile .container{padding-bottom:70px!important;max-width:800px!important;width:100%!important}
+
+@media(max-width:599px){
+body.force-desktop .bottom-nav{width:50px!important}
+body.force-desktop .bottom-nav button{padding:10px 4px!important;justify-content:center!important;font-size:0!important}
+body.force-desktop .bottom-nav button span.nav-icon{margin:0!important}
+body.force-desktop .bottom-nav button span.nav-icon svg{width:20px!important;height:20px!important}
+body.force-desktop .container{margin-left:50px!important;width:calc(100% - 50px)!important}
+body.force-desktop #pageCustoms,body.force-desktop #pageProjects,body.force-desktop #pageLeads,body.force-desktop #pageSuppliers,body.force-desktop #pageDtf,body.force-desktop #pageCompta{margin-left:50px!important}
+body.force-desktop .header{margin-left:50px!important}
+body.force-desktop .sidebar-logo{display:none!important}
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -3159,10 +3170,6 @@ function toggleViewMode() {
   var body = document.body;
   var label = document.getElementById('viewToggleLabel');
   var isMobile = body.classList.contains('force-mobile') || (!body.classList.contains('force-desktop') && window.innerWidth < 1024);
-  if (isMobile && window.innerWidth < 600) {
-    alert('Écran trop petit pour la vue PC. Minimum 600px (tablette).');
-    return;
-  }
   if (isMobile) {
     body.classList.remove('force-mobile');
     body.classList.add('force-desktop');
