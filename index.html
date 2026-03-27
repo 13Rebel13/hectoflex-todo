@@ -2914,20 +2914,50 @@ function devisForm(editId) {
 
 function renderDevisLines() {
   var c = document.getElementById('devisLinesContainer');
-  var html = '<table style="width:100%;font-size:.85rem;border-collapse:collapse"><tr style="color:var(--text2)"><th style="text-align:left;padding:4px">Description</th><th style="width:56px">Qty</th><th style="width:70px">Unité</th><th style="width:90px">Prix u.</th><th style="width:80px">Total</th><th style="width:30px"></th></tr>';
+  var mobileView = document.body.classList.contains('force-mobile') || (!document.body.classList.contains('force-desktop') && window.innerWidth < 760);
+  var html = '';
   var ht = 0;
-  devisLines.forEach(function(l, i) {
-    var lt = (l.quantite||0) * (l.prix_unitaire||0);
-    ht += lt;
-    html += '<tr><td><input style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text)" value="' + (l.description||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].description=this.value"></td>' +
-      '<td><input type="number" step="0.01" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:center" value="' + (l.quantite||1) + '" onchange="devisLines[' + i + '].quantite=parseFloat(this.value)||0;renderDevisLines()"></td>' +
-      '<td><input style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:center" value="' + (l.unite||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].unite=this.value"></td>' +
-      '<td><input type="number" step="0.01" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:right" value="' + (l.prix_unitaire||0) + '" onchange="devisLines[' + i + '].prix_unitaire=parseFloat(this.value)||0;renderDevisLines()"></td>' +
-      '<td style="text-align:right;padding:4px">CHF ' + lt.toFixed(2) + '</td>' +
-      '<td><button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem" onclick="devisRemoveLine(' + i + ')">x</button></td></tr>';
-    html += '<tr><td colspan="6" style="padding:4px 0 8px 0"><input placeholder="Note de ligne (taille, dimensions, référence...)" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text)" value="' + (l.note||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].note=this.value"></td></tr>';
-  });
-  html += '</table>';
+
+  if (mobileView) {
+    html += '<div style="display:flex;flex-direction:column;gap:10px">';
+    devisLines.forEach(function(l, i) {
+      var lt = (l.quantite||0) * (l.prix_unitaire||0);
+      ht += lt;
+      html += '<div style="border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:10px">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
+        '<strong style="font-size:.8rem;color:var(--text2)">Ligne ' + (i+1) + '</strong>' +
+        '<button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:1.1rem;line-height:1" onclick="devisRemoveLine(' + i + ')">×</button></div>';
+      html += '<label style="display:block;font-size:.74rem;color:var(--text2);margin:6px 0 3px">Description</label>' +
+        '<input style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text)" value="' + (l.description||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].description=this.value">';
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">' +
+        '<div><label style="display:block;font-size:.74rem;color:var(--text2);margin-bottom:3px">Quantité</label><input type="number" step="0.01" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);text-align:center" value="' + (l.quantite||1) + '" onchange="devisLines[' + i + '].quantite=parseFloat(this.value)||0;renderDevisLines()"></div>' +
+        '<div><label style="display:block;font-size:.74rem;color:var(--text2);margin-bottom:3px">Unité</label><input style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);text-align:center" value="' + (l.unite||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].unite=this.value"></div>' +
+      '</div>';
+      html += '<div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-top:8px">' +
+        '<div><label style="display:block;font-size:.74rem;color:var(--text2);margin-bottom:3px">Prix unitaire (CHF)</label><input type="number" step="0.01" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text);text-align:right" value="' + (l.prix_unitaire||0) + '" onchange="devisLines[' + i + '].prix_unitaire=parseFloat(this.value)||0;renderDevisLines()"></div>' +
+        '<div style="font-weight:700;color:var(--accent);white-space:nowrap">CHF ' + lt.toFixed(2) + '</div>' +
+      '</div>';
+      html += '<label style="display:block;font-size:.74rem;color:var(--text2);margin:8px 0 3px">Note de ligne</label>' +
+        '<input placeholder="Taille, dimensions, référence..." style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text)" value="' + (l.note||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].note=this.value">';
+      html += '</div>';
+    });
+    html += '</div>';
+  } else {
+    html = '<table style="width:100%;font-size:.85rem;border-collapse:collapse"><tr style="color:var(--text2)"><th style="text-align:left;padding:4px">Description</th><th style="width:56px">Qty</th><th style="width:70px">Unité</th><th style="width:90px">Prix u.</th><th style="width:80px">Total</th><th style="width:30px"></th></tr>';
+    devisLines.forEach(function(l, i) {
+      var lt = (l.quantite||0) * (l.prix_unitaire||0);
+      ht += lt;
+      html += '<tr><td><input style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text)" value="' + (l.description||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].description=this.value"></td>' +
+        '<td><input type="number" step="0.01" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:center" value="' + (l.quantite||1) + '" onchange="devisLines[' + i + '].quantite=parseFloat(this.value)||0;renderDevisLines()"></td>' +
+        '<td><input style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:center" value="' + (l.unite||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].unite=this.value"></td>' +
+        '<td><input type="number" step="0.01" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:right" value="' + (l.prix_unitaire||0) + '" onchange="devisLines[' + i + '].prix_unitaire=parseFloat(this.value)||0;renderDevisLines()"></td>' +
+        '<td style="text-align:right;padding:4px">CHF ' + lt.toFixed(2) + '</td>' +
+        '<td><button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem" onclick="devisRemoveLine(' + i + ')">x</button></td></tr>';
+      html += '<tr><td colspan="6" style="padding:4px 0 8px 0"><input placeholder="Note de ligne (taille, dimensions, référence...)" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text)" value="' + (l.note||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].note=this.value"></td></tr>';
+    });
+    html += '</table>';
+  }
+
   c.innerHTML = html;
   var tva = ht * 0.081;
   var ttc = ht + tva;
