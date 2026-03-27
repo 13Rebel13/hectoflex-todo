@@ -153,15 +153,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .sync-indicator{background:#4ecb71}.sync-indicator.syncing{background:#f0ad4e}.sync-indicator.error{background:#e74c3c}
 #themeToggle{background:transparent;border:1px solid var(--border);color:var(--text2);padding:5px 8px;border-radius:var(--radius);cursor:pointer;font-size:.85rem}
 
-.force-desktop .bottom-nav{position:fixed!important;left:0!important;top:0!important;bottom:0!important;right:auto!important;width:140px!important;flex-direction:column!important;justify-content:flex-start!important;padding:0!important;border-top:none!important;border-right:1px solid var(--border)!important;box-shadow:var(--shadow)!important;z-index:99;overflow-x:hidden!important;overflow-y:auto!important}
-.force-desktop .bottom-nav button{padding:8px 10px!important;width:100%!important;text-align:left!important;font-size:.72rem!important;flex-direction:row!important;justify-content:flex-start!important;gap:6px!important;border-radius:0!important;min-width:auto!important}
-.force-desktop .bottom-nav button.active{background:var(--accent-dim)!important;border-left:3px solid var(--accent)!important;color:var(--accent)!important}
-.force-desktop .bottom-nav button span.nav-icon svg{width:16px!important;height:16px!important}
-.force-desktop .container{margin-left:140px!important;padding-bottom:0!important;width:calc(100% - 140px)!important;max-width:none!important}
-.force-desktop #pageCustoms,.force-desktop #pageProjects,.force-desktop #pageLeads,.force-desktop #pageSuppliers,.force-desktop #pageDtf,.force-desktop #pageCompta{margin-left:140px!important;padding:8px 12px!important}
-.force-desktop .sidebar-logo{display:block!important}
-.force-desktop .sidebar-logo img{height:50px!important;max-width:90%!important}
-.force-desktop .header{margin-left:140px!important}
+body.force-desktop .bottom-nav{position:fixed!important;left:0!important;top:0!important;bottom:0!important;right:auto!important;width:140px!important;flex-direction:column!important;justify-content:flex-start!important;padding:0!important;border-top:none!important;border-right:1px solid var(--border)!important;box-shadow:var(--shadow)!important;z-index:99;overflow-x:hidden!important;overflow-y:auto!important}
+body.force-desktop .bottom-nav button{padding:8px 10px!important;width:100%!important;text-align:left!important;font-size:.72rem!important;flex-direction:row!important;justify-content:flex-start!important;gap:6px!important;border-radius:0!important;min-width:auto!important}
+body.force-desktop .bottom-nav button.active{background:var(--accent-dim)!important;border-left:3px solid var(--accent)!important;color:var(--accent)!important}
+body.force-desktop .bottom-nav button span.nav-icon svg{width:16px!important;height:16px!important}
+body.force-desktop .container{margin-left:140px!important;padding-bottom:0!important;width:calc(100% - 140px)!important;max-width:none!important;padding:10px 14px!important}
+body.force-desktop #pageCustoms,.force-desktop #pageProjects,.force-desktop #pageLeads,.force-desktop #pageSuppliers,.force-desktop #pageDtf,.force-desktop #pageCompta{margin-left:140px!important;padding:8px 12px!important}
+body.force-desktop .sidebar-logo{display:block!important}
+body.force-desktop .sidebar-logo img{height:50px!important;max-width:90%!important}
+body.force-desktop .header{margin-left:140px!important}
 
 .force-mobile .bottom-nav{position:fixed!important;bottom:0!important;left:0!important;right:0!important;top:auto!important;width:100%!important;flex-direction:row!important;justify-content:flex-start!important;padding:8px 0 calc(8px + env(safe-area-inset-bottom))!important;border-top:1px solid var(--border)!important;border-right:none!important;overflow-x:auto!important;height:auto!important}
 .force-mobile .bottom-nav button{padding:6px 10px!important;width:auto!important;text-align:center!important;font-size:.7rem!important;flex-direction:column!important;align-items:center!important;gap:3px!important;min-width:60px!important;flex-shrink:0!important}
@@ -3159,6 +3159,10 @@ function toggleViewMode() {
   var body = document.body;
   var label = document.getElementById('viewToggleLabel');
   var isMobile = body.classList.contains('force-mobile') || (!body.classList.contains('force-desktop') && window.innerWidth < 1024);
+  if (isMobile && window.innerWidth < 600) {
+    alert('Écran trop petit pour la vue PC. Minimum 600px (tablette).');
+    return;
+  }
   if (isMobile) {
     body.classList.remove('force-mobile');
     body.classList.add('force-desktop');
