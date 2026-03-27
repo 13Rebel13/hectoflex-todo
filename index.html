@@ -1541,7 +1541,7 @@ async function leadAddCostLine(leadId, type) {
   if(type==='heures') {
     var who = prompt('Qui? (ex: Daniel, Marco)');
     if(!who) return;
-    hours = parseFloat(prompt('Nombre d'heures:'))||0;
+    hours = parseFloat(prompt('Nombre d\'heures:'))||0;
     rate = parseFloat(prompt('Taux horaire CHF:'))||0;
     amount = hours * rate;
     label = 'Heures — ' + who;
