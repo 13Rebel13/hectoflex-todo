@@ -3260,7 +3260,22 @@ function generateComptaPdf(docType, obj, client) {
   doc.text('Document généré via HECTOFLEX • Merci pour votre confiance', margin, pageH-10);
 
   var filename = (docType==='DEVIS'?'Devis_':'Facture_') + num.replace(/[^a-zA-Z0-9_-]/g,'_') + '.pdf';
-  doc.save(filename);
+  try {
+    var blob = doc.output('blob');
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1200);
+  } catch(e) {
+    doc.save(filename);
+  }
 }
 
 function downloadDevisPdf(id){
