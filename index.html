@@ -3155,30 +3155,6 @@ document.addEventListener('click', function(e) {
 
 
 
-  if (isDesktop) {
-    if(label) label.textContent = 'PC';
-    if(icon) icon.innerHTML = '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>';
-  } else {
-    if(label) label.textContent = 'Mobile';
-    if(icon) icon.innerHTML = '<rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>';
-  }
-}
-// Restore view mode on load - respect screen size
-(function(){
-  var isSmall = window.innerWidth < 1024;
-  if (isSmall) {
-    // Small screen: always mobile, clear any desktop pref
-    
-    
-    return;
-  }
-  if (view === 'mobile') {
-    
-    // Label stays "PC"
-  }
-})();
-
-
 function toggleViewMode() {
   var body = document.body;
   var label = document.getElementById('viewToggleLabel');
