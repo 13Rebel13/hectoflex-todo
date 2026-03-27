@@ -3176,19 +3176,19 @@ function toggleViewMode() {
 (function(){
   var view = localStorage.getItem('hf_view');
   var isSmall = window.innerWidth < 1024;
-  // On small screens, ignore saved desktop preference - always mobile
   if (isSmall) {
+    // Small screen: always mobile, clear any desktop pref
     document.body.classList.remove('force-desktop');
-    if (view === 'desktop') localStorage.removeItem('hf_view');
+    document.body.classList.remove('force-mobile');
+    localStorage.removeItem('hf_view');
     return;
   }
-  if (view === 'desktop') {
-    document.body.classList.add('force-desktop');
-    var l = document.getElementById('viewToggleLabel'); if(l) l.textContent = 'Mobile';
-    var i = document.getElementById('viewToggleIcon'); if(i) i.innerHTML = '<rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>';
-  } else if (view === 'mobile') {
+  // Large screen: default is desktop via @media, only apply force-mobile if explicitly set
+  if (view === 'mobile') {
     document.body.classList.add('force-mobile');
+    // Label stays "PC"
   }
+  // No need to force-desktop on large screens - @media handles it
 })();
 
 </script>
