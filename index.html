@@ -707,7 +707,7 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 <script>
 const API='https://hf-tasks-api.hectoflex.workers.dev';
 const CATEGORIES=['Tout','Général','Marketing','Affaires','Production','Admin','Planning'];
-let token=localStorage.getItem('hf_token')||'',currentUser=localStorage.getItem('hf_user')||'',currentList='personal',currentFilter='all',currentCat='Tout',tasks=[],syncTimer=null;
+let token=localStorage.getItem('hf_token')||'',currentUser=localStorage.getItem('hf_user')||'',currentList='personal',currentFilter='all',currentCat='Tout',tasks=[],syncTimer=null,currentPage='tasks';
 
 if(token&&currentUser){showApp()}else{document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').focus()}
 
@@ -715,7 +715,7 @@ async function doLogin(){const pin=document.getElementById('pinInput').value;con
 
 function doLogout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token='';currentUser='';clearInterval(syncTimer);document.getElementById('appScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
 
-function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';document.getElementById('userName').textContent=currentUser.charAt(0).toUpperCase()+currentUser.slice(1);renderCatTabs();loadTasks();clearInterval(syncTimer);syncTimer=setInterval(loadTasks,30000)}
+function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';document.getElementById('userName').textContent=currentUser.charAt(0).toUpperCase()+currentUser.slice(1);renderCatTabs();loadTasks();clearInterval(syncTimer);syncTimer=setInterval(loadTasks,30000);window.__hfHistoryReady=true;switchNav('tasks',document.querySelector('.bottom-nav button.active')||document.querySelector('.bottom-nav button'),{skipHistory:true});try{history.replaceState({hfApp:true,page:'tasks'},'', '#tasks');history.pushState({hfApp:true,page:'tasks'},'', '#tasks');}catch(e){}}
 
 function renderCatTabs(){document.getElementById('catTabs').innerHTML=CATEGORIES.map(c=>`<button class="cat-tab${currentCat===c?' active':''}" onclick="switchCat('${c}',this)">${c}</button>`).join('')}
 
@@ -796,6 +796,7 @@ function render(){
 // ===== NAVIGATION =====
 function switchNav(page, btn, opts){
   opts = opts || {};
+  currentPage = page;
   window.currentPage = page;
   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
@@ -3597,4 +3598,3 @@ document.addEventListener('click', function(e) {
 </script>
 </body>
 </html>
-window.__hfHistoryReady = true;
