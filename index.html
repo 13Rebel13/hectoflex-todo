@@ -68,8 +68,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 #pageCustoms{padding:0 16px}
 #pageCompta{padding:0 16px}
 .page{display:none}.page.active{display:block}
-.list-tabs{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
-.list-tab{padding:10px 22px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.9rem;font-weight:600;transition:all .2s}
+.list-tabs{display:flex;gap:6px;margin-bottom:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;scrollbar-width:none;padding-bottom:4px}
+.list-tab{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.9rem;font-weight:600;transition:all .2s}
 .list-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .list-tab:hover{border-color:var(--accent)}
 .dtf-checker-dark{
@@ -86,7 +86,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 #pageDtf .list-tab.active{background:#E30613;color:#fff;border-color:#E30613}
 #pageDtf .list-tab:hover{border-color:#E30613}
 
-.cat-tabs{display:flex;gap:6px;margin-bottom:15px;flex-wrap:wrap}
+.cat-tabs{display:flex;gap:6px;margin-bottom:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
 .cat-tab{padding:6px 14px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-size:.8rem;transition:all .2s}
 .cat-tab.active{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
 .add-section{display:flex;gap:10px;margin-bottom:20px}
