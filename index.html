@@ -3172,9 +3172,16 @@ function toggleViewMode() {
     if(icon) icon.innerHTML = '<rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>';
   }
 }
-// Restore view mode on load
+// Restore view mode on load - respect screen size
 (function(){
   var view = localStorage.getItem('hf_view');
+  var isSmall = window.innerWidth < 1024;
+  // On small screens, ignore saved desktop preference - always mobile
+  if (isSmall) {
+    document.body.classList.remove('force-desktop');
+    if (view === 'desktop') localStorage.removeItem('hf_view');
+    return;
+  }
   if (view === 'desktop') {
     document.body.classList.add('force-desktop');
     var l = document.getElementById('viewToggleLabel'); if(l) l.textContent = 'Mobile';
