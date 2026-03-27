@@ -2893,7 +2893,7 @@ function renderDevis() {
 
 function devisForm(editId) {
   var d = editId ? comptaDevisList.find(function(x){return x.id===editId}) : null;
-  devisLines = d && d.lignes ? JSON.parse(JSON.stringify(d.lignes)) : [{description:'', quantite:1, prix_unitaire:0}];
+  devisLines = d && d.lignes ? JSON.parse(JSON.stringify(d.lignes)) : [{description:'', quantite:1, unite:'', prix_unitaire:0, note:''}];
   var el = getComptaContentEl();
   var html = '<h3 style="margin:10px 0;font-size:1rem">' + (editId ? 'Modifier devis' : 'Nouveau devis') + '</h3>';
   html += '<div style="margin-bottom:10px"><label style="font-size:.8rem;color:var(--text2)">Client</label><select id="dv_client" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)">';
@@ -2902,6 +2902,10 @@ function devisForm(editId) {
   html += '</select></div>';
   html += '<div id="devisLinesContainer"></div>';
   html += '<button style="margin:8px 0;background:none;border:1px dashed var(--accent);border-radius:var(--radius);padding:6px 14px;cursor:pointer;color:var(--accent);font-size:.8rem" onclick="devisAddLine()">+ Ajouter ligne</button>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">' +
+    '<div><label style="font-size:.8rem;color:var(--text2)">Référence / Conditions</label><input id="dv_conditions" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((d&&d.conditions)?String(d.conditions).replace(/"/g,'&quot;'):'') + '"></div>' +
+    '<div><label style="font-size:.8rem;color:var(--text2)">Note générale</label><input id="dv_notes" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((d&&d.notes)?String(d.notes).replace(/"/g,'&quot;'):'') + '"></div>' +
+  '</div>';
   html += '<div id="devisTotals" style="margin:10px 0;padding:10px;background:var(--surface2);border-radius:var(--radius)"></div>';
   html += '<div style="display:flex;gap:8px;margin-top:10px"><button class="add-btn" onclick="devisSave(' + (editId||'null') + ')">Enregistrer</button><button class="logout-btn" onclick="loadDevis()">Annuler</button></div>';
   el.innerHTML = html;
@@ -2910,16 +2914,18 @@ function devisForm(editId) {
 
 function renderDevisLines() {
   var c = document.getElementById('devisLinesContainer');
-  var html = '<table style="width:100%;font-size:.85rem;border-collapse:collapse"><tr style="color:var(--text2)"><th style="text-align:left;padding:4px">Description</th><th style="width:60px">Qty</th><th style="width:90px">Prix u.</th><th style="width:80px">Total</th><th style="width:30px"></th></tr>';
+  var html = '<table style="width:100%;font-size:.85rem;border-collapse:collapse"><tr style="color:var(--text2)"><th style="text-align:left;padding:4px">Description</th><th style="width:56px">Qty</th><th style="width:70px">Unité</th><th style="width:90px">Prix u.</th><th style="width:80px">Total</th><th style="width:30px"></th></tr>';
   var ht = 0;
   devisLines.forEach(function(l, i) {
     var lt = (l.quantite||0) * (l.prix_unitaire||0);
     ht += lt;
     html += '<tr><td><input style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text)" value="' + (l.description||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].description=this.value"></td>' +
-      '<td><input type="number" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:center" value="' + (l.quantite||1) + '" onchange="devisLines[' + i + '].quantite=parseFloat(this.value);renderDevisLines()"></td>' +
-      '<td><input type="number" step="0.01" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:right" value="' + (l.prix_unitaire||0) + '" onchange="devisLines[' + i + '].prix_unitaire=parseFloat(this.value);renderDevisLines()"></td>' +
+      '<td><input type="number" step="0.01" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:center" value="' + (l.quantite||1) + '" onchange="devisLines[' + i + '].quantite=parseFloat(this.value)||0;renderDevisLines()"></td>' +
+      '<td><input style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:center" value="' + (l.unite||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].unite=this.value"></td>' +
+      '<td><input type="number" step="0.01" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);text-align:right" value="' + (l.prix_unitaire||0) + '" onchange="devisLines[' + i + '].prix_unitaire=parseFloat(this.value)||0;renderDevisLines()"></td>' +
       '<td style="text-align:right;padding:4px">CHF ' + lt.toFixed(2) + '</td>' +
       '<td><button style="background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem" onclick="devisRemoveLine(' + i + ')">x</button></td></tr>';
+    html += '<tr><td colspan="6" style="padding:4px 0 8px 0"><input placeholder="Note de ligne (taille, dimensions, référence...)" style="width:100%;padding:4px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text)" value="' + (l.note||'').replace(/"/g,'&quot;') + '" onchange="devisLines[' + i + '].note=this.value"></td></tr>';
   });
   html += '</table>';
   c.innerHTML = html;
@@ -2930,12 +2936,14 @@ function renderDevisLines() {
     '<div style="display:flex;justify-content:space-between;font-size:1.1rem;margin-top:4px"><span>TTC</span><strong style="color:var(--accent)">CHF ' + ttc.toFixed(2) + '</strong></div>';
 }
 
-function devisAddLine() { devisLines.push({description:'', quantite:1, prix_unitaire:0}); renderDevisLines(); }
+function devisAddLine() { devisLines.push({description:'', quantite:1, unite:'', prix_unitaire:0, note:''}); renderDevisLines(); }
 function devisRemoveLine(idx) { devisLines.splice(idx, 1); renderDevisLines(); }
 
 async function devisSave(editId) {
   var body = {
     client_id: parseInt(document.getElementById('dv_client').value),
+    conditions: (document.getElementById('dv_conditions')||{}).value || '',
+    notes: (document.getElementById('dv_notes')||{}).value || '',
     lignes: devisLines
   };
   if(editId) {
@@ -2997,7 +3005,7 @@ function renderFactures() {
 
 function factureForm(editId) {
   var f = editId ? comptaFactures.find(function(x){return x.id===editId}) : null;
-  var lines = f && f.lignes ? JSON.parse(JSON.stringify(f.lignes)) : [{description:'', quantite:1, prix_unitaire:0}];
+  var lines = f && f.lignes ? JSON.parse(JSON.stringify(f.lignes)) : [{description:'', quantite:1, unite:'', prix_unitaire:0, note:''}];
   devisLines = lines;
   var el = getComptaContentEl();
   var html = '<h3 style="margin:10px 0;font-size:1rem">' + (editId ? 'Modifier facture' : 'Nouvelle facture') + '</h3>';
@@ -3007,6 +3015,10 @@ function factureForm(editId) {
   html += '</select></div>';
   html += '<div id="devisLinesContainer"></div>';
   html += '<button style="margin:8px 0;background:none;border:1px dashed var(--accent);border-radius:var(--radius);padding:6px 14px;cursor:pointer;color:var(--accent);font-size:.8rem" onclick="devisAddLine()">+ Ajouter ligne</button>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">' +
+    '<div><label style="font-size:.8rem;color:var(--text2)">Référence / Conditions</label><input id="fv_conditions" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((f&&f.conditions)?String(f.conditions).replace(/"/g,'&quot;'):'') + '"></div>' +
+    '<div><label style="font-size:.8rem;color:var(--text2)">Note générale</label><input id="fv_notes" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((f&&f.notes)?String(f.notes).replace(/"/g,'&quot;'):'') + '"></div>' +
+  '</div>';
   html += '<div id="devisTotals" style="margin:10px 0;padding:10px;background:var(--surface2);border-radius:var(--radius)"></div>';
   html += '<div style="margin-top:8px"><label style="font-size:.8rem;color:var(--text2)">Joindre PDF / ticket</label><input id="fc_piece" type="file" accept="application/pdf,image/*" style="display:block;margin-top:4px"></div>';
   html += '<div style="display:flex;gap:8px;margin-top:10px"><button class="add-btn" onclick="factureSave(' + (editId||'null') + ')">Enregistrer</button><button class="logout-btn" onclick="loadFactures()">Annuler</button></div>';
@@ -3017,6 +3029,8 @@ function factureForm(editId) {
 async function factureSave(editId) {
   var body = {
     client_id: parseInt(document.getElementById('dv_client').value),
+    conditions: (document.getElementById('fv_conditions')||{}).value || '',
+    notes: (document.getElementById('fv_notes')||{}).value || '',
     lignes: devisLines
   };
   if(editId) {
