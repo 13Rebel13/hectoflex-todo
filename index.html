@@ -2769,10 +2769,30 @@ function renderComptaClients() {
   html += '<div style="display:flex;flex-direction:column;gap:8px">';
   list.forEach(function(c) {
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;justify-content:space-between;align-items:center">' +
-      '<div><strong>' + (c.nom||'') + '</strong><br><span style="font-size:.8rem;color:var(--text2)">' + (c.email||'') + ' | ' + (c.tel||'') + '</span></div>' +
-      '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px;cursor:pointer;color:var(--text2);font-size:.8rem" onclick="comptaClientForm(' + c.id + ')">Modifier</button></div>';
+      '<div style="cursor:pointer" onclick="comptaClientView(' + c.id + ')"><strong>' + (c.nom||'') + '</strong><br><span style="font-size:.8rem;color:var(--text2)">' + (c.email||'') + ' | ' + (c.tel||'') + '</span></div>' +
+      '<div style="display:flex;gap:6px">' +
+      '<button style="background:none;border:1px solid var(--accent);border-radius:var(--radius);padding:6px 12px;cursor:pointer;color:var(--accent);font-size:.8rem" onclick="comptaClientView(' + c.id + ')">Voir</button>' +
+      '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px;cursor:pointer;color:var(--text2);font-size:.8rem" onclick="comptaClientForm(' + c.id + ')">Modifier</button></div></div>';
   });
   html += '</div>';
+  el.innerHTML = html;
+}
+
+function comptaClientView(id) {
+  var c = comptaClients.find(function(x){return x.id===id});
+  if(!c) return loadComptaClients();
+  var el = getComptaContentEl();
+  function v(x){ return escHtml((x||'').toString()) || '—'; }
+  var html = '<h3 style="margin:10px 0;font-size:1rem">Client: ' + v(c.nom) + '</h3>';
+  html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+    '<div><div style="font-size:.75rem;color:var(--text2)">Nom</div><div>' + v(c.nom) + '</div></div>' +
+    '<div><div style="font-size:.75rem;color:var(--text2)">Contact</div><div>' + v(c.contact) + '</div></div>' +
+    '<div><div style="font-size:.75rem;color:var(--text2)">Email</div><div>' + v(c.email) + '</div></div>' +
+    '<div><div style="font-size:.75rem;color:var(--text2)">Téléphone</div><div>' + v(c.tel || c.telephone) + '</div></div>' +
+    '<div><div style="font-size:.75rem;color:var(--text2)">Adresse</div><div>' + v(c.adresse) + '</div></div>' +
+    '<div><div style="font-size:.75rem;color:var(--text2)">NPA / Ville</div><div>' + v(c.npa) + ' ' + v(c.ville) + '</div></div>' +
+  '</div>';
+  html += '<div style="margin-top:12px;display:flex;gap:8px"><button class="add-btn" onclick="comptaClientForm(' + c.id + ')">Modifier</button><button class="logout-btn" onclick="loadComptaClients()">Retour</button></div>';
   el.innerHTML = html;
 }
 
