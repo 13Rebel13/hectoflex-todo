@@ -794,7 +794,9 @@ function render(){
 
 
 // ===== NAVIGATION =====
-function switchNav(page, btn){
+function switchNav(page, btn, opts){
+  opts = opts || {};
+  window.currentPage = page;
   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -827,7 +829,34 @@ function switchNav(page, btn){
     else if(currentPage==='compta') { window.comptaTargetId='comptaContent'; loadComptaSynthese(); }
   }, 15000);
   if(page==='qr') renderSavedQR();
+
+  if(!opts.skipHistory && window.__hfHistoryReady) {
+    try { history.pushState({hfApp:true,page:page}, '', '#'+page); } catch(e) {}
+  }
 }
+
+
+// ===== HISTORY (smartphone back button) =====
+function hfPushState(state){
+  if(!window.__hfHistoryReady) return;
+  try { history.pushState(Object.assign({hfApp:true}, state||{}), '', '#'+(window.currentPage||'tasks')); } catch(e) {}
+}
+
+window.addEventListener('popstate', function(ev){
+  var st = ev && ev.state;
+  if(!st || !st.hfApp){
+    // Keep user inside app root instead of quitting immediately
+    switchNav(window.currentPage || 'tasks', null, {skipHistory:true});
+    return;
+  }
+  if(st.page) switchNav(st.page, null, {skipHistory:true});
+  if(st.view==='client' && st.clientId && window.currentPage==='clientsmain') {
+    comptaClientView(st.clientId, {skipHistory:true});
+  }
+  if(st.view==='clientForm' && window.currentPage==='clientsmain') {
+    comptaClientForm(st.clientId || null, {skipHistory:true});
+  }
+});
 
 function toggleThemeHF(){
   var html=document.documentElement;
@@ -2778,7 +2807,8 @@ function renderComptaClients() {
   el.innerHTML = html;
 }
 
-function comptaClientView(id) {
+function comptaClientView(id, opts) {
+  opts = opts || {};
   var c = comptaClients.find(function(x){return x.id===id});
   if(!c) return loadComptaClients();
   var el = getComptaContentEl();
@@ -2794,9 +2824,11 @@ function comptaClientView(id) {
   '</div>';
   html += '<div style="margin-top:12px;display:flex;gap:8px"><button class="add-btn" onclick="comptaClientForm(' + c.id + ')">Modifier</button><button class="logout-btn" onclick="loadComptaClients()">Retour</button></div>';
   el.innerHTML = html;
+  if(!opts.skipHistory) hfPushState({page:'clientsmain', view:'client', clientId:id});
 }
 
-function comptaClientForm(editId) {
+function comptaClientForm(editId, opts) {
+  opts = opts || {};
   var c = editId ? comptaClients.find(function(x){return x.id===editId}) : {};
   if(!c) c = {};
   var el = getComptaContentEl();
@@ -2812,6 +2844,7 @@ function comptaClientForm(editId) {
   html += '</div>';
   html += '<div style="margin-top:12px;display:flex;gap:8px"><button class="add-btn" onclick="comptaSaveClient(' + (editId||'null') + ')">Enregistrer</button><button class="logout-btn" onclick="loadComptaClients()">Annuler</button></div>';
   el.innerHTML = html;
+  if(!opts.skipHistory) hfPushState({page:'clientsmain', view:'clientForm', clientId:editId||null});
 }
 
 async function comptaSaveClient(editId) {
@@ -3564,3 +3597,4 @@ document.addEventListener('click', function(e) {
 </script>
 </body>
 </html>
+window.__hfHistoryReady = true;
