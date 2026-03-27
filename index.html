@@ -83,6 +83,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .dtf-pv-box{max-width:360px}
 .dtf-pv-stage{position:relative;overflow:hidden;padding:8px;border-radius:.5rem}
 
+@media(max-width:1023px){#viewToggle{display:none!important}}
 #pageDtf .list-tab.active{background:#E30613;color:#fff;border-color:#E30613}
 #pageDtf .list-tab:hover{border-color:#E30613}
 
@@ -3157,7 +3158,9 @@ function toggleViewMode() {
   var body = document.body;
   var label = document.getElementById('viewToggleLabel');
   var icon = document.getElementById('viewToggleIcon');
-  var isDesktop = body.classList.contains('force-desktop') || (!body.classList.contains('force-mobile') && window.innerWidth >= 768);
+  // On small screens, don't allow desktop mode
+  if (window.innerWidth < 1024) { alert('Mode PC disponible uniquement sur ordinateur'); return; }
+  var isDesktop = body.classList.contains('force-desktop') || (!body.classList.contains('force-mobile') && window.innerWidth >= 1024);
   if (isDesktop) {
     body.classList.remove('force-desktop');
     body.classList.add('force-mobile');
