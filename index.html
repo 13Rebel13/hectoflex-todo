@@ -840,7 +840,13 @@ async function saveProject(project) {
 }
 
 async function updateProject(id, data) {
-  await fetch(PROJ_API+'/projects/'+id, {method:'PUT', headers:{'Authorization':'Basic '+token,'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  var r = await fetch(PROJ_API+'/projects/'+id, {method:'PUT', headers:{'Authorization':'Basic '+token,'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  if(!r.ok) {
+    var msg = 'Erreur mise à jour ('+r.status+')';
+    try { var j = await r.json(); if(j && j.error) msg += ': '+j.error; } catch(e){}
+    throw new Error(msg);
+  }
+  return await r.json();
 }
 
 async function deleteProjectAPI(id) {
@@ -1562,8 +1568,15 @@ async function leadDeleteAndBack(id) {
 }
 
 async function leadSaveNotes(id) {
-  var notes = document.getElementById('leadNotes').value;
-  await updateProject(id, {notes: notes});
+  try {
+    var notes = document.getElementById('leadNotes').value;
+    setSyncState('syncing');
+    await updateProject(id, {notes: notes});
+    setSyncState('ok');
+  } catch(e) {
+    setSyncState('error');
+    alert('Échec enregistrement des notes: '+e.message);
+  }
 }
 
 
@@ -1624,10 +1637,18 @@ async function leadRemoveCost(leadId, idx) {
 }
 
 async function leadSaveFinance(leadId) {
-  var markup = parseFloat(document.getElementById('leadMarkup').value)||0;
-  var montant = document.getElementById('leadPrixClient').value;
-  await updateProject(leadId, {markup:markup, montant:montant});
-  leadShowDetail(leadId);
+  try {
+    var markup = parseFloat(document.getElementById('leadMarkup').value)||0;
+    var montant = document.getElementById('leadPrixClient').value;
+    setSyncState('syncing');
+    await updateProject(leadId, {markup:markup, montant:montant});
+    setSyncState('ok');
+    await loadLeads();
+    await leadShowDetail(leadId);
+  } catch(e) {
+    setSyncState('error');
+    alert('Échec enregistrement finance: '+e.message);
+  }
 }
 
 
@@ -1646,7 +1667,11 @@ async function leadUploadDoc(leadId, input) {
         body:JSON.stringify({data:b64, filename:file.name, type:file.type})
       });
       var res = await r.json();
-      if(res.ok) { setSyncState('ok'); leadShowDetail(leadId); }
+      if(res.ok) { 
+        setSyncState('ok');
+        await loadLeads();
+        await leadShowDetail(leadId);
+      }
       else { setSyncState('error'); alert('Erreur: '+(res.error||'upload failed')); }
     };
     reader.readAsDataURL(file);
@@ -1656,8 +1681,21 @@ async function leadUploadDoc(leadId, input) {
 
 async function leadRemoveDoc(leadId, docIdx) {
   if(!confirm('Supprimer ce document?')) return;
-  await fetch(PROJ_API+'/projects/'+leadId+'/files/'+docIdx, {method:'DELETE', headers:{'Authorization':'Basic '+token}});
-  leadShowDetail(leadId);
+  try {
+    setSyncState('syncing');
+    var r = await fetch(PROJ_API+'/projects/'+leadId+'/files/'+docIdx, {method:'DELETE', headers:{'Authorization':'Basic '+token}});
+    if(!r.ok) {
+      var msg = 'Erreur suppression ('+r.status+')';
+      try { var j = await r.json(); if(j && j.error) msg += ': '+j.error; } catch(e){}
+      throw new Error(msg);
+    }
+    setSyncState('ok');
+    await loadLeads();
+    await leadShowDetail(leadId);
+  } catch(e) {
+    setSyncState('error');
+    alert('Échec suppression document: '+e.message);
+  }
 }
 
 async function leadToProject(id) {
