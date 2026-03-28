@@ -2967,7 +2967,7 @@ function generateComptaPdf(docType, obj, client) {
   doc.setFont('helvetica','normal');
   doc.setFontSize(7.5);
   doc.setTextColor(107,114,128);
-  doc.text('HectoFlex Customs Sarl', L+W, 10, {align:'right'});
+  doc.text('HectoFlex Customs Sàrl', L+W, 10, {align:'right'});
   doc.text('Ch. des Champs-Courbes 5, 1024 Ecublens', L+W, 13.8, {align:'right'});
   doc.text('info@hectoflex.ch | +41 76 334 13 06', L+W, 17.6, {align:'right'});
 
@@ -3070,7 +3070,7 @@ function generateComptaPdf(docType, obj, client) {
       doc.line(L, 282, L+W, 282);
       doc.setTextColor(107,114,128);
       doc.setFontSize(6);
-      doc.text('HectoFlex Customs Sarl | Merci pour votre confiance !', pageW/2, 287, {align:'center'});
+      doc.text('HectoFlex Customs Sàrl | Merci pour votre confiance !', pageW/2, 287, {align:'center'});
       doc.addPage();
       ry = 15;
     }
@@ -3172,7 +3172,7 @@ function generateComptaPdf(docType, obj, client) {
   doc.setTextColor(107,114,128);
   doc.setFont('helvetica','normal');
   doc.setFontSize(6);
-  doc.text('HectoFlex Customs Sarl | IBAN CH00 0000 0000 0000 0000 0 | Merci pour votre confiance !', pageW/2, 287, {align:'center'});
+  doc.text('HectoFlex Customs Sàrl | IBAN CH00 0000 0000 0000 0000 0 | Merci pour votre confiance !', pageW/2, 287, {align:'center'});
 
   // Download
   var filename = (docType==='DEVIS'?'Devis_':'Facture_') + num.replace(/[^a-zA-Z0-9_-]/g,'_') + '.pdf';
