@@ -62,6 +62,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   #pageSuppliers{margin-left:120px!important;padding:10px 14px!important}
   #pageDtf{margin-left:120px!important;padding:10px 14px!important}
   #pageCompta{margin-left:120px!important;padding:10px 14px!important}
+  #pageHistorique{margin-left:120px!important;padding:10px 14px!important}
   body{padding-bottom:0!important}
 }
 .container{max-width:800px;margin:0 auto;padding:20px}
@@ -167,7 +168,7 @@ body.force-desktop .header{margin-left:120px!important}
 .force-mobile .bottom-nav button{padding:6px 10px!important;width:auto!important;text-align:center!important;font-size:.7rem!important;flex-direction:column!important;align-items:center!important;gap:3px!important;min-width:60px!important;flex-shrink:0!important}
 .force-mobile .bottom-nav button.active{background:none!important;border-left:none!important;color:var(--accent)!important}
 .force-mobile .sidebar-logo{display:none!important}
-.force-mobile .container,.force-mobile #pageCustoms,.force-mobile #pageProjects,.force-mobile #pageLeads,.force-mobile #pageSuppliers,.force-mobile #pageDtf,.force-mobile #pageCompta{margin-left:0!important}
+.force-mobile .container,.force-mobile #pageCustoms,.force-mobile #pageProjects,.force-mobile #pageLeads,.force-mobile #pageSuppliers,.force-mobile #pageDtf,.force-mobile #pageCompta,.force-mobile #pageHistorique{margin-left:0!important}
 .force-mobile .header{margin-left:0!important}
 .force-mobile .container{padding-bottom:70px!important;max-width:800px!important;width:100%!important}
 
@@ -267,7 +268,8 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
 <button onclick="switchNav('devismain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg></span> Devis</button>
 <button onclick="switchNav('facturesmain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span> Factures</button>
 <button onclick="switchNav('clientsmain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg></span> Clients</button>
-<button onclick="switchNav('compta',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/></svg></span> Compta</button></div>
+<button onclick="switchNav('compta',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/></svg></span> Compta</button>
+<button onclick="switchNav('historique',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> Historique</button></div>
 <div class="container">
 <div class="page active" id="pageTasks">
 <div class="list-tabs">
@@ -647,6 +649,14 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
 <div id="clientsMainContent"></div>
 </div>
 
+<div class="page" id="pageHistorique" style="padding:0 16px">
+<div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Historique d'activit&eacute;</h2>
+</div>
+<div id="historiqueContent"></div>
+</div>
+
 <div class="page" id="pageCompta" style="padding:0 16px">
 <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
@@ -756,7 +766,7 @@ function switchNav(page, btn, opts){
   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':page==='suppliers'?'pageSuppliers':page==='dtf'?'pageDtf':page==='devismain'?'pageDevisMain':page==='facturesmain'?'pageFacturesMain':page==='clientsmain'?'pageClientsMain':page==='compta'?'pageCompta':'pageCustoms';
+  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':page==='suppliers'?'pageSuppliers':page==='dtf'?'pageDtf':page==='devismain'?'pageDevisMain':page==='facturesmain'?'pageFacturesMain':page==='clientsmain'?'pageClientsMain':page==='compta'?'pageCompta':page==='historique'?'pageHistorique':'pageCustoms';
   var el = document.getElementById(target);
   if(el) el.classList.add('active');
   // Hide container when showing pages outside it
@@ -770,6 +780,7 @@ function switchNav(page, btn, opts){
   if(page==='facturesmain') { window.comptaTargetId='facturesMainContent'; loadFactures(); }
   if(page==='clientsmain') { window.comptaTargetId='clientsMainContent'; loadComptaClients(); }
   if(page==='compta') { window.comptaTargetId='comptaContent'; comptaInit(); }
+  if(page==='historique') renderHistorique();
   if(page==='projects') loadProjects();
   if(page==='leads') loadLeads();
   // Auto-refresh: reload data for active tab every 15s
@@ -2731,7 +2742,8 @@ function renderDevis() {
   var el = getComptaContentEl();
   var statusColors = {brouillon:'var(--text2)',envoye:'var(--accent)',accepte:'var(--green)',refuse:'var(--red)',facture:'#9333ea'};
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Devis (' + comptaDevisList.length + ')</h3><button class="add-btn" onclick="devisForm()">+ Nouveau</button></div>';
-  html += '<div style="display:flex;flex-direction:column;gap:8px">';
+  html += '<div style="margin-bottom:8px"><input id="devisSearch" type="text" placeholder="Rechercher par numéro ou client..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" oninput="filterDevisList()"></div>';
+  html += '<div id="devisListContainer" style="display:flex;flex-direction:column;gap:8px">';
   comptaDevisList.forEach(function(d) {
     var cl = comptaClients.find(function(c){return c.id===d.client_id});
     var color = statusColors[d.status] || 'var(--text2)';
@@ -2742,7 +2754,14 @@ function renderDevis() {
       '<div style="margin-top:8px;display:flex;gap:6px">' +
       '<button style="background:none;border:1px solid #0ea5e9;border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:#0ea5e9;font-size:.75rem" onclick="downloadDevisPdf(' + d.id + ')">Télécharger</button>' +
       '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:.75rem" onclick="devisForm(' + d.id + ')">Modifier</button>';
-    if(d.status !== 'facture') {
+    if(d.status === 'brouillon' || !d.status) {
+      html += '<button style="background:none;border:1px solid var(--accent);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--accent);font-size:.75rem" onclick="devisChangeStatus(' + d.id + ',\'envoye\')">Envoyer</button>';
+    }
+    if(d.status === 'envoye') {
+      html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="devisChangeStatus(' + d.id + ',\'accepte\')">Accepter</button>';
+      html += '<button style="background:none;border:1px solid var(--red);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--red);font-size:.75rem" onclick="devisChangeStatus(' + d.id + ',\'refuse\')">Refuser</button>';
+    }
+    if(d.status === 'accepte') {
       html += '<button style="background:none;border:1px solid #9333ea;border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:#9333ea;font-size:.75rem" onclick="devisToFacture(' + d.id + ')">Facturer</button>';
     }
     html += '</div></div>';
@@ -2762,6 +2781,11 @@ function devisForm(editId) {
   html += '</select></div>';
   html += '<div id="devisLinesContainer"></div>';
   html += '<button style="margin:8px 0;background:none;border:1px dashed var(--accent);border-radius:var(--radius);padding:6px 14px;cursor:pointer;color:var(--accent);font-size:.8rem" onclick="devisAddLine()">+ Ajouter ligne</button>';
+  var todayStr = new Date().toISOString().slice(0,10);
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">' +
+    '<div><label style="font-size:.8rem;color:var(--text2)">Date du devis</label><input id="dv_date" type="date" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((d&&d.date)?String(d.date).slice(0,10):todayStr) + '"></div>' +
+    '<div><label style="font-size:.8rem;color:var(--text2)">Validité</label><input id="dv_validite" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((d&&d.validite)?String(d.validite).replace(/"/g,'&quot;'):'30 jours') + '"></div>' +
+  '</div>';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">' +
     '<div><label style="font-size:.8rem;color:var(--text2)">Référence / Conditions</label><input id="dv_conditions" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((d&&d.conditions)?String(d.conditions).replace(/"/g,'&quot;'):'') + '"></div>' +
     '<div><label style="font-size:.8rem;color:var(--text2)">Note générale</label><input id="dv_notes" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((d&&d.notes)?String(d.notes).replace(/"/g,'&quot;'):'') + '"></div>' +
@@ -2832,6 +2856,8 @@ function devisRemoveLine(idx) { devisLines.splice(idx, 1); renderDevisLines(); }
 async function devisSave(editId) {
   var body = {
     client_id: parseInt(document.getElementById('dv_client').value),
+    date: (document.getElementById('dv_date')||{}).value || '',
+    validite: (document.getElementById('dv_validite')||{}).value || '30 jours',
     conditions: (document.getElementById('dv_conditions')||{}).value || '',
     notes: (document.getElementById('dv_notes')||{}).value || '',
     lignes: devisLines
@@ -2839,14 +2865,17 @@ async function devisSave(editId) {
   if(editId) {
     await apiFetch('/devis/' + editId, {method:'PUT', body:JSON.stringify(body)});
   } else {
-    await apiFetch('/devis', {method:'POST', body:JSON.stringify(body)});
+    var res = await apiFetch('/devis', {method:'POST', body:JSON.stringify(body)});
+    if(res && res.numero) addHistorique('devis_cree', res.numero, 'Devis créé');
   }
   loadDevis();
 }
 
 async function devisToFacture(id) {
   if(!confirm('Convertir ce devis en facture ?')) return;
+  var d = comptaDevisList.find(function(x){return x.id===id});
   await apiFetch('/devis/' + id + '/invoice', {method:'POST'});
+  if(d) addHistorique('devis_facture', d.numero||('D-'+id), 'Converti en facture');
   loadDevis();
 }
 
@@ -2873,7 +2902,8 @@ function renderFactures() {
   var el = getComptaContentEl();
   var statusColors = {brouillon:'var(--text2)',envoyee:'var(--accent)',payee:'var(--green)',en_retard:'var(--red)'};
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Factures (' + comptaFactures.length + ')</h3><button class="add-btn" onclick="factureForm()">+ Nouvelle</button></div>';
-  html += '<div style="display:flex;flex-direction:column;gap:8px">';
+  html += '<div style="margin-bottom:8px"><input id="facturesSearch" type="text" placeholder="Rechercher par numéro ou client..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" oninput="filterFacturesList()"></div>';
+  html += '<div id="facturesListContainer" style="display:flex;flex-direction:column;gap:8px">';
   comptaFactures.forEach(function(f) {
     var cl = comptaClients.find(function(c){return c.id===f.client_id});
     var color = statusColors[f.status] || 'var(--text2)';
@@ -2886,7 +2916,10 @@ function renderFactures() {
     html += '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">';
     html += '<button style="background:none;border:1px solid #0ea5e9;border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:#0ea5e9;font-size:.75rem" onclick="downloadFacturePdf(' + f.id + ')">Télécharger</button>';
     html += '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:.75rem" onclick="factureForm(' + f.id + ')">Modifier</button>';
-    if(f.status !== 'payee') html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="facturePay(' + f.id + ')">Encaisser</button>';
+    if(f.status === 'brouillon' || !f.status) {
+      html += '<button style="background:none;border:1px solid var(--accent);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--accent);font-size:.75rem" onclick="factureChangeStatus(' + f.id + ',\'envoyee\')">Envoyer</button>';
+    }
+    if(f.status === 'envoyee') html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="facturePay(' + f.id + ')">Encaisser</button>';
     html += '</div>';
     html += '</div>';
   });
@@ -2906,6 +2939,12 @@ function factureForm(editId) {
   html += '</select></div>';
   html += '<div id="devisLinesContainer"></div>';
   html += '<button style="margin:8px 0;background:none;border:1px dashed var(--accent);border-radius:var(--radius);padding:6px 14px;cursor:pointer;color:var(--accent);font-size:.8rem" onclick="devisAddLine()">+ Ajouter ligne</button>';
+  var todayStr2 = new Date().toISOString().slice(0,10);
+  var ech30 = new Date(Date.now()+30*86400000).toISOString().slice(0,10);
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">' +
+    '<div><label style="font-size:.8rem;color:var(--text2)">Date de facture</label><input id="fv_date" type="date" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((f&&f.date_facture)?String(f.date_facture).slice(0,10):todayStr2) + '"></div>' +
+    '<div><label style="font-size:.8rem;color:var(--text2)">Échéance</label><input id="fv_echeance" type="date" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((f&&f.echeance)?String(f.echeance).slice(0,10):ech30) + '"></div>' +
+  '</div>';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">' +
     '<div><label style="font-size:.8rem;color:var(--text2)">Référence / Conditions</label><input id="fv_conditions" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((f&&f.conditions)?String(f.conditions).replace(/"/g,'&quot;'):'') + '"></div>' +
     '<div><label style="font-size:.8rem;color:var(--text2)">Note générale</label><input id="fv_notes" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" value="' + ((f&&f.notes)?String(f.notes).replace(/"/g,'&quot;'):'') + '"></div>' +
@@ -2920,6 +2959,8 @@ function factureForm(editId) {
 async function factureSave(editId) {
   var body = {
     client_id: parseInt(document.getElementById('dv_client').value),
+    date_facture: (document.getElementById('fv_date')||{}).value || '',
+    echeance: (document.getElementById('fv_echeance')||{}).value || '',
     conditions: (document.getElementById('fv_conditions')||{}).value || '',
     notes: (document.getElementById('fv_notes')||{}).value || '',
     lignes: devisLines
@@ -2937,7 +2978,8 @@ async function factureSave(editId) {
   if(editId) {
     await apiFetch('/factures/' + editId, {method:'PUT', body:JSON.stringify(body)});
   } else {
-    await apiFetch('/factures', {method:'POST', body:JSON.stringify(body)});
+    var fres = await apiFetch('/factures', {method:'POST', body:JSON.stringify(body)});
+    if(fres && fres.numero) addHistorique('facture_creee', fres.numero, 'Facture créée');
   }
   loadFactures();
 }
@@ -3070,7 +3112,7 @@ function generateComptaPdf(docType, obj, client) {
       doc.line(L, 282, L+W, 282);
       doc.setTextColor(107,114,128);
       doc.setFontSize(6);
-      doc.text('HectoFlex Customs Sàrl | Merci pour votre confiance !', pageW/2, 287, {align:'center'});
+      doc.text('HectoFlex Customs Sàrl | CHE-021.387.916 TVA | Merci pour votre confiance !', pageW/2, 287, {align:'center'});
       doc.addPage();
       ry = 15;
     }
@@ -3172,7 +3214,7 @@ function generateComptaPdf(docType, obj, client) {
   doc.setTextColor(107,114,128);
   doc.setFont('helvetica','normal');
   doc.setFontSize(6);
-  doc.text('HectoFlex Customs Sàrl | IBAN CH39 0900 0000 1605 7072 2 | Merci pour votre confiance !', pageW/2, 287, {align:'center'});
+  doc.text('HectoFlex Customs Sàrl | CHE-021.387.916 TVA | IBAN CH39 0900 0000 1605 7072 2 | Merci pour votre confiance !', pageW/2, 287, {align:'center'});
 
   // Download
   var filename = (docType==='DEVIS'?'Devis_':'Facture_') + num.replace(/[^a-zA-Z0-9_-]/g,'_') + '.pdf';
@@ -3202,12 +3244,14 @@ function downloadFacturePdf(id){
   var f = (comptaFactures||[]).find(function(x){return x.id===id});
   if(!f) return alert('Facture introuvable');
   var cl = (comptaClients||[]).find(function(c){return c.id===f.client_id});
-  generateComptaPdf('FACTURE', f, cl);
+  generateFacturePdfWithQR(f, cl);
 }
 
 async function facturePay(id) {
-  if(!confirm('Marquer cette facture comme payee ?')) return;
+  if(!confirm('Marquer cette facture comme payée ?')) return;
+  var f = comptaFactures.find(function(x){return x.id===id});
   await apiFetch('/factures/' + id + '/pay', {method:'POST'});
+  if(f) addHistorique('facture_payee', f.numero||('F-'+id), 'Facture encaissée');
   loadFactures();
 }
 
@@ -3763,6 +3807,278 @@ document.addEventListener('click', function(e) {
     });
   }
 });
+
+// --- Historique d'activité ---
+function addHistorique(type, ref, detail) {
+  var hist = JSON.parse(localStorage.getItem('hf_historique') || '[]');
+  hist.push({date: new Date().toISOString(), type: type, ref: ref || '', detail: detail || ''});
+  localStorage.setItem('hf_historique', JSON.stringify(hist));
+}
+
+function renderHistorique() {
+  var el = document.getElementById('historiqueContent');
+  if(!el) return;
+  var hist = JSON.parse(localStorage.getItem('hf_historique') || '[]');
+  hist.sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+  var icons = {
+    devis_cree: {icon:'📝', color:'var(--blue)', label:'Devis créé'},
+    devis_envoye: {icon:'📤', color:'var(--accent)', label:'Devis envoyé'},
+    devis_accepte: {icon:'✅', color:'var(--green)', label:'Devis accepté'},
+    devis_refuse: {icon:'❌', color:'var(--red)', label:'Devis refusé'},
+    devis_facture: {icon:'🔄', color:'#9333ea', label:'Converti en facture'},
+    facture_creee: {icon:'🧾', color:'var(--blue)', label:'Facture créée'},
+    facture_envoyee: {icon:'📤', color:'var(--accent)', label:'Facture envoyée'},
+    facture_payee: {icon:'💰', color:'var(--green)', label:'Facture payée'}
+  };
+  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:.85rem;color:var(--text2)">' + hist.length + " entrées</span><button class=\"logout-btn\" onclick=\"if(confirm('Vider l\\\\x27historique ?')){localStorage.removeItem('hf_historique');renderHistorique()}\">Vider l'historique</button></div>";
+  if(!hist.length) {
+    html += '<p style="color:var(--text2);text-align:center;margin-top:40px">Aucune activité enregistrée</p>';
+  } else {
+    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+    hist.forEach(function(h) {
+      var info = icons[h.type] || {icon:'📋', color:'var(--text2)', label:h.type};
+      var dt = new Date(h.date);
+      var dateStr = dt.toLocaleDateString('fr-CH') + ' ' + dt.toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'});
+      html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;align-items:center;gap:10px">' +
+        '<span style="font-size:1.3rem">' + info.icon + '</span>' +
+        '<div style="flex:1"><div style="font-size:.85rem;font-weight:600;color:' + info.color + '">' + info.label + ' \u2014 ' + (h.ref||'') + '</div>' +
+        '<div style="font-size:.78rem;color:var(--text2)">' + (h.detail||'') + ' \u00b7 ' + dateStr + '</div></div></div>';
+    });
+    html += '</div>';
+  }
+  el.innerHTML = html;
+}
+
+async function devisChangeStatus(id, newStatus) {
+  var d = comptaDevisList.find(function(x){return x.id===id});
+  var labels = {envoye:'Envoyé',accepte:'Accepté',refuse:'Refusé'};
+  await apiFetch('/devis/' + id, {method:'PUT', body:JSON.stringify({status: newStatus})});
+  var cl = d ? comptaClients.find(function(c){return c.id===d.client_id}) : null;
+  addHistorique('devis_' + newStatus, (d&&d.numero)||('D-'+id), (labels[newStatus]||newStatus) + (cl?' \u2014 '+cl.nom:''));
+  loadDevis();
+}
+
+async function factureChangeStatus(id, newStatus) {
+  var f = comptaFactures.find(function(x){return x.id===id});
+  var labels = {envoyee:'Envoyée'};
+  await apiFetch('/factures/' + id, {method:'PUT', body:JSON.stringify({status: newStatus})});
+  var cl = f ? comptaClients.find(function(c){return c.id===f.client_id}) : null;
+  addHistorique('facture_' + newStatus, (f&&f.numero)||('F-'+id), (labels[newStatus]||newStatus) + (cl?' \u2014 '+cl.nom:''));
+  loadFactures();
+}
+
+function filterDevisList() {
+  var q = (document.getElementById('devisSearch')||{}).value || '';
+  q = q.toLowerCase();
+  var container = document.getElementById('devisListContainer');
+  if(!container) return;
+  var cards = container.children;
+  for(var i=0; i<comptaDevisList.length && i<cards.length; i++) {
+    var d = comptaDevisList[i];
+    var cl = comptaClients.find(function(c){return c.id===d.client_id});
+    var searchStr = ((d.numero||'D-'+d.id) + ' ' + (cl?cl.nom:'')).toLowerCase();
+    cards[i].style.display = (!q || searchStr.indexOf(q) >= 0) ? '' : 'none';
+  }
+}
+
+function filterFacturesList() {
+  var q = (document.getElementById('facturesSearch')||{}).value || '';
+  q = q.toLowerCase();
+  var container = document.getElementById('facturesListContainer');
+  if(!container) return;
+  var cards = container.children;
+  for(var i=0; i<comptaFactures.length && i<cards.length; i++) {
+    var f = comptaFactures[i];
+    var cl = comptaClients.find(function(c){return c.id===f.client_id});
+    var searchStr = ((f.numero||'F-'+f.id) + ' ' + (cl?cl.nom:'')).toLowerCase();
+    cards[i].style.display = (!q || searchStr.indexOf(q) >= 0) ? '' : 'none';
+  }
+}
+
+async function generateFacturePdfWithQR(obj, client) {
+  if(!(window.jspdf && window.jspdf.jsPDF)) { alert('Librairie PDF non chargee. Recharge la page.'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'mm', format:'a4'});
+  var W = 186, L = 12, pageW = 210;
+  function safe(v){ return v==null?'':String(v); }
+
+  doc.setFillColor(255,115,0); doc.rect(0, 0, 210, 3, 'F');
+  try { doc.addImage(_HF_LOGO_B64, 'PNG', L, 5, 40, 28.6); } catch(e){}
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(107,114,128);
+  doc.text('HectoFlex Customs Sàrl', L+W, 10, {align:'right'});
+  doc.text('Ch. des Champs-Courbes 5, 1024 Ecublens', L+W, 13.8, {align:'right'});
+  doc.text('info@hectoflex.ch | +41 76 563 05 21', L+W, 17.6, {align:'right'});
+  doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor(26,26,46);
+  doc.text('FACTURE', pageW/2, 33, {align:'center'});
+  doc.setDrawColor(255,115,0); doc.setLineWidth(0.5); doc.line(L, 38, L+W, 38);
+
+  var y = 41;
+  doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(255,115,0);
+  doc.text('INFORMATIONS', L, y+3);
+  var num = safe(obj.numero || ('F-' + obj.id));
+  var dateStr = safe(obj.date || obj.date_facture || '');
+  var echStr = safe(obj.echeance || '30 jours');
+  var infos = [['N. Document', num], ['Date', dateStr], ['Echeance', echStr]];
+  for(var j=0; j<infos.length; j++){
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(107,114,128);
+    doc.text(infos[j][0], L, y+8+j*5);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(26,26,46);
+    doc.text(infos[j][1], L+22, y+8+j*5);
+  }
+
+  var cx = L+95, cw = W-95;
+  doc.setFillColor(249,249,251); doc.rect(cx, y-1, cw, 22, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(255,115,0);
+  doc.text('CLIENT', cx+3, y+3);
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(26,26,46);
+  var clientName = safe((client&&client.nom) || obj.client_name || '-');
+  doc.text(clientName, cx+3, y+8);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(107,114,128);
+  var addr = safe((client&&client.adresse)||'');
+  var npa = safe((client&&client.npa)||'');
+  var ville = safe((client&&client.ville)||'');
+  var city = (npa + ' ' + ville).trim();
+  var fullAddr = addr + (city ? ', ' + city : '');
+  doc.text(fullAddr || '', cx+3, y+13);
+  doc.text(safe((client&&client.email) || obj.client_email || ''), cx+3, y+17.5);
+
+  var ty = 67;
+  var cols = [72, 16, 20, 38, 40];
+  var headers = ['Description', 'Qte', 'Unite', 'Prix unit.', 'Total'];
+  var aligns = ['left', 'center', 'center', 'right', 'right'];
+  doc.setFillColor(26,26,46); doc.rect(L, ty, W, 7, 'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+  var hx = L;
+  for(var i=0; i<5; i++){
+    var ha = aligns[i]==='right' ? hx+cols[i]-2 : (aligns[i]==='center' ? hx+cols[i]/2 : hx+2);
+    var ho = aligns[i]==='right' ? {align:'right'} : (aligns[i]==='center' ? {align:'center'} : {});
+    doc.text(headers[i], ha, ty+5, ho); hx += cols[i];
+  }
+
+  var ry = ty + 7, subtotal = 0;
+  var lignes = obj.lignes || [];
+  for(var j=0; j<lignes.length; j++){
+    var li = lignes[j]; var q = parseFloat(li.quantite||0); var pu = parseFloat(li.prix_unitaire||0);
+    var lt = q * pu; subtotal += lt; var rh = li.note ? 11 : 6.5;
+    if(ry + rh > 175){ doc.addPage(); ry = 15; }
+    if(j%2===0){ doc.setFillColor(249,249,251); doc.rect(L, ry, W, rh, 'F'); }
+    doc.setTextColor(26,26,46); doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    var rx = L;
+    doc.text(safe(li.description||'-').slice(0,55), rx+2, ry+4.5); rx += cols[0];
+    doc.text(String(q||0), rx+cols[1]/2, ry+4.5, {align:'center'}); rx += cols[1];
+    doc.text(safe(li.unite||'pce'), rx+cols[2]/2, ry+4.5, {align:'center'}); rx += cols[2];
+    doc.text('CHF ' + pu.toFixed(2), rx+cols[3]-2, ry+4.5, {align:'right'}); rx += cols[3];
+    doc.text('CHF ' + lt.toFixed(2), rx+cols[4]-2, ry+4.5, {align:'right'});
+    if(li.note){ doc.setFontSize(6.5); doc.setTextColor(107,114,128); doc.text('  ' + safe(li.note).slice(0,80), L+2, ry+9); }
+    ry += rh;
+  }
+
+  ry += 4;
+  var tx = L + cols[0] + cols[1] + cols[2]; var lw = cols[3], vw = cols[4];
+  var tva = subtotal * 0.081; var ttc = subtotal + tva;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.setTextColor(107,114,128); doc.text('Sous-total HT', tx+lw-2, ry+4, {align:'right'});
+  doc.setTextColor(26,26,46); doc.text('CHF ' + subtotal.toFixed(2), tx+lw+vw-2, ry+4, {align:'right'}); ry += 5.5;
+  doc.setTextColor(107,114,128); doc.text('TVA 8.1%', tx+lw-2, ry+4, {align:'right'});
+  doc.setTextColor(26,26,46); doc.text('CHF ' + tva.toFixed(2), tx+lw+vw-2, ry+4, {align:'right'}); ry += 5.5;
+  doc.setFillColor(255,115,0); doc.rect(tx, ry, lw+vw, 9, 'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('TOTAL TTC', tx+lw-2, ry+6.5, {align:'right'});
+  doc.text('CHF ' + ttc.toFixed(2), tx+lw+vw-2, ry+6.5, {align:'right'}); ry += 13;
+
+  if(obj.conditions || obj.notes){ doc.setDrawColor(224,224,229); doc.line(L, ry, L+W, ry); ry += 3; }
+  if(obj.conditions){
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(255,115,0);
+    doc.text('CONDITIONS', L, ry+3); ry += 4;
+    doc.setFont('helvetica','normal'); doc.setTextColor(107,114,128);
+    var condLines = doc.splitTextToSize(safe(obj.conditions), W); doc.text(condLines, L, ry+3); ry += condLines.length * 3.5 + 2;
+  }
+  if(obj.notes){
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(255,115,0);
+    doc.text('NOTES', L, ry+3); ry += 4;
+    doc.setFont('helvetica','normal'); doc.setTextColor(107,114,128);
+    var noteLines = doc.splitTextToSize(safe(obj.notes), W); doc.text(noteLines, L, ry+3);
+  }
+
+  // QR-BILL
+  var qrY = 192;
+  doc.setDrawColor(0,0,0); doc.setLineWidth(0.3);
+  doc.setLineDashPattern([1.5,1.5],0);
+  doc.line(0, qrY, 210, qrY); doc.line(62, qrY, 62, 297);
+  doc.setLineDashPattern([],0);
+  doc.setFontSize(8); doc.setTextColor(0,0,0); doc.text('\u2702', 1, qrY-1);
+
+  var lx = 5, ly = qrY+5;
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.text('Récépissé', lx, ly);
+  ly += 7; doc.setFont('helvetica','bold'); doc.setFontSize(6); doc.text('Compte / Payable à', lx, ly);
+  ly += 3.5; doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text('CH39 0900 0000 1605 7072 2', lx, ly); ly += 3.5;
+  doc.text('HectoFlex Customs Sàrl', lx, ly); ly += 3.5;
+  doc.text('Chemin des Champs Courbes 5', lx, ly); ly += 3.5;
+  doc.text('1024 Ecublens', lx, ly); ly += 6;
+  doc.setFont('helvetica','bold'); doc.setFontSize(6); doc.text('Payable par', lx, ly);
+  ly += 3.5; doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text(clientName, lx, ly); ly += 3.5;
+  if(addr) { doc.text(addr, lx, ly); ly += 3.5; }
+  if(city) { doc.text(city, lx, ly); ly += 3.5; }
+  var bottomY = 297-15;
+  doc.setFont('helvetica','bold'); doc.setFontSize(6);
+  doc.text('Monnaie', lx, bottomY); doc.text('Montant', lx+25, bottomY);
+  bottomY += 3.5; doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text('CHF', lx, bottomY); doc.text(ttc.toFixed(2), lx+25, bottomY);
+  bottomY += 5; doc.setFont('helvetica','bold'); doc.setFontSize(6); doc.text('Point de dépôt', lx, bottomY);
+
+  var rx2 = 67, ry2 = qrY+5;
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(0,0,0);
+  doc.text('Section de paiement', rx2, ry2);
+
+  var spcData = 'SPC\n0200\n1\nCH3909000000160570722\nK\nHectoFlex Customs Sàrl\nChemin des Champs Courbes 5\n1024 Ecublens\n\n\nCH\n\n\n\n\n\n\n' + ttc.toFixed(2) + '\nCHF\nK\n' + clientName + '\n' + addr + '\n' + city + '\n\n\nCH\nNON\n\nFacture ' + num + '\nEPD';
+
+  try {
+    var qrDataUrl = await QRCode.toDataURL(spcData, {width:180, margin:0, errorCorrectionLevel:'M'});
+    var qrSize = 46, qrX = rx2, qrYpos = ry2+5;
+    doc.addImage(qrDataUrl, 'PNG', qrX, qrYpos, qrSize, qrSize);
+    var crossSize = 7;
+    var crossX = qrX+qrSize/2-crossSize/2, crossY2 = qrYpos+qrSize/2-crossSize/2;
+    doc.setFillColor(255,255,255); doc.rect(crossX, crossY2, crossSize, crossSize, 'F');
+    doc.setFillColor(0,0,0); doc.rect(crossX+0.8, crossY2+0.8, crossSize-1.6, crossSize-1.6, 'F');
+    doc.setFillColor(255,255,255);
+    var barW=(crossSize-1.6)*0.3, barH=(crossSize-1.6)*0.7;
+    var cxC=crossX+crossSize/2, cyC=crossY2+crossSize/2;
+    doc.rect(cxC-barW/2, cyC-barH/2, barW, barH, 'F');
+    doc.rect(cxC-barH/2, cyC-barW/2, barH, barW, 'F');
+  } catch(e) { console.error('QR failed:', e); }
+
+  var infoX = rx2+52, infoY = ry2+8;
+  doc.setFont('helvetica','bold'); doc.setFontSize(6); doc.setTextColor(0,0,0);
+  doc.text('Compte / Payable à', infoX, infoY); infoY += 3.5;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text('CH39 0900 0000 1605 7072 2', infoX, infoY); infoY += 3.5;
+  doc.text('HectoFlex Customs Sàrl', infoX, infoY); infoY += 3.5;
+  doc.text('Chemin des Champs Courbes 5', infoX, infoY); infoY += 3.5;
+  doc.text('1024 Ecublens', infoX, infoY); infoY += 6;
+  doc.setFont('helvetica','bold'); doc.setFontSize(6); doc.text('Référence', infoX, infoY); infoY += 3.5;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.text('Facture ' + num, infoX, infoY); infoY += 6;
+  doc.setFont('helvetica','bold'); doc.setFontSize(6); doc.text('Payable par', infoX, infoY); infoY += 3.5;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text(clientName, infoX, infoY); infoY += 3.5;
+  if(addr) { doc.text(addr, infoX, infoY); infoY += 3.5; }
+  if(city) { doc.text(city, infoX, infoY); infoY += 3.5; }
+
+  var bry = 297-15;
+  doc.setFont('helvetica','bold'); doc.setFontSize(6);
+  doc.text('Monnaie', rx2, bry); doc.text('Montant', rx2+25, bry);
+  bry += 3.5; doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text('CHF', rx2, bry); doc.text(ttc.toFixed(2), rx2+25, bry);
+
+  var filename = 'Facture_' + num.replace(/[^a-zA-Z0-9_-]/g,'_') + '.pdf';
+  try {
+    var blob = doc.output('blob'); var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = filename; a.rel = 'noopener';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1200);
+  } catch(e) { doc.save(filename); }
+}
 </script>
 </body>
 </html>
