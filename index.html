@@ -228,8 +228,10 @@ body.force-desktop .filter-row{gap:4px!important;margin:4px 0!important}
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";</script>
 <script>
-if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(r){r.unregister()})})}
-</script><script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+// Service Worker registration
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div id="loginScreen" class="login-screen">
@@ -606,54 +608,6 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 <div id="suppDetailContent"></div>
 </div>
 </div>
-<div class="page" id="pageSuppliers" style="padding:0 16px">
-<div id="suppListView">
-<div class="header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
-<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Fournisseurs</h2>
-<button onclick="suppShowForm()" style="background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:8px 16px;cursor:pointer;font-size:.85rem">+ Ajouter</button>
-</div>
-<div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap" id="suppCatFilters"></div>
-<div id="suppList" style="display:flex;flex-direction:column;gap:10px"></div>
-<p id="suppEmpty" style="color:var(--text2);font-size:.85rem;text-align:center;padding:30px;display:none">Aucun fournisseur</p>
-</div>
-<div id="suppFormView" style="display:none">
-<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
-<button onclick="suppBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">&#8592;</button>
-<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="suppFormTitle">Nouveau fournisseur</h2>
-</div>
-<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
-<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Nom *</label>
-<input id="sf_name" type="text" placeholder="Ex: Mimaki, Reflectiv..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
-<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Catégorie</label>
-<input id="sf_category" type="text" placeholder="Ex: Impression, Vitrophanie, Consommables..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
-<div style="display:flex;gap:10px;margin-bottom:12px">
-<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Contact</label>
-<input id="sf_contact" type="text" placeholder="Nom du contact" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
-<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Téléphone</label>
-<input id="sf_phone" type="tel" placeholder="Tél..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
-</div>
-<div style="display:flex;gap:10px;margin-bottom:12px">
-<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Email</label>
-<input id="sf_email" type="email" placeholder="email@..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
-<div style="flex:1"><label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Site web</label>
-<input id="sf_website" type="url" placeholder="https://..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;box-sizing:border-box"></div>
-</div>
-<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Adresse</label>
-<input id="sf_address" type="text" placeholder="Adresse complète" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box">
-<label style="font-size:.8rem;color:var(--text2);display:block;margin-bottom:4px">Notes</label>
-<textarea id="sf_notes" rows="3" placeholder="Conditions, délais, remises..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical;margin-bottom:16px;box-sizing:border-box"></textarea>
-<input type="hidden" id="sf_editId" value="">
-<button onclick="suppSaveForm()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:.9rem;font-weight:600">Enregistrer</button>
-</div>
-</div>
-<div id="suppDetailView" style="display:none">
-<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:10px">
-<button onclick="suppBackToList()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem">&#8592;</button>
-<h2 style="font-size:1.1rem;color:var(--accent);margin:0" id="suppDetailTitle">Fournisseur</h2>
-</div>
-<div id="suppDetailContent"></div>
-</div>
-</div>
 
 </div>
 <div class="page" id="pageDtf" style="padding:0 16px">
@@ -881,9 +835,28 @@ var projects = [];
 var projFilterVal = 'all';
 var PROJ_API = 'https://hf-tasks-api.hectoflex.workers.dev';
 
+// Projects cache (30s TTL)
+var _projectsCache = null;
+var _projectsCacheTime = 0;
+var _PROJECTS_TTL = 30000;
+async function getProjects() {
+  var now = Date.now();
+  if(_projectsCache && (now - _projectsCacheTime) < _PROJECTS_TTL) {
+    return {ok:true, json:function(){return Promise.resolve(JSON.parse(JSON.stringify(_projectsCache)))}};
+  }
+  var r = await getProjects();
+  if(r.ok) {
+    _projectsCache = await r.json();
+    _projectsCacheTime = now;
+    return {ok:true, json:function(){return Promise.resolve(JSON.parse(JSON.stringify(_projectsCache)))}};
+  }
+  return r;
+}
+function invalidateProjectsCache() { _projectsCache = null; _projectsCacheTime = 0; }
+
 async function loadProjects() {
   try {
-    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+    var r = await getProjects();
     if(r.ok) projects = await r.json();
   } catch(e) { console.error('loadProjects',e); }
   // Filter out leads (en_attente)
@@ -892,10 +865,12 @@ async function loadProjects() {
 }
 
 async function saveProject(project) {
+  invalidateProjectsCache();
   await fetch(PROJ_API+'/projects', {method:'POST', headers:{'Authorization':'Basic '+token,'Content-Type':'application/json'}, body:JSON.stringify(project)});
 }
 
 async function updateProject(id, data) {
+  invalidateProjectsCache();
   var r = await fetch(PROJ_API+'/projects/'+id, {method:'PUT', headers:{'Authorization':'Basic '+token,'Content-Type':'application/json'}, body:JSON.stringify(data)});
   if(!r.ok) {
     var msg = 'Erreur mise à jour ('+r.status+')';
@@ -906,6 +881,7 @@ async function updateProject(id, data) {
 }
 
 async function deleteProjectAPI(id) {
+  invalidateProjectsCache();
   await fetch(PROJ_API+'/projects/'+id, {method:'DELETE', headers:{'Authorization':'Basic '+token}});
 }
 
@@ -1046,7 +1022,7 @@ function projBackToList() {
 async function projShowDetail(id) {
   var all_proj = [];
   try {
-    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+    var r = await getProjects();
     if(r.ok) all_proj = await r.json();
   } catch(e) {}
   var p = all_proj.find(function(x){return x.id===id});
@@ -1211,7 +1187,7 @@ async function projDeleteAndBack(id) {
 }
 
 async function projToggleCheck(projId, checkIdx) {
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var r = await getProjects();
   var all = await r.json();
   var p = all.find(function(x){return x.id===projId});
   if(!p || !p.checklist) return;
@@ -1224,7 +1200,7 @@ async function projAddCheck(projId) {
   var input = document.getElementById('newCheckItem');
   var text = input.value.trim();
   if(!text) return;
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var r = await getProjects();
   var all = await r.json();
   var p = all.find(function(x){return x.id===projId});
   if(!p) return;
@@ -1235,7 +1211,7 @@ async function projAddCheck(projId) {
 }
 
 async function projRemoveCheck(projId, checkIdx) {
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var r = await getProjects();
   var all = await r.json();
   var p = all.find(function(x){return x.id===projId});
   if(!p || !p.checklist) return;
@@ -1289,7 +1265,7 @@ async function projAddCostLine(projId, type) {
     if(!label) return;
     amount = parseFloat(prompt('Montant CHF:'))||0;
   }
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var r = await getProjects();
   var all = await r.json();
   var p = all.find(function(x){return x.id===projId});
   if(!p) return;
@@ -1316,7 +1292,7 @@ async function projEditCostAmt(projId, idx, val) {
 
 async function projRemoveCost(projId, idx) {
   if(!confirm('Supprimer cette ligne?')) return;
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var r = await getProjects();
   var all = await r.json();
   var p = all.find(function(x){return x.id===projId});
   if(!p||!p.costs) return;
@@ -1353,7 +1329,7 @@ var leads = [];
 
 async function loadLeads() {
   try {
-    var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+    var r = await getProjects();
     if(r.ok) leads = await r.json();
   } catch(e) { console.error('loadLeads',e); }
   leads = leads.filter(function(p){return p.statut==='en_attente'||p.statut==='nouveau'||p.statut==='qualifie'||p.statut==='proposition'||p.statut==='gagne'||p.statut==='perdu'});
@@ -1474,7 +1450,7 @@ function leadBackToList() {
 }
 
 async function leadShowDetail(id) {
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var r = await getProjects();
   var all = await r.json();
   var p = all.find(function(x){return x.id===id});
   if(!p) return;
@@ -1652,7 +1628,7 @@ async function leadAddCostLine(leadId, type) {
     if(!label) return;
     amount = parseFloat(prompt('Montant CHF:'))||0;
   }
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var r = await getProjects();
   var all = await r.json();
   var p = all.find(function(x){return x.id===leadId});
   if(!p) return;
@@ -1663,7 +1639,7 @@ async function leadAddCostLine(leadId, type) {
 }
 
 async function leadEditCostDesc(leadId, idx, val) {
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var r = await getProjects();
   var all = await r.json();
   var p = all.find(function(x){return x.id===leadId});
   if(!p || !p.costs || !p.costs[idx]) return;
@@ -1672,7 +1648,7 @@ async function leadEditCostDesc(leadId, idx, val) {
 }
 
 async function leadEditCostAmt(leadId, idx, val) {
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var r = await getProjects();
   var all = await r.json();
   var p = all.find(function(x){return x.id===leadId});
   if(!p || !p.costs || !p.costs[idx]) return;
@@ -1683,7 +1659,7 @@ async function leadEditCostAmt(leadId, idx, val) {
 
 async function leadRemoveCost(leadId, idx) {
   if(!confirm('Supprimer cette ligne?')) return;
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
+  var r = await getProjects();
   var all = await r.json();
   var p = all.find(function(x){return x.id===leadId});
   if(!p||!p.costs) return;
@@ -2528,124 +2504,6 @@ async function suppRemoveMyProd(suppId, idx) {
   await loadSuppliers();
   suppShowDetail(suppId);
 }
-
-
-// ===== FOURNISSEURS =====
-var suppliers = [];
-var suppCatFilter = 'all';
-var SUPP_KEY = 'suppliers:shared';
-
-async function suppInit() {
-  await loadSuppliers();
-}
-
-async function loadSuppliers() {
-  try {
-    var r = await fetch(PROJ_API+'/suppliers', {headers:{'Authorization':'Basic '+token}});
-    if(r.ok) suppliers = await r.json();
-    else suppliers = [];
-  } catch(e) { suppliers = []; }
-  renderSuppliers();
-}
-
-function renderSuppliers() {
-  var grid = document.getElementById('suppGrid');
-  var empty = document.getElementById('suppEmpty');
-  var catDiv = document.getElementById('suppCatFilters');
-  if(!grid) return;
-  
-  // Build category filter buttons
-  var allCats = {};
-  suppliers.forEach(function(s){ if(s.category) allCats[s.category]=1; });
-  var catHtml = '<button class="filter-btn '+(suppCatFilter==='all'?'active':'')+'" onclick="suppFilterCat(\'all\',this)">Tous</button>';
-  Object.keys(allCats).sort().forEach(function(c){
-    catHtml += '<button class="filter-btn '+(suppCatFilter===c?'active':'')+'" data-supplistcat="'+escHtml(c)+'">'+escHtml(c)+'</button>';
-  });
-  if(catDiv) catDiv.innerHTML = catHtml;
-  
-  var filtered = suppCatFilter==='all' ? suppliers : suppliers.filter(function(s){return s.category===suppCatFilter});
-  
-  if(!filtered.length) { grid.innerHTML=''; if(empty) empty.style.display='block'; return; }
-  if(empty) empty.style.display='none';
-  
-  grid.innerHTML = filtered.map(function(s){
-    var prodCount = (s.products||[]).length;
-    var myCount = (s.mySelections||[]).length;
-    return '<div onclick="suppShowDetail('+s.id+')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid var(--accent);cursor:pointer">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
-        '<div style="font-weight:600;font-size:.95rem;color:var(--text)">'+escHtml(s.name)+'</div>' +
-        '<span style="padding:2px 8px;border-radius:8px;background:var(--accent);color:#fff;font-size:.7rem">'+escHtml(s.category||'')+'</span>' +
-      '</div>' +
-      (s.contact ? '<div style="font-size:.8rem;color:var(--text2)">'+escHtml(s.contact)+'</div>' : '') +
-      '<div style="display:flex;gap:12px;margin-top:6px;font-size:.75rem;color:var(--text3)">' +
-        (prodCount ? '<span>'+prodCount+' produits</span>' : '') +
-        (myCount ? '<span style="color:var(--accent);font-weight:600">'+myCount+' sélections</span>' : '') +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function suppFilterCat(cat, btn) {
-  suppCatFilter = cat;
-  document.querySelectorAll('#suppCatFilters .filter-btn').forEach(function(b){b.classList.remove('active')});
-  if(btn) btn.classList.add('active');
-  renderSuppliers();
-}
-
-function suppShowAddForm(editId) {
-  document.getElementById('suppListView').style.display='none';
-  document.getElementById('suppDetailView').style.display='none';
-  document.getElementById('suppFormView').style.display='block';
-  document.getElementById('sf_editId').value = editId||'';
-  document.getElementById('suppFormTitle').textContent = editId ? 'Modifier' : 'Nouveau fournisseur';
-  if(editId) {
-    var s = suppliers.find(function(x){return x.id==editId});
-    if(s) {
-      document.getElementById('sf_name').value = s.name||'';
-      document.getElementById('sf_cat').value = s.category||'';
-      document.getElementById('sf_web').value = s.website||'';
-      document.getElementById('sf_phone').value = s.phone||'';
-      document.getElementById('sf_email').value = s.email||'';
-      document.getElementById('sf_contact').value = s.contact||'';
-      document.getElementById('sf_notes').value = s.notes||'';
-    }
-  } else {
-    ['sf_name','sf_cat','sf_web','sf_phone','sf_email','sf_contact','sf_notes'].forEach(function(id){
-      var el=document.getElementById(id); if(el) el.value='';
-    });
-  }
-}
-
-async function suppSaveForm() {
-  var name = document.getElementById('sf_name').value.trim();
-  if(!name) { alert('Nom requis'); return; }
-  var data = {
-    name: name,
-    category: document.getElementById('sf_cat').value,
-    website: document.getElementById('sf_web').value.trim(),
-    phone: document.getElementById('sf_phone').value.trim(),
-    email: document.getElementById('sf_email').value.trim(),
-    contact: document.getElementById('sf_contact').value.trim(),
-    notes: document.getElementById('sf_notes').value.trim()
-  };
-  var editId = document.getElementById('sf_editId').value;
-  if(editId) {
-    await fetch(PROJ_API+'/suppliers/'+editId, {method:'PUT', headers:{'Authorization':'Basic '+token,'Content-Type':'application/json'}, body:JSON.stringify(data)});
-  } else {
-    await fetch(PROJ_API+'/suppliers', {method:'POST', headers:{'Authorization':'Basic '+token,'Content-Type':'application/json'}, body:JSON.stringify(data)});
-  }
-  suppBackToList();
-  await loadSuppliers();
-}
-
-function suppBackToList() {
-  document.getElementById('suppFormView').style.display='none';
-  document.getElementById('suppDetailView').style.display='none';
-  document.getElementById('suppListView').style.display='block';
-}
-
-var suppProdFilter = 'all';
-var suppViewMode = 'info'; // info, products, selections
 
 
 async function suppAddSelection(suppId, ref, name, category) {
