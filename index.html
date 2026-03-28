@@ -315,7 +315,7 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
 <label>Titre</label>
 <input type="text" id="vcTitle" placeholder="Co-fondateur">
 <label>Téléphone</label>
-<input type="tel" id="vcPhone" placeholder="+41 76 334 13 06">
+<input type="tel" id="vcPhone" placeholder="+41 76 563 05 21">
 <label>Email</label>
 <input type="email" id="vcEmail" placeholder="info@hectoflex.ch">
 <label>Site web</label>
@@ -2969,7 +2969,7 @@ function generateComptaPdf(docType, obj, client) {
   doc.setTextColor(107,114,128);
   doc.text('HectoFlex Customs Sàrl', L+W, 10, {align:'right'});
   doc.text('Ch. des Champs-Courbes 5, 1024 Ecublens', L+W, 13.8, {align:'right'});
-  doc.text('info@hectoflex.ch | +41 76 334 13 06', L+W, 17.6, {align:'right'});
+  doc.text('info@hectoflex.ch | +41 76 563 05 21', L+W, 17.6, {align:'right'});
 
   // Doc title centered
   doc.setFont('helvetica','bold');
@@ -3172,7 +3172,7 @@ function generateComptaPdf(docType, obj, client) {
   doc.setTextColor(107,114,128);
   doc.setFont('helvetica','normal');
   doc.setFontSize(6);
-  doc.text('HectoFlex Customs Sàrl | IBAN CH00 0000 0000 0000 0000 0 | Merci pour votre confiance !', pageW/2, 287, {align:'center'});
+  doc.text('HectoFlex Customs Sàrl | IBAN CH39 0900 0000 1605 7072 2 | Merci pour votre confiance !', pageW/2, 287, {align:'center'});
 
   // Download
   var filename = (docType==='DEVIS'?'Devis_':'Facture_') + num.replace(/[^a-zA-Z0-9_-]/g,'_') + '.pdf';
