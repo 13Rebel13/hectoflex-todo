@@ -62,7 +62,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   #pageSuppliers{margin-left:120px!important;padding:10px 14px!important}
   #pageDtf{margin-left:120px!important;padding:10px 14px!important}
   #pageCompta{margin-left:120px!important;padding:10px 14px!important}
-  #pageHistorique{margin-left:120px!important;padding:10px 14px!important}
+  #pageHistorique,#pagePlanning{margin-left:120px!important;padding:10px 14px!important}
   body{padding-bottom:0!important}
 }
 .container{max-width:800px;margin:0 auto;padding:20px}
@@ -159,7 +159,7 @@ body.force-desktop .bottom-nav button{padding:8px 10px!important;width:100%!impo
 body.force-desktop .bottom-nav button.active{background:var(--accent-dim)!important;border-left:3px solid var(--accent)!important;color:var(--accent)!important}
 body.force-desktop .bottom-nav button span.nav-icon svg{width:16px!important;height:16px!important}
 body.force-desktop .container{margin-left:120px!important;padding-bottom:0!important;width:calc(100% - 120px)!important;max-width:none!important;padding:10px 14px!important}
-body.force-desktop #pageCustoms,.force-desktop #pageProjects,.force-desktop #pageLeads,.force-desktop #pageSuppliers,.force-desktop #pageDtf,.force-desktop #pageCompta,.force-desktop #pageDevisMain,.force-desktop #pageFacturesMain,.force-desktop #pageClientsMain,.force-desktop #pageHistorique{margin-left:140px!important;padding:8px 12px!important}
+body.force-desktop #pageCustoms,.force-desktop #pageProjects,.force-desktop #pageLeads,.force-desktop #pageSuppliers,.force-desktop #pageDtf,.force-desktop #pageCompta,.force-desktop #pageDevisMain,.force-desktop #pageFacturesMain,.force-desktop #pageClientsMain,.force-desktop #pageHistorique,.force-desktop #pagePlanning{margin-left:140px!important;padding:8px 12px!important}
 body.force-desktop .sidebar-logo{display:block!important}
 body.force-desktop .sidebar-logo img{height:50px!important;max-width:90%!important}
 body.force-desktop .header{margin-left:120px!important}
@@ -168,7 +168,7 @@ body.force-desktop .header{margin-left:120px!important}
 .force-mobile .bottom-nav button{padding:6px 10px!important;width:auto!important;text-align:center!important;font-size:.7rem!important;flex-direction:column!important;align-items:center!important;gap:3px!important;min-width:60px!important;flex-shrink:0!important}
 .force-mobile .bottom-nav button.active{background:none!important;border-left:none!important;color:var(--accent)!important}
 .force-mobile .sidebar-logo{display:none!important}
-.force-mobile .container,.force-mobile #pageCustoms,.force-mobile #pageProjects,.force-mobile #pageLeads,.force-mobile #pageSuppliers,.force-mobile #pageDtf,.force-mobile #pageCompta,.force-mobile #pageHistorique{margin-left:0!important}
+.force-mobile .container,.force-mobile #pageCustoms,.force-mobile #pageProjects,.force-mobile #pageLeads,.force-mobile #pageSuppliers,.force-mobile #pageDtf,.force-mobile #pageCompta,.force-mobile #pageHistorique,.force-mobile #pagePlanning{margin-left:0!important}
 .force-mobile .header{margin-left:0!important}
 .force-mobile .container{padding-bottom:70px!important;max-width:800px!important;width:100%!important}
 
@@ -265,6 +265,7 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
 <button onclick="switchNav('leads',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span> Leads</button>
 <button onclick="switchNav('suppliers',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span> Fournisseurs</button>
 <button onclick="switchNav('dtf',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span> DTF Swiss</button>
+<button onclick="switchNav('planning',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span> Planning</button>
 <button onclick="switchNav('devismain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/></svg></span> Devis</button>
 <button onclick="switchNav('facturesmain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span> Factures</button>
 <button onclick="switchNav('clientsmain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg></span> Clients</button>
@@ -657,6 +658,8 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
 <div id="historiqueContent"></div>
 </div>
 
+<div class="page" id="pagePlanning" style="padding:0 16px"></div>
+
 <div class="page" id="pageCompta" style="padding:0 16px">
 <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
@@ -766,7 +769,7 @@ function switchNav(page, btn, opts){
   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':page==='suppliers'?'pageSuppliers':page==='dtf'?'pageDtf':page==='devismain'?'pageDevisMain':page==='facturesmain'?'pageFacturesMain':page==='clientsmain'?'pageClientsMain':page==='compta'?'pageCompta':page==='historique'?'pageHistorique':'pageCustoms';
+  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':page==='suppliers'?'pageSuppliers':page==='dtf'?'pageDtf':page==='devismain'?'pageDevisMain':page==='facturesmain'?'pageFacturesMain':page==='clientsmain'?'pageClientsMain':page==='compta'?'pageCompta':page==='historique'?'pageHistorique':page==='planning'?'pagePlanning':'pageCustoms';
   var el = document.getElementById(target);
   if(el) el.classList.add('active');
   // Hide container when showing pages outside it
@@ -781,6 +784,7 @@ function switchNav(page, btn, opts){
   if(page==='clientsmain') { window.comptaTargetId='clientsMainContent'; loadComptaClients(); }
   if(page==='compta') { window.comptaTargetId='comptaContent'; comptaInit(); }
   if(page==='historique') renderHistorique();
+  if(page==='planning') loadPlanning();
   if(page==='projects') loadProjects();
   if(page==='leads') loadLeads();
   // Auto-refresh: reload data for active tab every 15s
@@ -4115,6 +4119,300 @@ async function generateFacturePdfWithQR(obj, client) {
     setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1200);
   } catch(e) { doc.save(filename); }
 }
+
+
+// ===== PLANNING / CALENDAR =====
+var planningEvents = [];
+var planningMonth = new Date().getMonth();
+var planningYear = new Date().getFullYear();
+var planningSelectedDay = null;
+var planningRefreshTimer = null;
+var planningTypeColors = {rdv:'#3b82f6',livraison:'#22c55e',pose:'#FF7300',production:'#a855f7',rappel:'#ef4444'};
+var planningTypeLabels = {rdv:'Rendez-vous',livraison:'Livraison',pose:'Pose',production:'Production',rappel:'Rappel'};
+
+function loadPlanning() {
+  clearInterval(planningRefreshTimer);
+  planningRefreshTimer = setInterval(function(){ if(currentPage==='planning') fetchPlanningEvents(); }, 30000);
+  fetchPlanningEvents();
+}
+
+function fetchPlanningEvents() {
+  apiFetch('/planning').then(function(data) {
+    if(data && Array.isArray(data)) { planningEvents = data; }
+    else { planningEvents = JSON.parse(localStorage.getItem('hf_planning_events') || '[]'); }
+    renderPlanning();
+  }).catch(function() {
+    planningEvents = JSON.parse(localStorage.getItem('hf_planning_events') || '[]');
+    renderPlanning();
+  });
+}
+
+function savePlanningLocal() {
+  localStorage.setItem('hf_planning_events', JSON.stringify(planningEvents));
+}
+
+function renderPlanning() {
+  var el = document.getElementById('pagePlanning');
+  if(!el) return;
+  var today = new Date();
+  var firstDay = new Date(planningYear, planningMonth, 1);
+  var lastDay = new Date(planningYear, planningMonth + 1, 0);
+  var startDow = (firstDay.getDay() + 6) % 7; // Monday=0
+  var daysInMonth = lastDay.getDate();
+  var monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  var dayNames = ['Lu','Ma','Me','Je','Ve','Sa','Di'];
+
+  // Group events by day
+  var eventsByDay = {};
+  planningEvents.forEach(function(ev) {
+    if(!ev.date) return;
+    var parts = ev.date.split('-');
+    var evDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    if(evDate.getMonth() === planningMonth && evDate.getFullYear() === planningYear) {
+      var d = evDate.getDate();
+      if(!eventsByDay[d]) eventsByDay[d] = [];
+      eventsByDay[d].push(ev);
+    }
+  });
+
+  var html = '<div style="margin:18px 0 10px;display:flex;align-items:center;gap:10px">';
+  html += '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+  html += '<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Planning</h2></div>';
+
+  // Month nav
+  html += '<div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;padding:8px 0">';
+  html += '<button onclick="planningPrevMonth()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:var(--radius);cursor:pointer;font-size:1rem">&lt;</button>';
+  html += '<span style="font-weight:600;font-size:1rem;color:var(--text)">' + monthNames[planningMonth] + ' ' + planningYear + '</span>';
+  html += '<button onclick="planningNextMonth()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:var(--radius);cursor:pointer;font-size:1rem">&gt;</button>';
+  html += '</div>';
+
+  // Calendar grid
+  html += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:16px">';
+  dayNames.forEach(function(dn) {
+    html += '<div style="text-align:center;font-size:.7rem;color:var(--text2);padding:4px 0;font-weight:600">' + dn + '</div>';
+  });
+  // Empty cells before first day
+  for(var i = 0; i < startDow; i++) {
+    html += '<div style="padding:6px;min-height:40px"></div>';
+  }
+  for(var d = 1; d <= daysInMonth; d++) {
+    var isToday = (d === today.getDate() && planningMonth === today.getMonth() && planningYear === today.getFullYear());
+    var isSelected = (d === planningSelectedDay);
+    var bgStyle = isSelected ? 'background:var(--accent);color:#fff' : isToday ? 'background:var(--accent-dim,rgba(255,115,0,0.15));color:var(--accent);font-weight:700' : 'background:var(--surface2);color:var(--text)';
+    html += '<div onclick="planningSelectDay(' + d + ')" style="' + bgStyle + ';text-align:center;padding:6px 2px;min-height:40px;border-radius:var(--radius);cursor:pointer;position:relative;font-size:.82rem">';
+    html += d;
+    if(eventsByDay[d]) {
+      html += '<div style="display:flex;gap:2px;justify-content:center;margin-top:2px;flex-wrap:wrap">';
+      var shown = {};
+      eventsByDay[d].forEach(function(ev) {
+        if(!shown[ev.type]) {
+          html += '<span style="width:6px;height:6px;border-radius:50%;background:' + (planningTypeColors[ev.type] || '#999') + ';display:inline-block"></span>';
+          shown[ev.type] = true;
+        }
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // Add event button
+  html += '<div style="margin-bottom:12px"><button onclick="planningShowAddModal()" style="background:var(--accent);color:#fff;border:none;padding:10px 18px;border-radius:var(--radius);cursor:pointer;font-size:.85rem;width:100%">+ Ajouter un événement</button></div>';
+
+  // Legend
+  html += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;font-size:.72rem;color:var(--text2)">';
+  Object.keys(planningTypeColors).forEach(function(t) {
+    html += '<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:' + planningTypeColors[t] + ';display:inline-block"></span>' + planningTypeLabels[t] + '</span>';
+  });
+  html += '</div>';
+
+  // Selected day events or upcoming events
+  if(planningSelectedDay && eventsByDay[planningSelectedDay]) {
+    var dayStr = (planningSelectedDay < 10 ? '0' : '') + planningSelectedDay + '.' + ((planningMonth+1) < 10 ? '0' : '') + (planningMonth+1) + '.' + planningYear;
+    html += '<h3 style="font-size:.9rem;color:var(--text);margin:0 0 8px">' + dayStr + '</h3>';
+    eventsByDay[planningSelectedDay].sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); }).forEach(function(ev) {
+      html += planningEventCard(ev);
+    });
+  } else {
+    // Show upcoming events
+    var upcoming = planningEvents.filter(function(ev){ return ev.date >= todayISO(); }).sort(function(a,b){ return a.date.localeCompare(b.date) || (a.time||'').localeCompare(b.time||''); });
+    if(upcoming.length) {
+      html += '<h3 style="font-size:.9rem;color:var(--text);margin:0 0 8px">Prochains événements</h3>';
+      upcoming.slice(0,10).forEach(function(ev) { html += planningEventCard(ev); });
+    } else {
+      html += '<p style="color:var(--text2);font-size:.82rem;text-align:center;padding:20px 0">Aucun événement à venir</p>';
+    }
+  }
+
+  el.innerHTML = html;
+}
+
+function todayISO() {
+  var t = new Date();
+  return t.getFullYear() + '-' + ((t.getMonth()+1)<10?'0':'') + (t.getMonth()+1) + '-' + (t.getDate()<10?'0':'') + t.getDate();
+}
+
+function planningEventCard(ev) {
+  var color = planningTypeColors[ev.type] || '#999';
+  var dateStr = formatSwissDate(ev.date);
+  var h = '<div style="background:var(--surface2);border-left:3px solid ' + color + ';border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;position:relative">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:flex-start">';
+  h += '<div><strong style="color:var(--text);font-size:.85rem">' + escHTML(ev.title||'') + '</strong>';
+  h += '<div style="font-size:.72rem;color:var(--text2);margin-top:2px">' + (planningTypeLabels[ev.type]||ev.type) + ' · ' + dateStr + (ev.time ? ' ' + ev.time : '') + '</div>';
+  if(ev.project_name) h += '<div style="font-size:.72rem;color:var(--accent);margin-top:1px">📁 ' + escHTML(ev.project_name) + '</div>';
+  if(ev.notes) h += '<div style="font-size:.72rem;color:var(--text2);margin-top:3px">' + escHTML(ev.notes) + '</div>';
+  h += '</div>';
+  h += '<button onclick="planningDeleteEvent(\'' + (ev.id||'') + '\')" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:1rem;padding:2px 6px" title="Supprimer">✕</button>';
+  h += '</div></div>';
+  return h;
+}
+
+function formatSwissDate(isoDate) {
+  if(!isoDate) return '';
+  var p = isoDate.split('-');
+  return p[2] + '.' + p[1] + '.' + p[0];
+}
+
+function escHTML(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function planningPrevMonth() {
+  planningMonth--;
+  if(planningMonth < 0) { planningMonth = 11; planningYear--; }
+  planningSelectedDay = null;
+  renderPlanning();
+}
+
+function planningNextMonth() {
+  planningMonth++;
+  if(planningMonth > 11) { planningMonth = 0; planningYear++; }
+  planningSelectedDay = null;
+  renderPlanning();
+}
+
+function planningSelectDay(d) {
+  planningSelectedDay = (planningSelectedDay === d) ? null : d;
+  renderPlanning();
+}
+
+function planningShowAddModal(prefillDate) {
+  var dateVal = prefillDate || '';
+  if(!dateVal && planningSelectedDay) {
+    dateVal = planningYear + '-' + ((planningMonth+1)<10?'0':'') + (planningMonth+1) + '-' + (planningSelectedDay<10?'0':'') + planningSelectedDay;
+  }
+  if(!dateVal) dateVal = todayISO();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'planningModal';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+
+  var projectOptions = '<option value="">— Aucun —</option>';
+  // Try to load projects
+  if(window._cachedProjects && window._cachedProjects.length) {
+    window._cachedProjects.forEach(function(p) {
+      projectOptions += '<option value="' + (p.id||'') + '">' + escHTML(p.name||p.title||'') + '</option>';
+    });
+  }
+
+  var modal = '<div style="background:var(--surface);border-radius:12px;padding:20px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto">';
+  modal += '<h3 style="margin:0 0 14px;color:var(--accent);font-size:1rem">Nouvel événement</h3>';
+  modal += '<div style="display:flex;flex-direction:column;gap:10px">';
+  modal += '<input id="plEvTitle" type="text" placeholder="Titre" style="padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:.85rem">';
+  modal += '<input id="plEvDate" type="date" value="' + dateVal + '" style="padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:.85rem">';
+  modal += '<input id="plEvTime" type="time" placeholder="Heure (optionnel)" style="padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:.85rem">';
+  modal += '<select id="plEvType" style="padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:.85rem">';
+  modal += '<option value="rdv">Rendez-vous</option><option value="livraison">Livraison</option><option value="pose">Pose</option><option value="production">Production</option><option value="rappel">Rappel</option>';
+  modal += '</select>';
+  modal += '<select id="plEvProject" style="padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:.85rem">' + projectOptions + '</select>';
+  modal += '<textarea id="plEvNotes" placeholder="Notes" rows="2" style="padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:.85rem;resize:vertical"></textarea>';
+  modal += '<div style="display:flex;gap:8px;margin-top:4px">';
+  modal += '<button onclick="planningCloseModal()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);cursor:pointer;font-size:.85rem">Annuler</button>';
+  modal += '<button onclick="planningCreateEvent()" style="flex:1;padding:10px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;cursor:pointer;font-size:.85rem;font-weight:600">Créer</button>';
+  modal += '</div></div></div>';
+
+  overlay.innerHTML = modal;
+  overlay.addEventListener('click', function(e) { if(e.target === overlay) planningCloseModal(); });
+  document.body.appendChild(overlay);
+
+  // Load projects if not cached
+  if(!window._cachedProjects) {
+    getProjects().then(function(projects) {
+      if(projects && projects.length) {
+        window._cachedProjects = projects;
+        var sel = document.getElementById('plEvProject');
+        if(sel) {
+          sel.innerHTML = '<option value="">— Aucun —</option>';
+          projects.forEach(function(p) {
+            var opt = document.createElement('option');
+            opt.value = p.id || '';
+            opt.textContent = p.name || p.title || '';
+            sel.appendChild(opt);
+          });
+        }
+      }
+    }).catch(function(){});
+  }
+
+  setTimeout(function(){ var t=document.getElementById('plEvTitle'); if(t) t.focus(); }, 100);
+}
+
+function planningCloseModal() {
+  var m = document.getElementById('planningModal');
+  if(m) m.remove();
+}
+
+function planningCreateEvent() {
+  var title = (document.getElementById('plEvTitle').value || '').trim();
+  var date = document.getElementById('plEvDate').value;
+  var time = document.getElementById('plEvTime').value || '';
+  var type = document.getElementById('plEvType').value;
+  var projectId = document.getElementById('plEvProject').value;
+  var notes = (document.getElementById('plEvNotes').value || '').trim();
+
+  if(!title || !date) { alert('Titre et date requis'); return; }
+
+  var projectName = '';
+  if(projectId && window._cachedProjects) {
+    var found = window._cachedProjects.find(function(p){ return String(p.id) === String(projectId); });
+    if(found) projectName = found.name || found.title || '';
+  }
+
+  var ev = { id: 'pl_' + Date.now() + '_' + Math.random().toString(36).substr(2,6), title: title, date: date, time: time, type: type, project_id: projectId, project_name: projectName, notes: notes };
+
+  // Try API first
+  apiFetch('/planning', { method: 'POST', body: JSON.stringify(ev) }).then(function(res) {
+    if(res && res.id) ev.id = res.id;
+    planningEvents.push(ev);
+    savePlanningLocal();
+    planningCloseModal();
+    renderPlanning();
+  }).catch(function() {
+    planningEvents.push(ev);
+    savePlanningLocal();
+    planningCloseModal();
+    renderPlanning();
+  });
+}
+
+function planningDeleteEvent(id) {
+  if(!id || !confirm('Supprimer cet événement ?')) return;
+  apiFetch('/planning/' + id, { method: 'DELETE' }).catch(function(){});
+  planningEvents = planningEvents.filter(function(e){ return e.id !== id; });
+  savePlanningLocal();
+  renderPlanning();
+}
+
+function getProjects() {
+  return apiFetch('/projects').then(function(data) {
+    if(data && Array.isArray(data)) return data;
+    if(data && data.projects) return data.projects;
+    return [];
+  }).catch(function(){ return []; });
+}
+
 </script>
 </body>
 </html>
