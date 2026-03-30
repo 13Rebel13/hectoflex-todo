@@ -2257,6 +2257,8 @@ function copyImageUrl() {
 // ===== FOURNISSEURS =====
 var suppliers = [];
 var suppCatFilter = 'all';
+var suppViewMode = 'info';
+var suppProdFilter = 'all';
 
 async function suppInit() { await loadSuppliers(); }
 
@@ -2371,10 +2373,9 @@ async function suppShowDetail(id) {
   document.getElementById('suppFormView').style.display='none';
   document.getElementById('suppDetailView').style.display='block';
   document.getElementById('suppDetailTitle').textContent = s.name;
+  suppViewMode='info';
   suppRenderDetail(s);
-}
-
-function suppRenderDetail(s) {
+}function suppRenderDetail(s) {
   var html = '';
   // Tabs
   html += '<div style="display:flex;gap:6px;margin-bottom:12px">';
