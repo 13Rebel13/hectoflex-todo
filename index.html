@@ -168,7 +168,7 @@ body.force-desktop .header{margin-left:120px!important}
 .force-mobile .bottom-nav button{padding:6px 10px!important;width:auto!important;text-align:center!important;font-size:.7rem!important;flex-direction:column!important;align-items:center!important;gap:3px!important;min-width:60px!important;flex-shrink:0!important}
 .force-mobile .bottom-nav button.active{background:none!important;border-left:none!important;color:var(--accent)!important}
 .force-mobile .sidebar-logo{display:none!important}
-.force-mobile .container,.force-mobile #pageCustoms,.force-mobile #pageProjects,.force-mobile #pageLeads,.force-mobile #pageSuppliers,.force-mobile #pageDtf,.force-mobile #pageCompta,.force-mobile #pageHistorique,.force-mobile #pagePlanning{margin-left:0!important}
+.force-mobile .container,.force-mobile #pageCustoms,.force-mobile #pageProjects,.force-mobile #pageLeads,.force-mobile #pageSuppliers,.force-mobile #pageDtf,.force-mobile #pageCompta,.force-mobile #pageDevisMain,.force-mobile #pageFacturesMain,.force-mobile #pageClientsMain,.force-mobile #pageHistorique,.force-mobile #pagePlanning{margin-left:0!important}
 .force-mobile .header{margin-left:0!important}
 .force-mobile .container{padding-bottom:70px!important;max-width:800px!important;width:100%!important}
 
@@ -2595,6 +2595,8 @@ var comptaBalance = [];
 var comptaPlanComptable = [];
 var comptaCurrentTab = 'synthese';
 var devisLines = [];
+function hfStatus(obj) { return obj.status || obj.statut || 'brouillon'; }
+function hfTotal(obj) { var t = parseFloat(obj.total_ttc) || parseFloat(obj.total) || 0; if(!t && obj.lignes && obj.lignes.length) { var ht=0; obj.lignes.forEach(function(l){ ht += (parseFloat(l.quantite)||0)*(parseFloat(l.prix_unitaire)||0); }); t = ht * 1.081; } return t; }
 function getComptaContentEl(){ return document.getElementById(window.comptaTargetId||'comptaContent') || document.getElementById('comptaContent'); }
 
 function comptaInit() {
@@ -2622,22 +2624,22 @@ async function loadComptaSynthese() {
 
   var caFacture = 0, caEncaisse = 0, achatFourn = 0, achatPaye = 0, missingDocs = 0;
   factures.forEach(function(f){
-    var t = parseFloat(f.total||0) || 0;
+    var t = hfTotal(f);
     caFacture += t;
-    if(f.status==='payee') caEncaisse += t;
+    if(hfStatus(f)==='payee') caEncaisse += t;
     if(!Array.isArray(f.pieces) || !f.pieces.length) missingDocs++;
   });
   factFourn.forEach(function(f){
-    var t = parseFloat(f.total||0) || 0;
+    var t = hfTotal(f);
     achatFourn += t;
-    if(f.status==='payee') achatPaye += t;
+    if(hfStatus(f)==='payee') achatPaye += t;
     if(!Array.isArray(f.pieces) || !f.pieces.length) missingDocs++;
   });
 
   var aEncaisser = caFacture - caEncaisse;
   var aPayer = achatFourn - achatPaye;
   var margeBrute = caFacture - achatFourn;
-  var devisOuverts = devis.filter(function(d){ return d.status==='brouillon' || d.status==='envoye'; }).length;
+  var devisOuverts = devis.filter(function(d){ var s=hfStatus(d); return s==='brouillon' || s==='envoye'; }).length;
 
   var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:10px">' +
     cardHtml('CA facturé', 'CHF '+caFacture.toFixed(2), 'var(--accent)') +
@@ -2762,14 +2764,14 @@ function renderDevis() {
       '<div style="margin-top:8px;display:flex;gap:6px">' +
       '<button style="background:none;border:1px solid #0ea5e9;border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:#0ea5e9;font-size:.75rem" onclick="downloadDevisPdf(' + d.id + ')">Télécharger</button>' +
       '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:.75rem" onclick="devisForm(' + d.id + ')">Modifier</button>';
-    if(d.status === 'brouillon' || !d.status) {
+    if(dStatus === 'brouillon' || !dStatus) {
       html += '<button style="background:none;border:1px solid var(--accent);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--accent);font-size:.75rem" onclick="devisChangeStatus(' + d.id + ',\'envoye\')">Envoyer</button>';
     }
-    if(d.status === 'envoye') {
+    if(dStatus === 'envoye') {
       html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="devisChangeStatus(' + d.id + ',\'accepte\')">Accepter</button>';
       html += '<button style="background:none;border:1px solid var(--red);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--red);font-size:.75rem" onclick="devisChangeStatus(' + d.id + ',\'refuse\')">Refuser</button>';
     }
-    if(d.status === 'accepte') {
+    if(dStatus === 'accepte') {
       html += '<button style="background:none;border:1px solid #9333ea;border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:#9333ea;font-size:.75rem" onclick="devisToFacture(' + d.id + ')">Facturer</button>';
     }
     html += '</div></div>';
@@ -2899,6 +2901,10 @@ async function devisSave(editId) {
     notes: (document.getElementById('dv_notes')||{}).value || '',
     lignes: devisLines
   };
+  var _ht = 0; devisLines.forEach(function(l){ _ht += (parseFloat(l.quantite)||0)*(parseFloat(l.prix_unitaire)||0); });
+  body.total_ht = Math.round(_ht * 100) / 100;
+  body.total_ttc = Math.round(_ht * 1.081 * 100) / 100;
+  body.total = body.total_ttc;
   if(editId) {
     await apiFetch('/devis/' + editId, {method:'PUT', body:JSON.stringify(body)});
   } else {
@@ -2943,20 +2949,21 @@ function renderFactures() {
   html += '<div id="facturesListContainer" style="display:flex;flex-direction:column;gap:8px">';
   comptaFactures.forEach(function(f) {
     var cl = comptaClients.find(function(c){return c.id===f.client_id});
-    var color = statusColors[f.status] || 'var(--text2)';
+    var fStatus = hfStatus(f);
+    var color = statusColors[fStatus] || 'var(--text2)';
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
-      '<div><strong>' + (f.numero||'F-'+f.id) + '</strong> - ' + (cl?cl.nom:(f.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (f.date?fmtDate(f.date):'') + '</span></div>' +
-      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (f.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (f.total_ttc||f.total||0).toFixed(2) + '</strong></div></div>';
+      '<div><strong>' + (f.numero||'F-'+f.id) + '</strong> - ' + (cl?cl.nom:(f.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (f.date_facture||f.date?fmtDate(f.date_facture||f.date):'') + '</span></div>' +
+      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + fStatus + '</span><br><strong style="color:var(--accent)">CHF ' + hfTotal(f).toFixed(2) + '</strong></div></div>';
     var pieces = Array.isArray(f.pieces) ? f.pieces : [];
     html += '<div style="margin-top:8px;font-size:.78rem;color:var(--text2)">Pièces: ' + (pieces.length? pieces.map(function(p){return '<a target="_blank" href="'+p.url+'" style="color:var(--accent)">'+(p.name||'PDF')+'</a>';}).join(' · ') : '<span style="color:var(--red)">Aucune</span>') + '</div>';
     html += '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">';
     html += '<button style="background:none;border:1px solid #0ea5e9;border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:#0ea5e9;font-size:.75rem" onclick="downloadFacturePdf(' + f.id + ')">Télécharger</button>';
     html += '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:.75rem" onclick="factureForm(' + f.id + ')">Modifier</button>';
-    if(f.status === 'brouillon' || !f.status) {
+    if(fStatus === 'brouillon' || !fStatus) {
       html += '<button style="background:none;border:1px solid var(--accent);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--accent);font-size:.75rem" onclick="factureChangeStatus(' + f.id + ',\'envoyee\')">Envoyer</button>';
     }
-    if(f.status === 'envoyee') html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="facturePay(' + f.id + ')">Encaisser</button>';
+    if(fStatus === 'envoyee') html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="facturePay(' + f.id + ')">Encaisser</button>';
     html += '</div>';
     html += '</div>';
   });
@@ -2970,10 +2977,11 @@ function factureForm(editId) {
   devisLines = lines;
   var el = getComptaContentEl();
   var html = '<h3 style="margin:10px 0;font-size:1rem">' + (editId ? 'Modifier facture' : 'Nouvelle facture') + '</h3>';
-  html += '<div style="margin-bottom:10px"><label style="font-size:.8rem;color:var(--text2)">Client</label><select id="dv_client" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)">';
-  html += '<option value="">-- Choisir --</option>';
-  comptaClients.forEach(function(c){ html += '<option value="' + c.id + '"' + (f && f.client_id===c.id?' selected':'') + '>' + c.nom + '</option>'; });
-  html += '</select></div>';
+  var sortedClients = comptaClients.slice().sort(function(a,b){ return (a.nom||'').localeCompare(b.nom||''); });
+  var selClientName = f ? (sortedClients.find(function(c){return c.id===f.client_id})||{}).nom || f.client_name || '' : '';
+  html += '<div style="margin-bottom:10px"><label style="font-size:.8rem;color:var(--text2)">Client</label><input id="fv_client_search" list="fv_client_list" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" placeholder="Taper pour rechercher..." value="' + selClientName.replace(/"/g,'&quot;') + '"><datalist id="fv_client_list">';
+  sortedClients.forEach(function(c){ html += '<option value="' + c.nom.replace(/"/g,'&quot;') + '" data-id="' + c.id + '">'; });
+  html += '</datalist><input type="hidden" id="dv_client" value="' + (f&&f.client_id?f.client_id:'') + '"></div>';
   html += '<div style="margin-bottom:10px"><label style="font-size:.8rem;color:var(--text2)">Lié à un projet / lead</label><select id="dv_project" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)"><option value="">-- Aucun --</option></select></div>';
   html += '<div id="devisLinesContainer"></div>';
   html += '<button style="margin:8px 0;background:none;border:1px dashed var(--accent);border-radius:var(--radius);padding:6px 14px;cursor:pointer;color:var(--accent);font-size:.8rem" onclick="devisAddLine()">+ Ajouter ligne</button>';
@@ -2992,12 +3000,22 @@ function factureForm(editId) {
   html += '<div style="display:flex;gap:8px;margin-top:10px"><button class="add-btn" onclick="factureSave(' + (editId||'null') + ')">Enregistrer</button><button class="logout-btn" onclick="loadFactures()">Annuler</button></div>';
   el.innerHTML = html;
   renderDevisLines();
+  // Sync client_id from search input
+  var fvcs = document.getElementById('fv_client_search');
+  if(fvcs) {
+    var _fvClients = sortedClients;
+    fvcs.addEventListener('input', function(){
+      var val = this.value;
+      var found = _fvClients.find(function(c){ return c.nom === val; });
+      document.getElementById('dv_client').value = found ? found.id : '';
+    });
+  }
 }
 
 async function factureSave(editId) {
   var body = {
     client_id: parseInt(document.getElementById('dv_client').value) || null,
-    client_name: (document.getElementById('dv_client_search')||{}).value || '',
+    client_name: (document.getElementById('fv_client_search')||document.getElementById('dv_client_search')||{}).value || '',
     project_id: document.getElementById('dv_project') ? (document.getElementById('dv_project').value || null) : null,
     date_facture: (document.getElementById('fv_date')||{}).value || '',
     echeance: (document.getElementById('fv_echeance')||{}).value || '',
@@ -3005,6 +3023,10 @@ async function factureSave(editId) {
     notes: (document.getElementById('fv_notes')||{}).value || '',
     lignes: devisLines
   };
+  var _fht = 0; devisLines.forEach(function(l){ _fht += (parseFloat(l.quantite)||0)*(parseFloat(l.prix_unitaire)||0); });
+  body.total_ht = Math.round(_fht * 100) / 100;
+  body.total_ttc = Math.round(_fht * 1.081 * 100) / 100;
+  body.total = body.total_ttc;
   if(editId) {
     var cur = comptaFactures.find(function(x){return x.id===editId});
     body.pieces = (cur && Array.isArray(cur.pieces)) ? cur.pieces.slice() : [];
@@ -3288,10 +3310,13 @@ function downloadFacturePdf(id){
 }
 
 async function facturePay(id) {
-  if(!confirm('Marquer cette facture comme payée ?')) return;
   var f = comptaFactures.find(function(x){return x.id===id});
-  await apiFetch('/factures/' + id + '/pay', {method:'POST'});
-  if(f) addHistorique('facture_payee', f.numero||('F-'+id), 'Facture encaissée');
+  if(!f) return;
+  var montant = hfTotal(f);
+  var methode = prompt('Méthode de paiement ?\n(virement, espèces, carte, twint)', 'virement');
+  if(!methode) return;
+  await apiFetch('/factures/' + id + '/pay', {method:'POST', body:JSON.stringify({montant: montant, methode: methode})});
+  addHistorique('facture_payee', f.numero||('F-'+id), 'Facture encaissée — ' + methode);
   loadFactures();
 }
 
@@ -3312,12 +3337,12 @@ function renderFactFournisseurs() {
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
       '<div><strong>' + (f.fournisseur||'?') + '</strong><br><span style="font-size:.8rem;color:var(--text2)">' + (f.date?fmtDate(f.date):'') + ' | ' + (f.reference||'') + '</span></div>' +
-      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (f.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (f.total_ttc||f.total||0).toFixed(2) + '</strong></div></div>';
+      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + hfStatus(f) + '</span><br><strong style="color:var(--accent)">CHF ' + hfTotal(f).toFixed(2) + '</strong></div></div>';
     var pieces = Array.isArray(f.pieces) ? f.pieces : [];
     html += '<div style="margin-top:8px;font-size:.78rem;color:var(--text2)">Pièces: ' + (pieces.length? pieces.map(function(p){return '<a target="_blank" href="'+p.url+'" style="color:var(--accent)">'+(p.name||'PDF')+'</a>';}).join(' · ') : '<span style="color:var(--red)">Aucune</span>') + '</div>';
     html += '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">';
     html += '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:.75rem" onclick="factFournForm(' + f.id + ')">Modifier</button>';
-    if(f.status !== 'payee') html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="factFournPay(' + f.id + ')">Payer</button>';
+    if(hfStatus(f) !== 'payee') html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="factFournPay(' + f.id + ')">Payer</button>';
     html += '</div>';
     html += '</div>';
   });
@@ -3892,7 +3917,7 @@ function renderHistorique() {
 async function devisChangeStatus(id, newStatus) {
   var d = comptaDevisList.find(function(x){return x.id===id});
   var labels = {envoye:'Envoyé',accepte:'Accepté',refuse:'Refusé'};
-  await apiFetch('/devis/' + id, {method:'PUT', body:JSON.stringify({status: newStatus})});
+  await apiFetch('/devis/' + id, {method:'PUT', body:JSON.stringify({status: newStatus, statut: newStatus})});
   var cl = d ? comptaClients.find(function(c){return c.id===d.client_id}) : null;
   addHistorique('devis_' + newStatus, (d&&d.numero)||('D-'+id), (labels[newStatus]||newStatus) + (cl?' \u2014 '+cl.nom:''));
   loadDevis();
@@ -3901,7 +3926,7 @@ async function devisChangeStatus(id, newStatus) {
 async function factureChangeStatus(id, newStatus) {
   var f = comptaFactures.find(function(x){return x.id===id});
   var labels = {envoyee:'Envoyée'};
-  await apiFetch('/factures/' + id, {method:'PUT', body:JSON.stringify({status: newStatus})});
+  await apiFetch('/factures/' + id, {method:'PUT', body:JSON.stringify({status: newStatus, statut: newStatus})});
   var cl = f ? comptaClients.find(function(c){return c.id===f.client_id}) : null;
   addHistorique('facture_' + newStatus, (f&&f.numero)||('F-'+id), (labels[newStatus]||newStatus) + (cl?' \u2014 '+cl.nom:''));
   loadFactures();
