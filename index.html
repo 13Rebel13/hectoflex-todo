@@ -2753,8 +2753,8 @@ function renderDevis() {
     var color = statusColors[d.status] || 'var(--text2)';
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
-      '<div><strong>' + (d.numero||'D-'+d.id) + '</strong> - ' + (cl?cl.nom:'?') + '<br><span style="font-size:.8rem;color:var(--text2)">' + (d.date?fmtDate(d.date):'') + '</span></div>' +
-      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (d.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (d.total||0).toFixed(2) + '</strong></div></div>' +
+      '<div><strong>' + (d.numero||'D-'+d.id) + '</strong> - ' + (cl?cl.nom:(d.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (d.date?fmtDate(d.date):'') + '</span></div>' +
+      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (d.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (d.total_ttc||d.total||0).toFixed(2) + '</strong></div></div>' +
       '<div style="margin-top:8px;display:flex;gap:6px">' +
       '<button style="background:none;border:1px solid #0ea5e9;border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:#0ea5e9;font-size:.75rem" onclick="downloadDevisPdf(' + d.id + ')">Télécharger</button>' +
       '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:.75rem" onclick="devisForm(' + d.id + ')">Modifier</button>';
@@ -2913,8 +2913,8 @@ function renderFactures() {
     var color = statusColors[f.status] || 'var(--text2)';
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
-      '<div><strong>' + (f.numero||'F-'+f.id) + '</strong> - ' + (cl?cl.nom:'?') + '<br><span style="font-size:.8rem;color:var(--text2)">' + (f.date?fmtDate(f.date):'') + '</span></div>' +
-      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (f.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (f.total||0).toFixed(2) + '</strong></div></div>';
+      '<div><strong>' + (f.numero||'F-'+f.id) + '</strong> - ' + (cl?cl.nom:(f.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (f.date?fmtDate(f.date):'') + '</span></div>' +
+      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (f.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (f.total_ttc||f.total||0).toFixed(2) + '</strong></div></div>';
     var pieces = Array.isArray(f.pieces) ? f.pieces : [];
     html += '<div style="margin-top:8px;font-size:.78rem;color:var(--text2)">Pièces: ' + (pieces.length? pieces.map(function(p){return '<a target="_blank" href="'+p.url+'" style="color:var(--accent)">'+(p.name||'PDF')+'</a>';}).join(' · ') : '<span style="color:var(--red)">Aucune</span>') + '</div>';
     html += '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">';
@@ -3276,7 +3276,7 @@ function renderFactFournisseurs() {
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
       '<div><strong>' + (f.fournisseur||'?') + '</strong><br><span style="font-size:.8rem;color:var(--text2)">' + (f.date?fmtDate(f.date):'') + ' | ' + (f.reference||'') + '</span></div>' +
-      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (f.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (f.total||0).toFixed(2) + '</strong></div></div>';
+      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (f.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (f.total_ttc||f.total||0).toFixed(2) + '</strong></div></div>';
     var pieces = Array.isArray(f.pieces) ? f.pieces : [];
     html += '<div style="margin-top:8px;font-size:.78rem;color:var(--text2)">Pièces: ' + (pieces.length? pieces.map(function(p){return '<a target="_blank" href="'+p.url+'" style="color:var(--accent)">'+(p.name||'PDF')+'</a>';}).join(' · ') : '<span style="color:var(--red)">Aucune</span>') + '</div>';
     html += '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">';
