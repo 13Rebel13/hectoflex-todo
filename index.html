@@ -2753,7 +2753,7 @@ function renderDevis() {
     var color = statusColors[d.status] || 'var(--text2)';
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
-      '<div><strong>' + (d.numero||'D-'+d.id) + '</strong> - ' + (cl?cl.nom:(d.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (d.date?fmtDate(d.date):'') + '</span></div>' +
+      '<div><strong>' + (d.numero||'D-'+d.id) + '</strong> - ' + (cl?cl.nom:(d.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (d.date?fmtDate(d.date):'') + (d.project_id?' · 📎 Projet lié':'') + '</span></div>' +
       '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (d.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (d.total_ttc||d.total||0).toFixed(2) + '</strong></div></div>' +
       '<div style="margin-top:8px;display:flex;gap:6px">' +
       '<button style="background:none;border:1px solid #0ea5e9;border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:#0ea5e9;font-size:.75rem" onclick="downloadDevisPdf(' + d.id + ')">Télécharger</button>' +
@@ -2783,6 +2783,7 @@ function devisForm(editId) {
   html += '<option value="">-- Choisir --</option>';
   comptaClients.forEach(function(c){ html += '<option value="' + c.id + '"' + (d && d.client_id===c.id?' selected':'') + '>' + c.nom + '</option>'; });
   html += '</select></div>';
+  html += '<div style="margin-bottom:10px"><label style="font-size:.8rem;color:var(--text2)">Lié à un projet / lead</label><select id="dv_project" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)"><option value="">-- Aucun --</option></select></div>';
   html += '<div id="devisLinesContainer"></div>';
   html += '<button style="margin:8px 0;background:none;border:1px dashed var(--accent);border-radius:var(--radius);padding:6px 14px;cursor:pointer;color:var(--accent);font-size:.8rem" onclick="devisAddLine()">+ Ajouter ligne</button>';
   var todayStr = new Date().toISOString().slice(0,10);
@@ -2797,6 +2798,22 @@ function devisForm(editId) {
   html += '<div id="devisTotals" style="margin:10px 0;padding:10px;background:var(--surface2);border-radius:var(--radius)"></div>';
   html += '<div style="display:flex;gap:8px;margin-top:10px"><button class="add-btn" onclick="devisSave(' + (editId||'null') + ')">Enregistrer</button><button class="logout-btn" onclick="loadDevis()">Annuler</button></div>';
   el.innerHTML = html;
+  // Populate project/lead dropdown
+  (async function(){
+    try {
+      var projs = projCache || await getProjects();
+      var sel = document.getElementById('dv_project');
+      if(sel && projs) {
+        projs.forEach(function(p){ 
+          var opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = (p.dept?'['+p.dept+'] ':'') + p.name + (p.client?' — '+p.client:'');
+          if(d && d.project_id == p.id) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      }
+    } catch(e){}
+  })();
   renderDevisLines();
 }
 
@@ -2860,6 +2877,7 @@ function devisRemoveLine(idx) { devisLines.splice(idx, 1); renderDevisLines(); }
 async function devisSave(editId) {
   var body = {
     client_id: parseInt(document.getElementById('dv_client').value),
+    project_id: document.getElementById('dv_project') ? (document.getElementById('dv_project').value || null) : null,
     date: (document.getElementById('dv_date')||{}).value || '',
     validite: (document.getElementById('dv_validite')||{}).value || '30 jours',
     conditions: (document.getElementById('dv_conditions')||{}).value || '',
@@ -2941,6 +2959,7 @@ function factureForm(editId) {
   html += '<option value="">-- Choisir --</option>';
   comptaClients.forEach(function(c){ html += '<option value="' + c.id + '"' + (f && f.client_id===c.id?' selected':'') + '>' + c.nom + '</option>'; });
   html += '</select></div>';
+  html += '<div style="margin-bottom:10px"><label style="font-size:.8rem;color:var(--text2)">Lié à un projet / lead</label><select id="dv_project" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)"><option value="">-- Aucun --</option></select></div>';
   html += '<div id="devisLinesContainer"></div>';
   html += '<button style="margin:8px 0;background:none;border:1px dashed var(--accent);border-radius:var(--radius);padding:6px 14px;cursor:pointer;color:var(--accent);font-size:.8rem" onclick="devisAddLine()">+ Ajouter ligne</button>';
   var todayStr2 = new Date().toISOString().slice(0,10);
@@ -2963,6 +2982,7 @@ function factureForm(editId) {
 async function factureSave(editId) {
   var body = {
     client_id: parseInt(document.getElementById('dv_client').value),
+    project_id: document.getElementById('dv_project') ? (document.getElementById('dv_project').value || null) : null,
     date_facture: (document.getElementById('fv_date')||{}).value || '',
     echeance: (document.getElementById('fv_echeance')||{}).value || '',
     conditions: (document.getElementById('fv_conditions')||{}).value || '',
