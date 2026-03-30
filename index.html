@@ -2756,14 +2756,15 @@ function renderDevis() {
   html += '<div id="devisListContainer" style="display:flex;flex-direction:column;gap:8px">';
   comptaDevisList.forEach(function(d) {
     var cl = comptaClients.find(function(c){return c.id===d.client_id});
-    var color = statusColors[d.status] || 'var(--text2)';
+    var color = statusColors[hfStatus(d)] || 'var(--text2)';
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
       '<div><strong>' + (d.numero||'D-'+d.id) + '</strong> - ' + (cl?cl.nom:(d.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (d.date?fmtDate(d.date):'') + (d.project_id?' · 📎 Projet lié':'') + '</span></div>' +
-      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (d.status||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + (d.total_ttc||d.total||0).toFixed(2) + '</strong></div></div>' +
+      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + hfStatus(d)||'brouillon' + '</span><br><strong style="color:var(--accent)">CHF ' + hfTotal(d).toFixed(2) + '</strong></div></div>' +
       '<div style="margin-top:8px;display:flex;gap:6px">' +
       '<button style="background:none;border:1px solid #0ea5e9;border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:#0ea5e9;font-size:.75rem" onclick="downloadDevisPdf(' + d.id + ')">Télécharger</button>' +
       '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:.75rem" onclick="devisForm(' + d.id + ')">Modifier</button>';
+    var dStatus = hfStatus(d);
     if(dStatus === 'brouillon' || !dStatus) {
       html += '<button style="background:none;border:1px solid var(--accent);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--accent);font-size:.75rem" onclick="devisChangeStatus(' + d.id + ',\'envoye\')">Envoyer</button>';
     }
