@@ -2760,7 +2760,7 @@ function renderDevis() {
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
       '<div><strong>' + (d.numero||'D-'+d.id) + '</strong> - ' + (cl?cl.nom:(d.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (d.date?fmtDate(d.date):'') + (d.project_id?' · 📎 Projet lié':'') + '</span></div>' +
-      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + hfStatus(d)||'brouillon' + '</span><br><strong style="color:var(--accent)">CHF ' + hfTotal(d).toFixed(2) + '</strong></div></div>' +
+      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (hfStatus(d)||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + hfTotal(d).toFixed(2) + '</strong></div></div>' +
       '<div style="margin-top:8px;display:flex;gap:6px">' +
       '<button style="background:none;border:1px solid #0ea5e9;border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:#0ea5e9;font-size:.75rem" onclick="downloadDevisPdf(' + d.id + ')">Télécharger</button>' +
       '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:.75rem" onclick="devisForm(' + d.id + ')">Modifier</button>';
