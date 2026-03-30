@@ -2779,10 +2779,11 @@ function devisForm(editId) {
   devisLines = d && d.lignes ? JSON.parse(JSON.stringify(d.lignes)) : [{description:'', quantite:1, unite:'', prix_unitaire:0, note:''}];
   var el = getComptaContentEl();
   var html = '<h3 style="margin:10px 0;font-size:1rem">' + (editId ? 'Modifier devis' : 'Nouveau devis') + '</h3>';
-  html += '<div style="margin-bottom:10px"><label style="font-size:.8rem;color:var(--text2)">Client</label><select id="dv_client" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)">';
-  html += '<option value="">-- Choisir --</option>';
-  comptaClients.forEach(function(c){ html += '<option value="' + c.id + '"' + (d && d.client_id===c.id?' selected':'') + '>' + c.nom + '</option>'; });
-  html += '</select></div>';
+  var sortedClients = comptaClients.slice().sort(function(a,b){ return (a.nom||'').localeCompare(b.nom||''); });
+  var selClientName = d ? (sortedClients.find(function(c){return c.id===d.client_id})||{}).nom || d.client_name || '' : '';
+  html += '<div style="margin-bottom:10px"><label style="font-size:.8rem;color:var(--text2)">Client</label><input id="dv_client_search" list="dv_client_list" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)" placeholder="Taper pour rechercher..." value="' + selClientName.replace(/"/g,'&quot;') + '"><datalist id="dv_client_list">';
+  sortedClients.forEach(function(c){ html += '<option value="' + c.nom.replace(/"/g,'&quot;') + '" data-id="' + c.id + '">'; });
+  html += '</datalist><input type="hidden" id="dv_client" value="' + (d&&d.client_id?d.client_id:'') + '"></div>';
   html += '<div style="margin-bottom:10px"><label style="font-size:.8rem;color:var(--text2)">Lié à un projet / lead</label><select id="dv_project" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text)"><option value="">-- Aucun --</option></select></div>';
   html += '<div id="devisLinesContainer"></div>';
   html += '<button style="margin:8px 0;background:none;border:1px dashed var(--accent);border-radius:var(--radius);padding:6px 14px;cursor:pointer;color:var(--accent);font-size:.8rem" onclick="devisAddLine()">+ Ajouter ligne</button>';
@@ -2801,7 +2802,9 @@ function devisForm(editId) {
   // Populate project/lead dropdown
   (async function(){
     try {
-      var projs = projCache || await getProjects();
+      var r = await getProjects();
+      var projs = r && r.ok ? await r.json() : [];
+      projs.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
       var sel = document.getElementById('dv_project');
       if(sel && projs) {
         projs.forEach(function(p){ 
@@ -2812,9 +2815,16 @@ function devisForm(editId) {
           sel.appendChild(opt);
         });
       }
-    } catch(e){}
+    } catch(e){ console.error('proj dropdown', e); }
   })();
   renderDevisLines();
+  // Sync client_id from search input
+  var dvcs = document.getElementById('dv_client_search');
+  if(dvcs) dvcs.addEventListener('input', function(){
+    var val = this.value;
+    var found = sortedClients.find(function(c){ return c.nom === val; });
+    document.getElementById('dv_client').value = found ? found.id : '';
+  });
 }
 
 function renderDevisLines() {
@@ -2876,7 +2886,8 @@ function devisRemoveLine(idx) { devisLines.splice(idx, 1); renderDevisLines(); }
 
 async function devisSave(editId) {
   var body = {
-    client_id: parseInt(document.getElementById('dv_client').value),
+    client_id: parseInt(document.getElementById('dv_client').value) || null,
+    client_name: (document.getElementById('dv_client_search')||{}).value || '',
     project_id: document.getElementById('dv_project') ? (document.getElementById('dv_project').value || null) : null,
     date: (document.getElementById('dv_date')||{}).value || '',
     validite: (document.getElementById('dv_validite')||{}).value || '30 jours',
@@ -2981,7 +2992,8 @@ function factureForm(editId) {
 
 async function factureSave(editId) {
   var body = {
-    client_id: parseInt(document.getElementById('dv_client').value),
+    client_id: parseInt(document.getElementById('dv_client').value) || null,
+    client_name: (document.getElementById('dv_client_search')||{}).value || '',
     project_id: document.getElementById('dv_project') ? (document.getElementById('dv_project').value || null) : null,
     date_facture: (document.getElementById('fv_date')||{}).value || '',
     echeance: (document.getElementById('fv_echeance')||{}).value || '',
