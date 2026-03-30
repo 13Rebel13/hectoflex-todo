@@ -786,6 +786,9 @@ function switchNav(page, btn, opts){
   // Auto-refresh: reload data for active tab every 15s
   clearInterval(window._autoRefresh);
   window._autoRefresh = setInterval(function(){
+    // Ne pas rafraîchir si un formulaire est actif (input/textarea/select focused)
+    var ae=document.activeElement;
+    if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'||ae.tagName==='SELECT'))return;
     if(currentPage==='projects') loadProjects();
     else if(currentPage==='leads') loadLeads();
     else if(currentPage==='suppliers') loadSuppliers().then(function(){renderSuppliers()});
