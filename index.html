@@ -3583,22 +3583,62 @@ async function loadFactFournisseurs() {
 
 function renderFactFournisseurs() {
   var el = getComptaContentEl();
-  var statusColors = {brouillon:'var(--text2)',comptabilisee:'var(--accent)',payee:'var(--green)'};
-  var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Factures fournisseurs (' + comptaFactFourn.length + ')</h3><button class="add-btn" onclick="factFournForm()">+ Nouvelle</button></div>';
+  var statusColors = {a_traiter:'#f59e0b',brouillon:'var(--text2)',comptabilisee:'var(--accent)',payee:'var(--green)',en_retard:'var(--red)'};
+
+  // Year filter
+  var yearSet = {};
+  comptaFactFourn.forEach(function(f){ var d=f.date_facture||f.date||f.created_at||''; if(d.length>=4) yearSet[d.substring(0,4)]=true; });
+  var years = Object.keys(yearSet).sort().reverse();
+  var selYear = window._ffYear || String(new Date().getFullYear());
+  if(years.indexOf(selYear)<0 && years.length) selYear = years[0];
+  window._ffYear = selYear;
+
+  // Search
+  var q = (window._ffSearch || '').toLowerCase();
+
+  var html = '<div style="display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap">';
+  html += '<h3 style="font-size:1rem;margin:0">Factures fournisseurs</h3>';
+  html += '<select onchange="window._ffYear=this.value;renderFactFournisseurs()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem">';
+  html += '<option value="all">Toutes années</option>';
+  years.forEach(function(y){ html += '<option value="'+y+'"'+(y===selYear?' selected':'')+'>'+y+'</option>'; });
+  html += '</select>';
+  html += '<input type="text" placeholder="Rechercher..." value="'+(window._ffSearch||'')+'" oninput="window._ffSearch=this.value;renderFactFournisseurs()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;flex:1;min-width:120px">';
+  html += '<button class="add-btn" onclick="factFournForm()">+ Nouvelle</button>';
+  html += '</div>';
+
+  var filtered = comptaFactFourn.filter(function(f){
+    var d = f.date_facture||f.date||f.created_at||'';
+    if(selYear !== 'all' && d.substring(0,4) !== selYear) return false;
+    if(q) {
+      var txt = ((f.fournisseur||'')+(f.sujet||'')+(f.email_fournisseur||f.email||'')).toLowerCase();
+      if(txt.indexOf(q)<0) return false;
+    }
+    return true;
+  });
+
+  // Sort by date desc
+  filtered.sort(function(a,b){ return ((b.date_facture||b.date||'')>(a.date_facture||a.date||''))?1:-1; });
+
+  html += '<div style="font-size:.82rem;color:var(--text2);margin-bottom:8px">'+filtered.length+' factures</div>';
   html += '<div style="display:flex;flex-direction:column;gap:8px">';
-  comptaFactFourn.forEach(function(f) {
-    var color = statusColors[f.status] || 'var(--text2)';
+  filtered.forEach(function(f) {
+    var fDate = f.date_facture||f.date||'';
+    var fStatus = hfStatus(f);
+    var color = statusColors[fStatus] || '#f59e0b';
+    var montant = parseFloat(f.montant_ttc) || hfTotal(f) || 0;
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
-      '<div><strong>' + (f.fournisseur||'?') + '</strong><br><span style="font-size:.8rem;color:var(--text2)">' + (f.date?fmtDate(f.date):'') + ' | ' + (f.reference||'') + '</span></div>' +
-      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + hfStatus(f) + '</span><br><strong style="color:var(--accent)">CHF ' + hfTotal(f).toFixed(2) + '</strong></div></div>';
+      '<div><strong>' + (f.fournisseur||'?') + '</strong><br><span style="font-size:.8rem;color:var(--text2)">' + (fDate?fmtDate(fDate):'') + '</span>' +
+      (f.sujet ? '<br><span style="font-size:.75rem;color:var(--text2);opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:260px">'+escHtml(String(f.sujet).substring(0,60))+'</span>' : '') +
+      '</div>' +
+      '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + fStatus + '</span>' +
+      (montant ? '<br><strong style="color:var(--accent)">CHF ' + montant.toFixed(2) + '</strong>' : '') + '</div></div>';
     var pieces = Array.isArray(f.pieces) ? f.pieces : [];
-    html += '<div style="margin-top:8px;font-size:.78rem;color:var(--text2)">Pièces: ' + (pieces.length? pieces.map(function(p){return '<a target="_blank" href="'+p.url+'" style="color:var(--accent)">'+(p.name||'PDF')+'</a>';}).join(' · ') : '<span style="color:var(--red)">Aucune</span>') + '</div>';
+    html += '<div style="margin-top:8px;font-size:.78rem;color:var(--text2)">Pièces: ' + (pieces.length? pieces.map(function(p){return '<a target="_blank" href="'+(p.url||'#')+'" style="color:var(--accent)">'+(p.name||'PDF')+'</a>';}).join(' · ') : (f.pdf_name ? '<span style="color:var(--blue)">📎 '+f.pdf_name+'</span>' : '<span style="color:var(--red)">Aucune</span>')) + '</div>';
     html += '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">';
     html += '<button style="background:none;border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--text2);font-size:.75rem" onclick="factFournForm(' + f.id + ')">Modifier</button>';
-    if(hfStatus(f) !== 'payee') html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="factFournPay(' + f.id + ')">Payer</button>';
-    html += '</div>';
-    html += '</div>';
+    if(fStatus !== 'payee') html += '<button style="background:none;border:1px solid var(--green);border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:var(--green);font-size:.75rem" onclick="factFournPay(' + f.id + ')">Payer</button>';
+    html += '</div></div>';
   });
   html += '</div>';
   el.innerHTML = html;
