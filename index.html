@@ -2672,6 +2672,11 @@ async function loadComptaSynthese() {
     cardHtml('Pièces manquantes', missingDocs, missingDocs? 'var(--red)' : 'var(--green)') +
     '</div>';
 
+  html += '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">';
+  html += '<button onclick="switchPage(\'facturesmain\')" style="padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-weight:600;font-size:.9rem">📄 Voir les factures</button>';
+  html += '<button onclick="switchPage(\'devismain\')" style="padding:10px 20px;background:var(--blue,#0ea5e9);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-weight:600;font-size:.9rem">📋 Voir les devis</button>';
+  html += '</div>';
+
   html += '<div style="margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px">';
   html += '<div style="font-weight:600;margin-bottom:6px">Dossier fiduciaire</div>';
   html += '<div style="font-size:.85rem;color:var(--text2)">Ajoute les PDF factures/tickets directement dans chaque facture client/fournisseur (onglets ci-dessus). La fiduciaire reçoit un dossier propre sans ressaisie.</div>';
