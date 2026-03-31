@@ -2677,6 +2677,33 @@ async function loadComptaSynthese() {
   html += '<button onclick="switchPage(\'devismain\')" style="padding:10px 20px;background:var(--blue,#0ea5e9);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-weight:600;font-size:.9rem">📋 Voir les devis</button>';
   html += '</div>';
 
+  // Rapport par catégorie
+  var catTotals = {};
+  factures.forEach(function(f){
+    if(!matchYear(f.date_facture||f.created_at)) return;
+    var cat = f.categorie || 'Divers';
+    if(!catTotals[cat]) catTotals[cat] = {nb:0, ht:0};
+    catTotals[cat].nb++;
+    catTotals[cat].ht += parseFloat(f.sous_total_ht) || (hfTotal(f) / 1.081);
+  });
+  var catKeys = Object.keys(catTotals).sort(function(a,b){ return catTotals[b].ht - catTotals[a].ht; });
+  if(catKeys.length) {
+    html += '<div style="margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px">';
+    html += '<div style="font-weight:600;margin-bottom:8px">📊 Répartition par catégorie</div>';
+    var totalHT = catKeys.reduce(function(s,k){ return s + catTotals[k].ht; }, 0);
+    catKeys.forEach(function(cat){
+      var d = catTotals[cat];
+      var pct = totalHT ? Math.round(d.ht / totalHT * 100) : 0;
+      html += '<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:.82rem">';
+      html += '<span style="min-width:90px;font-weight:500">' + cat + '</span>';
+      html += '<div style="flex:1;background:var(--border);border-radius:4px;height:16px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:var(--accent);border-radius:4px"></div></div>';
+      html += '<span style="min-width:110px;text-align:right;color:var(--text2)">CHF ' + d.ht.toFixed(0) + ' (' + pct + '%)</span>';
+      html += '<span style="min-width:30px;text-align:right;color:var(--text2);font-size:.75rem">' + d.nb + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
   html += '<div style="margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px">';
   html += '<div style="font-weight:600;margin-bottom:6px">Dossier fiduciaire</div>';
   html += '<div style="font-size:.85rem;color:var(--text2)">Ajoute les PDF factures/tickets directement dans chaque facture client/fournisseur (onglets ci-dessus). La fiduciaire reçoit un dossier propre sans ressaisie.</div>';
