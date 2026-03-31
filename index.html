@@ -2752,14 +2752,27 @@ function renderDevis() {
   var el = getComptaContentEl();
   var statusColors = {brouillon:'var(--text2)',envoye:'var(--accent)',accepte:'var(--green)',refuse:'var(--red)',facture:'#9333ea'};
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Devis (' + comptaDevisList.length + ')</h3><button class="add-btn" onclick="devisForm()">+ Nouveau</button></div>';
-  html += '<div style="margin-bottom:8px"><input id="devisSearch" type="text" placeholder="Rechercher par numéro ou client..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" oninput="filterDevisList()"></div>';
+  html += '<div style="margin-bottom:8px"><input id="devisSearch" type="text" placeholder="Rechercher numéro, client, notes..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" oninput="filterDevisList()"></div>';
+  html += '<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center">';
+  html += '<select id="devisFilterStatus" onchange="filterDevisList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem"><option value="">Tous les statuts</option><option value="brouillon">Brouillon</option><option value="envoye">Envoyé</option><option value="accepte">Accepté</option><option value="refuse">Refusé</option><option value="facture">Facturé</option></select>';
+  html += '<select id="devisFilterClient" onchange="filterDevisList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem;max-width:200px"><option value="">Tous les clients</option></select>';
+  html += '<select id="devisSort" onchange="sortAndRenderDevis()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem"><option value="date_desc">Date ↓</option><option value="date_asc">Date ↑</option><option value="total_desc">Montant ↓</option><option value="total_asc">Montant ↑</option><option value="client_asc">Client A-Z</option><option value="numero_desc">Numéro ↓</option></select>';
+  html += '<span id="devisCount" style="font-size:.78rem;color:var(--text2);margin-left:auto"></span>';
+  html += '</div>';
   html += '<div id="devisListContainer" style="display:flex;flex-direction:column;gap:8px">';
+  var uniqueClients = [];
+  var seenClients = {};
+  comptaDevisList.forEach(function(d) {
+    var cn = d.client_name || (comptaClients.find(function(c){return c.id===d.client_id})||{}).nom || '?';
+    if(!seenClients[cn]) { seenClients[cn] = true; uniqueClients.push(cn); }
+  });
+  uniqueClients.sort();
   comptaDevisList.forEach(function(d) {
     var cl = comptaClients.find(function(c){return c.id===d.client_id});
     var color = statusColors[hfStatus(d)] || 'var(--text2)';
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
-      '<div><strong>' + (d.numero||'D-'+d.id) + '</strong> - ' + (cl?cl.nom:(d.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (d.date?fmtDate(d.date):'') + (d.project_id?' · 📎 Projet lié':'') + '</span></div>' +
+      '<div><strong>' + (d.numero||'D-'+d.id) + '</strong> - ' + (cl?cl.nom:(d.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (d.date?fmtDate(d.date):'') + (d.project_id?' · 📎 Projet lié':'') + '</span>' + (d.notes?'<br><span style="font-size:.75rem;color:var(--text2);opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:260px">📝 '+escHtml(String(d.notes).substring(0,60))+(String(d.notes).length>60?'...':'')+'</span>':'') + '</div>' +
       '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + (hfStatus(d)||'brouillon') + '</span><br><strong style="color:var(--accent)">CHF ' + hfTotal(d).toFixed(2) + '</strong></div></div>' +
       '<div style="margin-top:8px;display:flex;gap:6px">' +
       '<button style="background:none;border:1px solid #0ea5e9;border-radius:var(--radius);padding:4px 10px;cursor:pointer;color:#0ea5e9;font-size:.75rem" onclick="downloadDevisPdf(' + d.id + ')">Télécharger</button>' +
@@ -2779,6 +2792,9 @@ function renderDevis() {
   });
   html += '</div>';
   el.innerHTML = html;
+  var dfc = document.getElementById('devisFilterClient');
+  if(dfc) { uniqueClients.forEach(function(cn){ var o=document.createElement('option'); o.value=cn; o.textContent=cn; dfc.appendChild(o); }); }
+  filterDevisList();
 }
 
 function devisForm(editId) {
@@ -2944,17 +2960,30 @@ async function loadFactures() {
 
 function renderFactures() {
   var el = getComptaContentEl();
-  var statusColors = {brouillon:'var(--text2)',envoyee:'var(--accent)',payee:'var(--green)',en_retard:'var(--red)'};
+  var statusColors = {brouillon:'var(--text2)',envoyee:'var(--accent)',payee:'var(--green)',en_retard:'var(--red)',partiel:'#f59e0b'};
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Factures (' + comptaFactures.length + ')</h3><button class="add-btn" onclick="factureForm()">+ Nouvelle</button></div>';
-  html += '<div style="margin-bottom:8px"><input id="facturesSearch" type="text" placeholder="Rechercher par numéro ou client..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" oninput="filterFacturesList()"></div>';
+  html += '<div style="margin-bottom:8px"><input id="facturesSearch" type="text" placeholder="Rechercher numéro, client, notes..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" oninput="filterFacturesList()"></div>';
+  html += '<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center">';
+  html += '<select id="factFilterStatus" onchange="filterFacturesList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem"><option value="">Tous les statuts</option><option value="brouillon">Brouillon</option><option value="envoyee">Envoyée</option><option value="payee">Payée</option><option value="en_retard">En retard</option></select>';
+  html += '<select id="factFilterClient" onchange="filterFacturesList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem;max-width:200px"><option value="">Tous les clients</option></select>';
+  html += '<select id="factSort" onchange="sortAndRenderFactures()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem"><option value="date_desc">Date ↓</option><option value="date_asc">Date ↑</option><option value="total_desc">Montant ↓</option><option value="total_asc">Montant ↑</option><option value="client_asc">Client A-Z</option><option value="numero_desc">Numéro ↓</option></select>';
+  html += '<span id="factCount" style="font-size:.78rem;color:var(--text2);margin-left:auto"></span>';
+  html += '</div>';
   html += '<div id="facturesListContainer" style="display:flex;flex-direction:column;gap:8px">';
+  var uniqueFClients = [];
+  var seenFClients = {};
+  comptaFactures.forEach(function(f) {
+    var cn = f.client_name || (comptaClients.find(function(c){return c.id===f.client_id})||{}).nom || '?';
+    if(!seenFClients[cn]) { seenFClients[cn] = true; uniqueFClients.push(cn); }
+  });
+  uniqueFClients.sort();
   comptaFactures.forEach(function(f) {
     var cl = comptaClients.find(function(c){return c.id===f.client_id});
     var fStatus = hfStatus(f);
     var color = statusColors[fStatus] || 'var(--text2)';
     html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
       '<div style="display:flex;justify-content:space-between;align-items:center">' +
-      '<div><strong>' + (f.numero||'F-'+f.id) + '</strong> - ' + (cl?cl.nom:(f.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (f.date_facture||f.date?fmtDate(f.date_facture||f.date):'') + '</span></div>' +
+      '<div><strong>' + (f.numero||'F-'+f.id) + '</strong> - ' + (cl?cl.nom:(f.client_name||'?')) + '<br><span style="font-size:.8rem;color:var(--text2)">' + (f.date_facture||f.date?fmtDate(f.date_facture||f.date):'') + '</span>' + (f.notes?'<br><span style="font-size:.75rem;color:var(--text2);opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:260px">📝 '+escHtml(String(f.notes).substring(0,60))+(String(f.notes).length>60?'...':'')+'</span>':'') + '</div>' +
       '<div style="text-align:right"><span style="display:inline-block;padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:600;background:' + color + ';color:#fff">' + fStatus + '</span><br><strong style="color:var(--accent)">CHF ' + hfTotal(f).toFixed(2) + '</strong></div></div>';
     var pieces = Array.isArray(f.pieces) ? f.pieces : [];
     html += '<div style="margin-top:8px;font-size:.78rem;color:var(--text2)">Pièces: ' + (pieces.length? pieces.map(function(p){return '<a target="_blank" href="'+p.url+'" style="color:var(--accent)">'+(p.name||'PDF')+'</a>';}).join(' · ') : '<span style="color:var(--red)">Aucune</span>') + '</div>';
@@ -2970,6 +2999,9 @@ function renderFactures() {
   });
   html += '</div>';
   el.innerHTML = html;
+  var ffc = document.getElementById('factFilterClient');
+  if(ffc) { uniqueFClients.forEach(function(cn){ var o=document.createElement('option'); o.value=cn; o.textContent=cn; ffc.appendChild(o); }); }
+  filterFacturesList();
 }
 
 function factureForm(editId) {
@@ -3934,31 +3966,79 @@ async function factureChangeStatus(id, newStatus) {
 }
 
 function filterDevisList() {
-  var q = (document.getElementById('devisSearch')||{}).value || '';
-  q = q.toLowerCase();
+  var q = ((document.getElementById('devisSearch')||{}).value || '').toLowerCase();
+  var fs = ((document.getElementById('devisFilterStatus')||{}).value || '');
+  var fc = ((document.getElementById('devisFilterClient')||{}).value || '');
   var container = document.getElementById('devisListContainer');
   if(!container) return;
   var cards = container.children;
+  var shown = 0;
   for(var i=0; i<comptaDevisList.length && i<cards.length; i++) {
     var d = comptaDevisList[i];
     var cl = comptaClients.find(function(c){return c.id===d.client_id});
-    var searchStr = ((d.numero||'D-'+d.id) + ' ' + (cl?cl.nom:'')).toLowerCase();
-    cards[i].style.display = (!q || searchStr.indexOf(q) >= 0) ? '' : 'none';
+    var cn = d.client_name || (cl?cl.nom:'');
+    var searchStr = ((d.numero||'') + ' ' + cn + ' ' + (d.notes||'') + ' ' + (d.conditions||'')).toLowerCase();
+    var statusMatch = !fs || (hfStatus(d)||'brouillon') === fs;
+    var clientMatch = !fc || cn === fc;
+    var textMatch = !q || searchStr.indexOf(q) >= 0;
+    var show = statusMatch && clientMatch && textMatch;
+    cards[i].style.display = show ? '' : 'none';
+    if(show) shown++;
   }
+  var countEl = document.getElementById('devisCount');
+  if(countEl) countEl.textContent = shown + '/' + comptaDevisList.length;
+}
+
+function sortAndRenderDevis() {
+  var sort = ((document.getElementById('devisSort')||{}).value || 'date_desc');
+  comptaDevisList.sort(function(a,b) {
+    if(sort==='date_desc') return ((b.date||b.created_at||'')>(a.date||a.created_at||''))?1:-1;
+    if(sort==='date_asc') return ((a.date||a.created_at||'')>(b.date||b.created_at||''))?1:-1;
+    if(sort==='total_desc') return hfTotal(b)-hfTotal(a);
+    if(sort==='total_asc') return hfTotal(a)-hfTotal(b);
+    if(sort==='client_asc') return (a.client_name||'').localeCompare(b.client_name||'');
+    if(sort==='numero_desc') return ((b.numero||'')>(a.numero||''))?1:-1;
+    return 0;
+  });
+  renderDevis();
 }
 
 function filterFacturesList() {
-  var q = (document.getElementById('facturesSearch')||{}).value || '';
-  q = q.toLowerCase();
+  var q = ((document.getElementById('facturesSearch')||{}).value || '').toLowerCase();
+  var fs = ((document.getElementById('factFilterStatus')||{}).value || '');
+  var fc = ((document.getElementById('factFilterClient')||{}).value || '');
   var container = document.getElementById('facturesListContainer');
   if(!container) return;
   var cards = container.children;
+  var shown = 0;
   for(var i=0; i<comptaFactures.length && i<cards.length; i++) {
     var f = comptaFactures[i];
     var cl = comptaClients.find(function(c){return c.id===f.client_id});
-    var searchStr = ((f.numero||'F-'+f.id) + ' ' + (cl?cl.nom:'')).toLowerCase();
-    cards[i].style.display = (!q || searchStr.indexOf(q) >= 0) ? '' : 'none';
+    var cn = f.client_name || (cl?cl.nom:'');
+    var searchStr = ((f.numero||'') + ' ' + cn + ' ' + (f.notes||'') + ' ' + (f.conditions||'') + ' ' + (f.narration||'')).toLowerCase();
+    var statusMatch = !fs || hfStatus(f) === fs;
+    var clientMatch = !fc || cn === fc;
+    var textMatch = !q || searchStr.indexOf(q) >= 0;
+    var show = statusMatch && clientMatch && textMatch;
+    cards[i].style.display = show ? '' : 'none';
+    if(show) shown++;
   }
+  var countEl = document.getElementById('factCount');
+  if(countEl) countEl.textContent = shown + '/' + comptaFactures.length;
+}
+
+function sortAndRenderFactures() {
+  var sort = ((document.getElementById('factSort')||{}).value || 'date_desc');
+  comptaFactures.sort(function(a,b) {
+    if(sort==='date_desc') return ((b.date_facture||b.created_at||'')>(a.date_facture||a.created_at||''))?1:-1;
+    if(sort==='date_asc') return ((a.date_facture||a.created_at||'')>(b.date_facture||b.created_at||''))?1:-1;
+    if(sort==='total_desc') return hfTotal(b)-hfTotal(a);
+    if(sort==='total_asc') return hfTotal(a)-hfTotal(b);
+    if(sort==='client_asc') return (a.client_name||'').localeCompare(b.client_name||'');
+    if(sort==='numero_desc') return ((b.numero||'')>(a.numero||''))?1:-1;
+    return 0;
+  });
+  renderFactures();
 }
 
 async function generateFacturePdfWithQR(obj, client) {
