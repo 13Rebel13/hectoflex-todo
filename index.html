@@ -2596,7 +2596,7 @@ var comptaPlanComptable = [];
 var comptaCurrentTab = 'synthese';
 var devisLines = [];
 function hfStatus(obj) { return obj.status || obj.statut || 'brouillon'; }
-function hfTotal(obj) { var t = parseFloat(obj.total_ttc) || parseFloat(obj.total) || 0; if(!t && obj.lignes && obj.lignes.length) { var ht=0; obj.lignes.forEach(function(l){ ht += (parseFloat(l.quantite)||0)*(parseFloat(l.prix_unitaire)||0); }); t = ht * 1.081; } return t; }
+function hfTotal(obj) { var t = parseFloat(obj.total_ttc) || parseFloat(obj.total) || 0; if(!t && obj.lignes && obj.lignes.length) { var ht=0; obj.lignes.forEach(function(l){ ht += (parseFloat(l.quantite||l.quantity)||0)*(parseFloat(l.prix_unitaire||l.unitPrice)||0); }); t = ht * 1.081; } return t; }
 function getComptaContentEl(){ return document.getElementById(window.comptaTargetId||'comptaContent') || document.getElementById('comptaContent'); }
 
 function comptaInit() {
@@ -3227,7 +3227,7 @@ function generateComptaPdf(docType, obj, client) {
     rx += cols[0];
     doc.text(String(q||0), rx+cols[1]/2, ry+4.5, {align:'center'});
     rx += cols[1];
-    doc.text(safe(li.unite||'pce'), rx+cols[2]/2, ry+4.5, {align:'center'});
+    doc.text(safe(li.unite||li.unit||'pce'), rx+cols[2]/2, ry+4.5, {align:'center'});
     rx += cols[2];
     doc.text('CHF ' + pu.toFixed(2), rx+cols[3]-2, ry+4.5, {align:'right'});
     rx += cols[3];
@@ -4104,15 +4104,15 @@ async function generateFacturePdfWithQR(obj, client) {
   var ry = ty + 7, subtotal = 0;
   var lignes = obj.lignes || [];
   for(var j=0; j<lignes.length; j++){
-    var li = lignes[j]; var q = parseFloat(li.quantite||0); var pu = parseFloat(li.prix_unitaire||0);
-    var lt = q * pu; subtotal += lt; var rh = li.note ? 11 : 6.5;
+    var li = lignes[j]; if(li.type && li.type !== 'row') continue; var q = parseFloat(li.quantite||li.quantity||0); var pu = parseFloat(li.prix_unitaire||li.unitPrice||0);
+    var lt = li.grossTotal ? parseFloat(li.grossTotal)/1.081 : q * pu; subtotal += lt; var rh = li.note ? 11 : 6.5;
     if(ry + rh > 175){ doc.addPage(); ry = 15; }
     if(j%2===0){ doc.setFillColor(249,249,251); doc.rect(L, ry, W, rh, 'F'); }
     doc.setTextColor(26,26,46); doc.setFont('helvetica','normal'); doc.setFontSize(8);
     var rx = L;
-    doc.text(safe(li.description||'-').slice(0,55), rx+2, ry+4.5); rx += cols[0];
+    doc.text(safe(li.description||li.content||'-').slice(0,55), rx+2, ry+4.5); rx += cols[0];
     doc.text(String(q||0), rx+cols[1]/2, ry+4.5, {align:'center'}); rx += cols[1];
-    doc.text(safe(li.unite||'pce'), rx+cols[2]/2, ry+4.5, {align:'center'}); rx += cols[2];
+    doc.text(safe(li.unite||li.unit||'pce'), rx+cols[2]/2, ry+4.5, {align:'center'}); rx += cols[2];
     doc.text('CHF ' + pu.toFixed(2), rx+cols[3]-2, ry+4.5, {align:'right'}); rx += cols[3];
     doc.text('CHF ' + lt.toFixed(2), rx+cols[4]-2, ry+4.5, {align:'right'});
     if(li.note){ doc.setFontSize(6.5); doc.setTextColor(107,114,128); doc.text('  ' + safe(li.note).slice(0,80), L+2, ry+9); }
