@@ -712,7 +712,7 @@ if(isComptable){
   var slogo = document.querySelector('.sidebar-logo');
   if(slogo) slogo.style.display='none';
 }
-document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';document.getElementById('userName').textContent=currentUser.charAt(0).toUpperCase()+currentUser.slice(1);renderCatTabs();loadTasks();clearInterval(syncTimer);syncTimer=setInterval(loadTasks,30000);window.__hfHistoryReady=true;switchNav('tasks',document.querySelector('.bottom-nav button.active')||document.querySelector('.bottom-nav button'),{skipHistory:true});try{history.replaceState({hfApp:true,page:'tasks'},'', '#tasks');history.pushState({hfApp:true,page:'tasks'},'', '#tasks');}catch(e){}}
+document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';document.getElementById('userName').textContent=currentUser.charAt(0).toUpperCase()+currentUser.slice(1);renderCatTabs();loadTasks();clearInterval(syncTimer);/* syncTimer disabled */;window.__hfHistoryReady=true;switchNav('tasks',document.querySelector('.bottom-nav button.active')||document.querySelector('.bottom-nav button'),{skipHistory:true});try{history.replaceState({hfApp:true,page:'tasks'},'', '#tasks');history.pushState({hfApp:true,page:'tasks'},'', '#tasks');}catch(e){}}
 
 function renderCatTabs(){document.getElementById('catTabs').innerHTML=CATEGORIES.map(c=>`<button class="cat-tab${currentCat===c?' active':''}" onclick="switchCat('${c}',this)">${c}</button>`).join('')}
 
@@ -817,20 +817,7 @@ function switchNav(page, btn, opts){
   if(page==='projects') loadProjects();
   if(page==='leads') loadLeads();
   // Auto-refresh: reload data for active tab every 15s
-  clearInterval(window._autoRefresh);
-  window._autoRefresh = setInterval(function(){
-    // Ne pas rafraîchir si un formulaire est actif (input/textarea/select focused)
-    var ae=document.activeElement;
-    if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'||ae.tagName==='SELECT'))return;
-    if(currentPage==='projects') loadProjects();
-    else if(currentPage==='leads') loadLeads();
-    else if(currentPage==='suppliers') loadSuppliers().then(function(){renderSuppliers()});
-    else if(currentPage==='dtf') dtfLoadOrders();
-    else if(currentPage==='devismain') { window.comptaTargetId='devisMainContent'; loadDevis(); }
-    else if(currentPage==='facturesmain') { window.comptaTargetId='facturesMainContent'; loadFactures(); }
-    else if(currentPage==='clientsmain') { window.comptaTargetId='clientsMainContent'; loadComptaClients(); }
-    else if(currentPage==='compta') { window.comptaTargetId='comptaContent'; loadComptaSynthese(); }
-  }, 15000);
+  /* auto-refresh disabled */
   if(page==='qr') renderSavedQR();
 
   if(!opts.skipHistory && window.__hfHistoryReady) {
@@ -4476,7 +4463,7 @@ var planningTypeLabels = {rdv:'Rendez-vous',livraison:'Livraison',pose:'Pose',pr
 
 function loadPlanning() {
   clearInterval(planningRefreshTimer);
-  planningRefreshTimer = setInterval(function(){ if(currentPage==='planning') fetchPlanningEvents(); }, 30000);
+  /* planning auto-refresh disabled */
   fetchPlanningEvents();
 }
 
