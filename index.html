@@ -892,11 +892,18 @@ async function getProjects() {
 function invalidateProjectsCache() { _projectsCache = null; _projectsCacheTime = 0; }
 
 async function loadProjects() {
+  // Reset views: show list, hide form/detail
+  var lv=document.getElementById('projListView');
+  var fv=document.getElementById('projFormView');
+  var dv=document.getElementById('projDetailView');
+  if(lv) lv.style.display='block';
+  if(fv) fv.style.display='none';
+  if(dv) dv.style.display='none';
   try {
     var r = await getProjects();
     if(r.ok) projects = await r.json();
   } catch(e) { console.error('loadProjects',e); }
-  // Filter out leads (en_attente)
+  // Filter out leads (en_attente/proposition/perdu)
   projects = projects.filter(function(p){return p.statut==='en_cours'||p.statut==='termine'||p.statut==='facture'});
   renderProjects();
 }
