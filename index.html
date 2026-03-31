@@ -667,6 +667,7 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
 </div>
 <div class="list-tabs" id="comptaTabs">
 <button class="list-tab active" onclick="comptaSwitchTab('synthese')">Synthèse</button>
+<button class="list-tab" onclick="comptaSwitchTab('journal')">Journal comptable</button>
 <button class="list-tab" onclick="comptaSwitchTab('factfourn')">Factures fournisseurs</button>
 </div>
 <div id="comptaContent"></div>
@@ -2621,10 +2622,11 @@ function comptaSwitchTab(tab) {
   comptaCurrentTab = tab;
   document.querySelectorAll('#comptaTabs .list-tab').forEach(function(b){ b.classList.remove('active'); });
   var tabs = document.querySelectorAll('#comptaTabs .list-tab');
-  var map = ['synthese','factfourn'];
+  var map = ['synthese','journal','factfourn'];
   var idx = map.indexOf(tab);
   if(idx >= 0 && tabs[idx]) tabs[idx].classList.add('active');
   if(tab === 'synthese') loadComptaSynthese();
+  else if(tab === 'journal') loadJournalComptable();
   else if(tab === 'factfourn') loadFactFournisseurs();
 }
 
@@ -2722,6 +2724,144 @@ async function loadComptaSynthese() {
   html += '<div style="font-weight:600;margin-bottom:6px">Dossier fiduciaire</div>';
   html += '<div style="font-size:.85rem;color:var(--text2)">Ajoute les PDF factures/tickets directement dans chaque facture client/fournisseur (onglets ci-dessus). La fiduciaire reçoit un dossier propre sans ressaisie.</div>';
   html += '</div>';
+  el.innerHTML = html;
+}
+
+
+async function loadJournalComptable() {
+  var el = getComptaContentEl();
+  el.innerHTML = '<p style="color:var(--text2)">Chargement du journal...</p>';
+  var factures = await apiFetch('/factures') || [];
+  
+  // Year filter
+  var yearSet = {};
+  factures.forEach(function(f){ var d=f.date_facture||f.created_at||''; if(d.length>=4) yearSet[d.substring(0,4)]=true; });
+  var years = Object.keys(yearSet).sort().reverse();
+  var selYear = window._journalYear || String(new Date().getFullYear());
+  if(years.indexOf(selYear)<0 && years.length) selYear = years[0];
+  window._journalYear = selYear;
+
+  // Category filter
+  var catSet = {};
+  factures.forEach(function(f){ if(f.categorie) catSet[f.categorie]=true; });
+  var cats = Object.keys(catSet).sort();
+  var selCat = window._journalCat || '';
+
+  var html = '<div style="display:flex;gap:8px;align-items:center;margin:10px 0;flex-wrap:wrap">';
+  html += '<h3 style="font-size:1rem;margin:0">📒 Journal comptable</h3>';
+  html += '<select id="journalYearFilter" onchange="window._journalYear=this.value;loadJournalComptable()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem">';
+  years.forEach(function(y){ html += '<option value="'+y+'"'+(y===selYear?' selected':'')+'>'+y+'</option>'; });
+  html += '</select>';
+  html += '<select id="journalCatFilter" onchange="window._journalCat=this.value;loadJournalComptable()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem">';
+  html += '<option value="">Toutes catégories</option>';
+  cats.forEach(function(c){ html += '<option value="'+c+'"'+(c===selCat?' selected':'')+'>'+c+'</option>'; });
+  html += '</select></div>';
+
+  // Swiss chart of accounts mapping
+  var compteVente = {'Textiles':'3001','Céramique':'3002','Véhicules':'3003','Panneaux':'3004','Stickers':'3005','Bâches':'3006','Vitrophanie':'3007','Covering':'3008','Pose':'3009','Design':'3010','Impression':'3011','Divers':'3000'};
+
+  // Build journal entries
+  var entries = [];
+  var totHT = 0, totTVA = 0, totTTC = 0;
+  factures.forEach(function(f){
+    var d = f.date_facture||f.created_at||'';
+    if(d.substring(0,4) !== selYear) return;
+    if(selCat && f.categorie !== selCat) return;
+    
+    var lignes = [];
+    try { lignes = typeof f.lignes === 'string' ? JSON.parse(f.lignes) : (f.lignes||[]); } catch(e){}
+    var cat = f.categorie || 'Divers';
+    var compte = compteVente[cat] || '3000';
+    var client = f.client_name || '?';
+    
+    lignes.forEach(function(l){
+      if(!l.description && !l.grossTotal) return;
+      var ht = parseFloat(l.grossTotal) || ((parseFloat(l.quantity)||1) * (parseFloat(l.unitPrice)||0));
+      var tva = ht * 0.081;
+      var ttc = ht + tva;
+      totHT += ht; totTVA += tva; totTTC += ttc;
+      entries.push({
+        date: d, numero: f.numero||'', client: client, cat: cat, compte: compte,
+        desc: l.description||'', ht: ht, tva: tva, ttc: ttc
+      });
+    });
+
+    // If no lines, use total
+    if(!lignes.length) {
+      var ht2 = parseFloat(f.sous_total_ht) || (hfTotal(f)/1.081);
+      var tva2 = ht2 * 0.081;
+      var ttc2 = ht2 + tva2;
+      totHT += ht2; totTVA += tva2; totTTC += ttc2;
+      entries.push({
+        date: d, numero: f.numero||'', client: client, cat: cat, compte: compte,
+        desc: '(facture globale)', ht: ht2, tva: tva2, ttc: ttc2
+      });
+    }
+  });
+
+  // Summary bar
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0">';
+  html += cardHtml('Total HT', 'CHF '+totHT.toFixed(2), 'var(--accent)');
+  html += cardHtml('TVA 8.1%', 'CHF '+totTVA.toFixed(2), '#9333ea');
+  html += cardHtml('Total TTC', 'CHF '+totTTC.toFixed(2), 'var(--green)');
+  html += cardHtml('Écritures', entries.length, 'var(--text)');
+  html += '</div>';
+
+  // Table
+  html += '<div style="overflow-x:auto;margin-top:10px;border:1px solid var(--border);border-radius:var(--radius-lg)">';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:.78rem">';
+  html += '<thead><tr style="background:var(--surface);border-bottom:2px solid var(--border)">';
+  html += '<th style="padding:8px 6px;text-align:left">Date</th>';
+  html += '<th style="padding:8px 6px;text-align:left">N° Facture</th>';
+  html += '<th style="padding:8px 6px;text-align:left">Client</th>';
+  html += '<th style="padding:8px 6px;text-align:left">Compte</th>';
+  html += '<th style="padding:8px 6px;text-align:left">Description</th>';
+  html += '<th style="padding:8px 6px;text-align:right">HT</th>';
+  html += '<th style="padding:8px 6px;text-align:right">TVA 8.1%</th>';
+  html += '<th style="padding:8px 6px;text-align:right">TTC</th>';
+  html += '</tr></thead><tbody>';
+
+  entries.forEach(function(e, i){
+    var bg = i%2===0 ? 'transparent' : 'var(--surface)';
+    html += '<tr style="background:'+bg+';border-bottom:1px solid var(--border)">';
+    html += '<td style="padding:6px;white-space:nowrap">'+fmtDate(e.date)+'</td>';
+    html += '<td style="padding:6px;white-space:nowrap;color:var(--accent)">'+e.numero+'</td>';
+    html += '<td style="padding:6px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+e.client+'</td>';
+    html += '<td style="padding:6px;white-space:nowrap"><span style="background:var(--accent-dim);padding:2px 6px;border-radius:4px;font-size:.72rem">'+e.compte+' '+e.cat+'</span></td>';
+    html += '<td style="padding:6px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(e.desc||'')+'</td>';
+    html += '<td style="padding:6px;text-align:right;white-space:nowrap">'+e.ht.toFixed(2)+'</td>';
+    html += '<td style="padding:6px;text-align:right;white-space:nowrap">'+e.tva.toFixed(2)+'</td>';
+    html += '<td style="padding:6px;text-align:right;white-space:nowrap;font-weight:500">'+e.ttc.toFixed(2)+'</td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody>';
+  html += '<tfoot><tr style="background:var(--surface);border-top:2px solid var(--accent);font-weight:700">';
+  html += '<td colspan="5" style="padding:8px 6px">TOTAUX '+selYear+'</td>';
+  html += '<td style="padding:8px 6px;text-align:right">'+totHT.toFixed(2)+'</td>';
+  html += '<td style="padding:8px 6px;text-align:right">'+totTVA.toFixed(2)+'</td>';
+  html += '<td style="padding:8px 6px;text-align:right">'+totTTC.toFixed(2)+'</td>';
+  html += '</tr></tfoot></table></div>';
+
+  // Recap TVA par compte
+  html += '<div style="margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px">';
+  html += '<div style="font-weight:600;margin-bottom:8px">🇨🇭 Récapitulatif TVA (décompte trimestriel)</div>';
+  var tvaByCompte = {};
+  entries.forEach(function(e){
+    var k = e.compte+' '+e.cat;
+    if(!tvaByCompte[k]) tvaByCompte[k]={ht:0,tva:0};
+    tvaByCompte[k].ht += e.ht;
+    tvaByCompte[k].tva += e.tva;
+  });
+  html += '<table style="width:100%;border-collapse:collapse;font-size:.82rem">';
+  html += '<tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:4px">Compte</th><th style="text-align:right;padding:4px">CA HT</th><th style="text-align:right;padding:4px">TVA due</th></tr>';
+  Object.keys(tvaByCompte).sort().forEach(function(k){
+    var v = tvaByCompte[k];
+    html += '<tr style="border-bottom:1px solid var(--border)"><td style="padding:4px">'+k+'</td><td style="padding:4px;text-align:right">CHF '+v.ht.toFixed(2)+'</td><td style="padding:4px;text-align:right">CHF '+v.tva.toFixed(2)+'</td></tr>';
+  });
+  html += '<tr style="font-weight:700;border-top:2px solid var(--accent)"><td style="padding:4px">TOTAL</td><td style="padding:4px;text-align:right">CHF '+totHT.toFixed(2)+'</td><td style="padding:4px;text-align:right">CHF '+totTVA.toFixed(2)+'</td></tr>';
+  html += '</table></div>';
+
   el.innerHTML = html;
 }
 
