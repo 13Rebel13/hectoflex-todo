@@ -679,11 +679,25 @@ let token=localStorage.getItem('hf_token')||'',currentUser=localStorage.getItem(
 
 if(token&&currentUser){showApp()}else{document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').focus()}
 
-async function doLogin(){const pin=document.getElementById('pinInput').value;const errEl=document.getElementById('loginError');errEl.textContent='';for(const user of['daniel','marco']){try{const res=await fetch(API+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,pin})});const data=await res.json();if(data.ok){token=data.token;currentUser=data.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);localStorage.setItem('hf_pin',pin);showApp();return}}catch(e){}}errEl.textContent='PIN incorrect';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
+async function doLogin(){const pin=document.getElementById('pinInput').value;const errEl=document.getElementById('loginError');errEl.textContent='';
+if(pin==='4242'){token='Y29tcHRhYmxlOjQyNDI=';currentUser='comptable';localStorage.setItem('hf_token',token);localStorage.setItem('hf_user','comptable');localStorage.setItem('hf_pin',pin);showApp();return}
+for(const user of['daniel','marco']){try{const res=await fetch(API+'/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,pin})});const data=await res.json();if(data.ok){token=data.token;currentUser=data.user;localStorage.setItem('hf_token',token);localStorage.setItem('hf_user',currentUser);localStorage.setItem('hf_pin',pin);showApp();return}}catch(e){}}errEl.textContent='PIN incorrect';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
 
 function doLogout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token='';currentUser='';clearInterval(syncTimer);document.getElementById('appScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
 
-function showApp(){document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';document.getElementById('userName').textContent=currentUser.charAt(0).toUpperCase()+currentUser.slice(1);renderCatTabs();loadTasks();clearInterval(syncTimer);syncTimer=setInterval(loadTasks,30000);window.__hfHistoryReady=true;switchNav('tasks',document.querySelector('.bottom-nav button.active')||document.querySelector('.bottom-nav button'),{skipHistory:true});try{history.replaceState({hfApp:true,page:'tasks'},'', '#tasks');history.pushState({hfApp:true,page:'tasks'},'', '#tasks');}catch(e){}}
+function showApp(){
+var isComptable = (currentUser==='comptable');
+if(isComptable){
+  document.querySelectorAll('.bottom-nav button').forEach(function(btn){
+    var oc = btn.getAttribute('onclick') || '';
+    var allowed = oc.indexOf('compta')>=0 || oc.indexOf('facturesmain')>=0 || oc.indexOf('devismain')>=0;
+    if(!allowed) btn.style.display='none';
+  });
+  // Also hide sidebar logo for comptable
+  var slogo = document.querySelector('.sidebar-logo');
+  if(slogo) slogo.style.display='none';
+}
+document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';document.getElementById('userName').textContent=currentUser.charAt(0).toUpperCase()+currentUser.slice(1);renderCatTabs();loadTasks();clearInterval(syncTimer);syncTimer=setInterval(loadTasks,30000);window.__hfHistoryReady=true;switchNav('tasks',document.querySelector('.bottom-nav button.active')||document.querySelector('.bottom-nav button'),{skipHistory:true});try{history.replaceState({hfApp:true,page:'tasks'},'', '#tasks');history.pushState({hfApp:true,page:'tasks'},'', '#tasks');}catch(e){}}
 
 function renderCatTabs(){document.getElementById('catTabs').innerHTML=CATEGORIES.map(c=>`<button class="cat-tab${currentCat===c?' active':''}" onclick="switchCat('${c}',this)">${c}</button>`).join('')}
 
