@@ -2622,14 +2622,29 @@ async function loadComptaSynthese() {
   var factures = await apiFetch('/factures') || [];
   var factFourn = await apiFetch('/factures-fournisseurs') || [];
 
-  var caFacture = 0, caEncaisse = 0, achatFourn = 0, achatPaye = 0, missingDocs = 0;
+  // Build year list from factures
+  var yearSet = {};
+  factures.forEach(function(f){ var d = f.date_facture||f.created_at||''; if(d.length>=4) yearSet[d.substring(0,4)]=true; });
+  var years = Object.keys(yearSet).sort().reverse();
+  var selYear = window._comptaYear || String(new Date().getFullYear());
+  if(years.indexOf(selYear)<0 && years.length) selYear = years[0];
+  window._comptaYear = selYear;
+
+  function matchYear(dateStr) {
+    if(!selYear || selYear==='all') return true;
+    return (dateStr||'').substring(0,4) === selYear;
+  }
+
+  var caFacture = 0, caEncaisse = 0, achatFourn = 0, achatPaye = 0, missingDocs = 0, nbFact = 0;
   factures.forEach(function(f){
+    if(!matchYear(f.date_facture||f.created_at)) return;
     var t = hfTotal(f);
-    caFacture += t;
+    caFacture += t; nbFact++;
     if(hfStatus(f)==='payee') caEncaisse += t;
     if(!Array.isArray(f.pieces) || !f.pieces.length) missingDocs++;
   });
   factFourn.forEach(function(f){
+    if(!matchYear(f.date||f.created_at)) return;
     var t = hfTotal(f);
     achatFourn += t;
     if(hfStatus(f)==='payee') achatPaye += t;
@@ -2641,7 +2656,13 @@ async function loadComptaSynthese() {
   var margeBrute = caFacture - achatFourn;
   var devisOuverts = devis.filter(function(d){ var s=hfStatus(d); return s==='brouillon' || s==='envoye'; }).length;
 
-  var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:10px">' +
+  var html = '<div style="display:flex;gap:8px;align-items:center;margin:10px 0"><h3 style="font-size:1rem;margin:0">Synthèse</h3>';
+  html += '<select id="comptaYearFilter" onchange="window._comptaYear=this.value;loadSynthese()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem">';
+  html += '<option value="all"' + (selYear==='all'?' selected':'') + '>Toutes les années</option>';
+  years.forEach(function(y){ html += '<option value="'+y+'"'+(y===selYear?' selected':'')+'>'+y+'</option>'; });
+  html += '</select><span style="font-size:.78rem;color:var(--text2)">'+nbFact+' factures</span></div>';
+
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:10px">' +
     cardHtml('CA facturé', 'CHF '+caFacture.toFixed(2), 'var(--accent)') +
     cardHtml('Achats fournisseurs', 'CHF '+achatFourn.toFixed(2), '#9333ea') +
     cardHtml('Marge brute', 'CHF '+margeBrute.toFixed(2), margeBrute>=0?'var(--green)':'var(--red)') +
@@ -2757,6 +2778,10 @@ function renderDevis() {
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Devis (' + comptaDevisList.length + ')</h3><button class="add-btn" onclick="devisForm()">+ Nouveau</button></div>';
   html += '<div style="margin-bottom:8px"><input id="devisSearch" type="text" placeholder="Rechercher numéro, client, notes..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" oninput="filterDevisList()"></div>';
   html += '<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center">';
+  html += '<select id="devisFilterYear" onchange="filterDevisList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem"><option value="">Toutes années</option>';
+  var dYears = {}; comptaDevisList.forEach(function(d){ var y=(d.date||d.created_at||'').substring(0,4); if(y) dYears[y]=true; });
+  Object.keys(dYears).sort().reverse().forEach(function(y){ html += '<option value="'+y+'">'+y+'</option>'; });
+  html += '</select>';
   html += '<select id="devisFilterStatus" onchange="filterDevisList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem"><option value="">Tous les statuts</option><option value="brouillon">Brouillon</option><option value="envoye">Envoyé</option><option value="accepte">Accepté</option><option value="refuse">Refusé</option><option value="facture">Facturé</option></select>';
   html += '<select id="devisFilterClient" onchange="filterDevisList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem;max-width:200px"><option value="">Tous les clients</option></select>';
   html += '<select id="devisSort" onchange="sortAndRenderDevis()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem"><option value="date_desc">Date ↓</option><option value="date_asc">Date ↑</option><option value="total_desc">Montant ↓</option><option value="total_asc">Montant ↑</option><option value="client_asc">Client A-Z</option><option value="numero_desc">Numéro ↓</option></select>';
@@ -2969,6 +2994,10 @@ function renderFactures() {
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Factures (' + comptaFactures.length + ')</h3><button class="add-btn" onclick="factureForm()">+ Nouvelle</button></div>';
   html += '<div style="margin-bottom:8px"><input id="facturesSearch" type="text" placeholder="Rechercher numéro, client, notes..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" oninput="filterFacturesList()"></div>';
   html += '<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center">';
+  html += '<select id="factFilterYear" onchange="filterFacturesList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem"><option value="">Toutes années</option>';
+  var fYears = {}; comptaFactures.forEach(function(f){ var y=(f.date_facture||f.created_at||'').substring(0,4); if(y) fYears[y]=true; });
+  Object.keys(fYears).sort().reverse().forEach(function(y){ html += '<option value="'+y+'">'+y+'</option>'; });
+  html += '</select>';
   html += '<select id="factFilterStatus" onchange="filterFacturesList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem"><option value="">Tous les statuts</option><option value="brouillon">Brouillon</option><option value="envoyee">Envoyée</option><option value="payee">Payée</option><option value="en_retard">En retard</option></select>';
   html += '<select id="factFilterClient" onchange="filterFacturesList()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem;max-width:200px"><option value="">Tous les clients</option></select>';
   html += '<select id="factSort" onchange="sortAndRenderFactures()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.8rem"><option value="date_desc">Date ↓</option><option value="date_asc">Date ↑</option><option value="total_desc">Montant ↓</option><option value="total_asc">Montant ↑</option><option value="client_asc">Client A-Z</option><option value="numero_desc">Numéro ↓</option></select>';
@@ -3983,10 +4012,12 @@ function filterDevisList() {
     var cl = comptaClients.find(function(c){return c.id===d.client_id});
     var cn = d.client_name || (cl?cl.nom:'');
     var searchStr = ((d.numero||'') + ' ' + cn + ' ' + (d.notes||'') + ' ' + (d.conditions||'')).toLowerCase();
+    var fy = ((document.getElementById('devisFilterYear')||{}).value || '');
     var statusMatch = !fs || (hfStatus(d)||'brouillon') === fs;
     var clientMatch = !fc || cn === fc;
     var textMatch = !q || searchStr.indexOf(q) >= 0;
-    var show = statusMatch && clientMatch && textMatch;
+    var yearMatch = !fy || (d.date||d.created_at||'').substring(0,4) === fy;
+    var show = statusMatch && clientMatch && textMatch && yearMatch;
     cards[i].style.display = show ? '' : 'none';
     if(show) shown++;
   }
@@ -4021,10 +4052,12 @@ function filterFacturesList() {
     var cl = comptaClients.find(function(c){return c.id===f.client_id});
     var cn = f.client_name || (cl?cl.nom:'');
     var searchStr = ((f.numero||'') + ' ' + cn + ' ' + (f.notes||'') + ' ' + (f.conditions||'') + ' ' + (f.narration||'')).toLowerCase();
+    var fy = ((document.getElementById('factFilterYear')||{}).value || '');
     var statusMatch = !fs || hfStatus(f) === fs;
     var clientMatch = !fc || cn === fc;
     var textMatch = !q || searchStr.indexOf(q) >= 0;
-    var show = statusMatch && clientMatch && textMatch;
+    var yearMatch = !fy || (f.date_facture||f.created_at||'').substring(0,4) === fy;
+    var show = statusMatch && clientMatch && textMatch && yearMatch;
     cards[i].style.display = show ? '' : 'none';
     if(show) shown++;
   }
