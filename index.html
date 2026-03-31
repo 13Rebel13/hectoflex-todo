@@ -686,6 +686,20 @@ for(const user of['daniel','marco']){try{const res=await fetch(API+'/login',{met
 
 function doLogout(){localStorage.removeItem('hf_token');localStorage.removeItem('hf_user');token='';currentUser='';clearInterval(syncTimer);document.getElementById('appScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('pinInput').value='';document.getElementById('pinInput').focus()}
 
+
+function refreshPage(){
+  if(currentPage==='tasks') loadTasks();
+  else if(currentPage==='projects') loadProjects();
+  else if(currentPage==='leads') loadLeads();
+  else if(currentPage==='suppliers') loadSuppliers().then(function(){renderSuppliers()});
+  else if(currentPage==='dtf') dtfLoadOrders();
+  else if(currentPage==='devismain') { window.comptaTargetId='devisMainContent'; loadDevis(); }
+  else if(currentPage==='facturesmain') { window.comptaTargetId='facturesMainContent'; loadFactures(); }
+  else if(currentPage==='compta') { window.comptaTargetId='comptaContent'; comptaSwitchTab(comptaCurrentTab); }
+  else if(currentPage==='planning') loadPlanning();
+  else if(currentPage==='qr') {}
+  else if(currentPage==='customs') {}
+}
 function showApp(){
 var isComptable = (currentUser==='comptable');
 if(isComptable){
