@@ -2745,11 +2745,14 @@ async function comptaSaveClient(editId) {
 async function loadDevis() {
   comptaDevisList = await apiFetch('/devis') || [];
   comptaClients = await apiFetch('/clients') || [];
+  comptaDevisList.sort(function(a,b){ return ((b.date||b.created_at||'')>(a.date||a.created_at||''))?1:-1; });
   renderDevis();
 }
 
 function renderDevis() {
   var el = getComptaContentEl();
+  var sortVal = ((document.getElementById('devisSort')||{}).value||'date_desc');
+  if(sortVal==='date_desc') comptaDevisList.sort(function(a,b){return ((b.date||b.created_at||'')>(a.date||a.created_at||''))?1:-1;});
   var statusColors = {brouillon:'var(--text2)',envoye:'var(--accent)',accepte:'var(--green)',refuse:'var(--red)',facture:'#9333ea'};
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Devis (' + comptaDevisList.length + ')</h3><button class="add-btn" onclick="devisForm()">+ Nouveau</button></div>';
   html += '<div style="margin-bottom:8px"><input id="devisSearch" type="text" placeholder="Rechercher numéro, client, notes..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" oninput="filterDevisList()"></div>';
@@ -2960,6 +2963,8 @@ async function loadFactures() {
 
 function renderFactures() {
   var el = getComptaContentEl();
+  var sortVal = ((document.getElementById('factSort')||{}).value||'date_desc');
+  if(sortVal==='date_desc') comptaFactures.sort(function(a,b){return ((b.date_facture||b.created_at||'')>(a.date_facture||a.created_at||''))?1:-1;});
   var statusColors = {brouillon:'var(--text2)',envoyee:'var(--accent)',payee:'var(--green)',en_retard:'var(--red)',partiel:'#f59e0b'};
   var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0"><h3 style="font-size:1rem">Factures (' + comptaFactures.length + ')</h3><button class="add-btn" onclick="factureForm()">+ Nouvelle</button></div>';
   html += '<div style="margin-bottom:8px"><input id="facturesSearch" type="text" placeholder="Rechercher numéro, client, notes..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" oninput="filterFacturesList()"></div>';
