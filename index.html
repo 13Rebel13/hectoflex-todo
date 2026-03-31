@@ -2657,7 +2657,7 @@ async function loadComptaSynthese() {
   var devisOuverts = devis.filter(function(d){ var s=hfStatus(d); return s==='brouillon' || s==='envoye'; }).length;
 
   var html = '<div style="display:flex;gap:8px;align-items:center;margin:10px 0"><h3 style="font-size:1rem;margin:0">Synthèse</h3>';
-  html += '<select id="comptaYearFilter" onchange="window._comptaYear=this.value;loadSynthese()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem">';
+  html += '<select id="comptaYearFilter" onchange="window._comptaYear=this.value;loadComptaSynthese()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem">';
   html += '<option value="all"' + (selYear==='all'?' selected':'') + '>Toutes les années</option>';
   years.forEach(function(y){ html += '<option value="'+y+'"'+(y===selYear?' selected':'')+'>'+y+'</option>'; });
   html += '</select><span style="font-size:.78rem;color:var(--text2)">'+nbFact+' factures</span></div>';
