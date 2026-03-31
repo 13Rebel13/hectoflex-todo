@@ -389,7 +389,10 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
 <div id="customsApp" style="display:none">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
     <h3 style="color:#FF7300;font-size:16px">Demandes HF Customs</h3>
-    <button onclick="hfcRefresh()" style="padding:6px 14px;border-radius:8px;border:1px solid #333;background:transparent;color:#888;cursor:pointer;font-size:12px">Actualiser</button>
+    <div style="display:flex;gap:6px">
+      <button onclick="hfcNewForm()" style="padding:6px 14px;border-radius:8px;border:none;background:#FF7300;color:#fff;cursor:pointer;font-size:12px;font-weight:600">+ Nouveau</button>
+      <button onclick="hfcRefresh()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px">Actualiser</button>
+    </div>
   </div>
   <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap" id="hfcFilters" style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px">
     <button class="filter-btn active" onclick="hfcFilter('',this)">Tous</button>
@@ -2073,6 +2076,61 @@ async function hfcLogin(){
     else{if(err)err.textContent=d.error||'Erreur de connexion'}
   }catch(e){if(err)err.textContent='Erreur reseau'}
 }
+
+
+function hfcNewForm(){
+  var el=document.getElementById('hfcList');
+  if(!el)return;
+  var html='<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
+  html+='<h3 style="margin:0 0 12px;color:var(--accent)">Nouvelle commande</h3>';
+  html+='<label style="font-size:.8rem;color:var(--text2)">Marque *</label>';
+  html+='<input id="hfc_marque" type="text" placeholder="Ex: BMW" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:10px;box-sizing:border-box">';
+  html+='<label style="font-size:.8rem;color:var(--text2)">Modèle *</label>';
+  html+='<input id="hfc_modele" type="text" placeholder="Ex: M3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:10px;box-sizing:border-box">';
+  html+='<label style="font-size:.8rem;color:var(--text2)">Prestation *</label>';
+  html+='<select id="hfc_prestation" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:10px">';
+  html+='<option value="">— Choisir —</option>';
+  html+='<option value="ceramique">Céramique</option>';
+  html+='<option value="ppf">PPF (Protection peinture)</option>';
+  html+='<option value="covering">Covering</option>';
+  html+='<option value="vitres_teintees">Vitres teintées</option>';
+  html+='<option value="detailing">Detailing</option>';
+  html+='<option value="correction_vernis">Correction vernis</option>';
+  html+='</select>';
+  html+='<label style="font-size:.8rem;color:var(--text2)">Client / Garage</label>';
+  html+='<input id="hfc_client" type="text" placeholder="Nom du client ou garage" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:10px;box-sizing:border-box">';
+  html+='<label style="font-size:.8rem;color:var(--text2)">N° véhicule / plaque</label>';
+  html+='<input id="hfc_numero" type="text" placeholder="Ex: VD 123456" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:10px;box-sizing:border-box">';
+  html+='<label style="font-size:.8rem;color:var(--text2)">Notes</label>';
+  html+='<textarea id="hfc_notes" rows="3" placeholder="Détails supplémentaires..." style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.9rem;margin-bottom:12px;box-sizing:border-box;resize:vertical"></textarea>';
+  html+='<div style="display:flex;gap:8px"><button onclick="hfcSaveNew()" style="flex:1;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-weight:600">Créer</button>';
+  html+='<button onclick="hfcLoadOrders()" style="flex:1;padding:12px;background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer">Annuler</button></div>';
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+async function hfcSaveNew(){
+  var marque=document.getElementById('hfc_marque').value.trim();
+  var modele=document.getElementById('hfc_modele').value.trim();
+  var prestation=document.getElementById('hfc_prestation').value;
+  if(!marque||!modele||!prestation){alert('Marque, modèle et prestation sont obligatoires');return}
+  var tk=localStorage.getItem('hfc_tk');
+  var body={marque:marque,modele:modele,prestation:prestation};
+  var client=document.getElementById('hfc_client').value.trim();
+  var numero=document.getElementById('hfc_numero').value.trim();
+  var notes=document.getElementById('hfc_notes').value.trim();
+  if(client) body.garage_nom=client;
+  if(numero) body.numero_vehicule=numero;
+  if(notes) body.notes=notes;
+  try{
+    var res=await fetch('https://hf-customs.hfcustoms.workers.dev/api/commandes',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tk},body:JSON.stringify(body)});
+    var d=await res.json();
+    if(d.error){alert(d.error);return}
+    hfcLoadOrders();
+  }catch(e){alert('Erreur réseau')}
+}
+
+function hfcRefresh(){ hfcLoadOrders(); }
 
 function hfcLogout(){
   localStorage.removeItem('hfc_tk');localStorage.removeItem('hfc_usr');hfcInit();
