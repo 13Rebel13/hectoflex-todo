@@ -1,4 +1,4 @@
-const CACHE = 'hf-todo-v2';
+const CACHE = 'hf-todo-v3';
 const ASSETS = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', (e) => {
@@ -17,6 +17,12 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const req = e.request;
+
+  // API calls: ALWAYS network first (never serve stale API data)
+  if (req.url.includes('workers.dev') || req.url.includes('/api/')) {
+    e.respondWith(fetch(req).catch(() => caches.match(req)));
+    return;
+  }
 
   // Navigation / HTML: network first to avoid stale index.html
   if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
