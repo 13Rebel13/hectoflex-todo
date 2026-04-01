@@ -1,7 +1,7 @@
 <!-- v2.1.0 -->
 <!DOCTYPE html>
 <html lang="fr">
-<head>
+<head><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HectoFlex App</title>
@@ -230,7 +230,7 @@ body.force-desktop .filter-row{gap:4px!important;margin:4px 0!important}
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";</script>
 <script>
 // Service Worker registration
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').then(function(r){r.update()})}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
