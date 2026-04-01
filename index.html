@@ -881,13 +881,13 @@ async function getProjects() {
   if(_projectsCache && (now - _projectsCacheTime) < _PROJECTS_TTL) {
     return {ok:true, json:function(){return Promise.resolve(JSON.parse(JSON.stringify(_projectsCache)))}};
   }
-  var r = await fetch(PROJ_API+'/projects', {headers:{'Authorization':'Basic '+token}});
-  if(r.ok) {
-    _projectsCache = await r.json();
+  var data = await apiFetch('/projects');
+  if(data && Array.isArray(data)) {
+    _projectsCache = data;
     _projectsCacheTime = now;
     return {ok:true, json:function(){return Promise.resolve(JSON.parse(JSON.stringify(_projectsCache)))}};
   }
-  return r;
+  return {ok:false, status:0};
 }
 function invalidateProjectsCache() { _projectsCache = null; _projectsCacheTime = 0; }
 
