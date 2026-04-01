@@ -892,19 +892,30 @@ async function getProjects() {
 function invalidateProjectsCache() { _projectsCache = null; _projectsCacheTime = 0; }
 
 async function loadProjects() {
-  // Reset views: show list, hide form/detail
   var lv=document.getElementById('projListView');
   var fv=document.getElementById('projFormView');
   var dv=document.getElementById('projDetailView');
   if(lv) lv.style.display='block';
   if(fv) fv.style.display='none';
   if(dv) dv.style.display='none';
+  var dbg=document.getElementById('projStats');
   try {
+    if(dbg) dbg.textContent='Chargement...';
     var r = await getProjects();
-    if(r.ok) projects = await r.json();
-  } catch(e) { console.error('loadProjects',e); }
-  // Filter out leads (en_attente/proposition/perdu)
+    if(dbg) dbg.textContent='API ok='+r.ok;
+    if(r.ok) {
+      projects = await r.json();
+      if(dbg) dbg.textContent='Reçu: '+projects.length+' projets (token='+token.substring(0,8)+')';
+    } else {
+      if(dbg) dbg.textContent='API erreur: HTTP '+(r.status||'?');
+    }
+  } catch(e) {
+    if(dbg) dbg.textContent='ERREUR: '+e.message;
+    console.error('loadProjects',e);
+  }
+  var before=projects.length;
   projects = projects.filter(function(p){return p.statut==='en_cours'||p.statut==='termine'||p.statut==='facture'});
+  if(dbg) dbg.textContent+=' | Filtrés: '+projects.length+'/'+before;
   renderProjects();
 }
 
