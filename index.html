@@ -1528,8 +1528,9 @@ function renderLeads() {
     var sc = statusColors[p.statut] || '#f59e0b';
     var sl = statusLabels[p.statut] || 'Nouveau';
     var stars = '';
+    var idArg = encodeURIComponent(String(p.id || ''));
     for(var s=0;s<(p.priority||0);s++) stars += '<span style="color:#f59e0b">&#9733;</span>';
-    return '<div onclick="leadShowDetail('+p.id+')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+sc+';cursor:pointer">' +
+    return '<div onclick="leadShowDetail(\''+idArg+'\')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+sc+';cursor:pointer">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
         '<div style="font-weight:600;font-size:.9rem;color:var(--text)">'+escHtml(p.name)+' '+stars+'</div>' +
         '<span style="padding:2px 8px;border-radius:8px;background:'+sc+';color:#fff;font-size:.7rem;font-weight:600">'+sl+'</span>' +
@@ -1618,8 +1619,9 @@ function leadBackToList() {
 async function leadShowDetail(id) {
   var r = await getProjects();
   var all = await r.json();
-  var p = all.find(function(x){return x.id===id});
-  if(!p) return;
+  var decodedId = decodeURIComponent(String(id||''));
+  var p = all.find(function(x){return String(x.id)===decodedId});
+  if(!p) { alert('Lead introuvable (ID: '+decodedId+')'); return; }
   
   document.getElementById('leadListView').style.display='none';
   document.getElementById('leadFormView').style.display='none';
@@ -3984,10 +3986,72 @@ function dtfAuth() {
   return '';
 }
 
+function dtfLegacyToken() {
+  return localStorage.getItem('hfc_tk') || '';
+}
+
+async function dtfEnsureLegacyToken() {
+  var tk = dtfLegacyToken();
+  if (tk) return tk;
+  if (!currentUser) return '';
+  try {
+    var creds = {daniel:{u:'daniel',p:'admin2026'},marco:{u:'marco',p:'marco2026'}};
+    var c = creds[currentUser];
+    if (!c) return '';
+    var res = await fetch('https://hf-customs.hfcustoms.workers.dev/api/auth/login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({username:c.u,password:c.p})
+    });
+    if (!res.ok) return '';
+    var d = await res.json();
+    if (d && d.token) {
+      localStorage.setItem('hfc_tk', d.token);
+      return d.token;
+    }
+  } catch(e) {}
+  return '';
+}
+
+async function dtfFetchLegacyOrders() {
+  var tk = await dtfEnsureLegacyToken();
+  if (!tk) return [];
+  var r = await fetch('https://hf-customs.hfcustoms.workers.dev/api/commandes', { headers: {'Authorization':'Bearer '+tk} });
+  if (!r.ok) return [];
+  var data = await r.json();
+  var list = Array.isArray(data) ? data : [];
+  return list.map(function(o){
+    var st = (o.statut||'').toLowerCase();
+    var isDone = ['termine','facture','valide'].indexOf(st) >= 0;
+    return {
+      id: o.id,
+      customer_name: o.client_nom || o.garage_nom || o.vendeur_nom || ('Commande #' + o.id),
+      created_at: o.created_at || o.date_creation || o.date || '',
+      traite: isDone,
+      tracking_number: o.numero_vehicule || o.tracking_number || '',
+      billing_address: [o.client_nom,o.client_email,o.client_tel,o.adresse,o.npa,o.ville,o.pays].filter(Boolean).join('\n'),
+      order_items: [{
+        file_name: (o.prestation||'Commande') + (o.modele ? (' - ' + o.modele) : ''),
+        original_name: o.prestation || '',
+        quantity: 1,
+        unit_price: o.prix || 0
+      }],
+      _legacy: o
+    };
+  });
+}
+
 async function dtfLoadStats() {
   try {
+    var s = null;
     var r = await fetch(DTF_API + '/dtf/stats', { headers: {'Authorization': dtfAuth()} });
-    var s = await r.json();
+    if (r.ok) s = await r.json();
+    if (!s || typeof s !== 'object') {
+      var legacy = await dtfFetchLegacyOrders();
+      var total = legacy.length;
+      var done = legacy.filter(function(x){return !!x.traite}).length;
+      s = { total: total, non_traite: total - done, traite: done };
+    }
     var el = document.getElementById('dtfStats');
     if (!el) return;
     var card = function(label, val, color) {
@@ -4001,9 +4065,26 @@ async function dtfLoadOrders() {
   try {
     var filter = dtfCurrentFilter === 'pending' ? '&traite=false' : dtfCurrentFilter === 'done' ? '&traite=true' : '';
     var r = await fetch(DTF_API + '/dtf/orders?limit=200' + filter, { headers: {'Authorization': dtfAuth()} });
-    var data = await r.json(); dtfOrders = Array.isArray(data) ? data : [];
+    if (r.ok) {
+      var data = await r.json();
+      dtfOrders = Array.isArray(data) ? data : [];
+    } else {
+      var legacy = await dtfFetchLegacyOrders();
+      if (dtfCurrentFilter === 'pending') legacy = legacy.filter(function(x){return !x.traite});
+      if (dtfCurrentFilter === 'done') legacy = legacy.filter(function(x){return !!x.traite});
+      dtfOrders = legacy;
+    }
     dtfRenderOrders();
-  } catch(e) { console.error('dtfLoadOrders', e); }
+  } catch(e) {
+    console.error('dtfLoadOrders', e);
+    try {
+      var legacy2 = await dtfFetchLegacyOrders();
+      if (dtfCurrentFilter === 'pending') legacy2 = legacy2.filter(function(x){return !x.traite});
+      if (dtfCurrentFilter === 'done') legacy2 = legacy2.filter(function(x){return !!x.traite});
+      dtfOrders = legacy2;
+      dtfRenderOrders();
+    } catch(_e) {}
+  }
 }
 
 function dtfFilter(f, btn) {
@@ -4250,34 +4331,32 @@ function dtfRenderPdf(url, stage) {
 
 
 
-async function dtfSaveTrackingInline(id) {
-  var input = document.getElementById('dtfTrack_' + id);
-  var st = document.getElementById('dtfTrackSt_' + id);
-  if (!input) return;
-  var num = input.value.trim();
-  if (!num) { if(st) st.innerHTML = '<span style="color:' + DTF_RED + '">Entrez un n°</span>'; return; }
-  try {
-    await fetch(DTF_API + '/dtf/orders/' + id, {
-      method: 'PATCH',
-      headers: {'Authorization': dtfAuth(), 'Content-Type': 'application/json'},
-      body: JSON.stringify({tracking_number: num})
-    });
-    if(st) st.innerHTML = '<span style="color:#22c55e">Enregistré</span>';
-  } catch(e) { if(st) st.innerHTML = '<span style="color:' + DTF_RED + '">Erreur</span>'; }
-}
-
-
-
-
 async function dtfToggleTraite(id, val) {
   try {
+    var ok = false;
     var r = await fetch(DTF_API + '/dtf/orders/' + id, {
       method: 'PATCH',
       headers: {'Authorization': dtfAuth(), 'Content-Type': 'application/json'},
       body: JSON.stringify({traite: val})
     });
-    if (!r.ok) throw new Error('PATCH ' + r.status);
-    // Refresh panel + list + stats
+    if (r.ok) ok = true;
+
+    // Fallback legacy HF Customs API
+    if (!ok) {
+      var tk = await dtfEnsureLegacyToken();
+      if (tk) {
+        var legacyStatus = val ? 'termine' : 'en_attente';
+        var lr = await fetch('https://hf-customs.hfcustoms.workers.dev/api/commandes/' + id + '/status', {
+          method: 'PUT',
+          headers: {'Authorization':'Bearer ' + tk, 'Content-Type':'application/json'},
+          body: JSON.stringify({statut: legacyStatus})
+        });
+        if (lr.ok) ok = true;
+      }
+    }
+
+    if (!ok) throw new Error('PATCH status impossible');
+
     var panel = document.getElementById('dtfExpand_' + id);
     if (panel) panel.dataset.loaded = '';
     await dtfLoadStats();
