@@ -1036,13 +1036,28 @@ async function saveProject(project) {
 
 async function updateProject(id, data) {
   invalidateProjectsCache();
-  var r = await apiFetch('/projects/'+id, {method:'PUT', body:JSON.stringify(data)});
-  if(!r.ok) {
-    var msg = 'Erreur mise à jour ('+r.status+')';
-    try { var j = await r.json(); if(j && j.error) msg += ': '+j.error; } catch(e){}
-    throw new Error(msg);
+  setSyncState('syncing');
+  try {
+    var res = await fetch(API+'/projects/'+encodeURIComponent(id), {
+      method:'PUT',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify(data)
+    });
+    if(res.status===401){ doLogout(); throw new Error('Session expirée'); }
+    var body = null;
+    try { body = await res.json(); } catch(e) { body = null; }
+    if(!res.ok){
+      var msg = 'Erreur mise à jour projet ('+res.status+')';
+      if(body && body.error) msg += ': '+body.error;
+      setSyncState('error');
+      throw new Error(msg);
+    }
+    setSyncState('ok');
+    return body;
+  } catch(e){
+    setSyncState('error');
+    throw e;
   }
-  return await r.json();
 }
 
 async function deleteProjectAPI(id) {
