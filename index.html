@@ -1217,6 +1217,7 @@ async function projShowDetail(id) {
   var p = all_proj.find(function(x){return String(x.id)===String(id)});
   if(!p && Array.isArray(projects)) p = projects.find(function(x){return String(x.id)===String(id)});
   if(!p) { showToast('Projet introuvable', 'warning'); return; }
+  var pidJs = JSON.stringify(String(p.id));
   
   document.getElementById('projListView').style.display='none';
   document.getElementById('projFormView').style.display='none';
@@ -1234,12 +1235,12 @@ async function projShowDetail(id) {
   html += '<div style="display:flex;gap:6px;flex-wrap:wrap">';
   allStatuts.forEach(function(s){
     var isActive = p.statut===s.v;
-    html += '<button onclick="projChangeStatus('+p.id+',\''+s.v+'\')" style="padding:6px 14px;border-radius:8px;border:'+(isActive?'2px solid '+s.c:'1px solid var(--border)')+';background:'+(isActive?s.c:'transparent')+';color:'+(isActive?'#fff':'var(--text2)')+';cursor:pointer;font-size:.8rem;font-weight:'+(isActive?'600':'400')+'">'+s.l+'</button>';
+    html += '<button onclick="projChangeStatus('+pidJs+',\''+s.v+'\')" style="padding:6px 14px;border-radius:8px;border:'+(isActive?'2px solid '+s.c:'1px solid var(--border)')+';background:'+(isActive?s.c:'transparent')+';color:'+(isActive?'#fff':'var(--text2)')+';cursor:pointer;font-size:.8rem;font-weight:'+(isActive?'600':'400')+'">'+s.l+'</button>';
   });
   html += '</div>';
   html += '<div style="display:flex;gap:6px">';
-  html += '<button onclick="projShowForm('+p.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Modifier</button>';
-  html += '<button onclick="projDeleteAndBack('+p.id+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#e55;cursor:pointer;font-size:.75rem">Supprimer</button>';
+  html += '<button onclick="projShowForm('+pidJs+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:.75rem">Modifier</button>';
+  html += '<button onclick="projDeleteAndBack('+pidJs+')" style="padding:4px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:#e55;cursor:pointer;font-size:.75rem">Supprimer</button>';
   html += '</div></div>';
   
   var fields = [
@@ -1299,13 +1300,13 @@ async function projShowDetail(id) {
   html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Total coûts</span><span style="color:var(--text);font-weight:600">'+totalCosts.toFixed(2)+' CHF</span></div>';
   
   // Markup
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Mark up</span><div style="display:flex;align-items:center;gap:4px"><input id="projMarkup" type="number" value="'+(p.markup||0)+'" onblur="projSaveFinance('+p.id+')" style="width:80px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;text-align:right"> CHF</div></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Mark up</span><div style="display:flex;align-items:center;gap:4px"><input id="projMarkup" type="number" value="'+(p.markup||0)+'" onblur="projSaveFinance('+pidJs+')" style="width:80px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;text-align:right"> CHF</div></div>';
   
   // Prix client
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Prix client</span><div style="display:flex;align-items:center;gap:4px"><input id="projPrixClient" type="number" value="'+(p.montant||0)+'" onblur="projSaveFinance('+p.id+')" style="width:80px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;text-align:right"> CHF</div></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Prix client</span><div style="display:flex;align-items:center;gap:4px"><input id="projPrixClient" type="number" value="'+(p.montant||0)+'" onblur="projSaveFinance('+pidJs+')" style="width:80px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;text-align:right"> CHF</div></div>';
   
   // Rabais
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Rabais</span><div style="display:flex;align-items:center;gap:4px"><input id="projRabais" type="number" value="'+(p.rabais||0)+'" onblur="projSaveFinance('+p.id+')" style="width:60px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;text-align:right"> %</div></div>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:.85rem"><span style="color:var(--text2)">Rabais</span><div style="display:flex;align-items:center;gap:4px"><input id="projRabais" type="number" value="'+(p.rabais||0)+'" onblur="projSaveFinance('+pidJs+')" style="width:60px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem;text-align:right"> %</div></div>';
   
   var prixFinal = prixClient * (1 - rabais/100);
   var benefFinal = prixFinal - totalCosts;
@@ -1327,12 +1328,12 @@ async function projShowDetail(id) {
   }
   checklist.forEach(function(c, i){
     html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0">';
-    html += '<div onclick="projToggleCheck('+p.id+','+i+')" style="width:20px;height:20px;border-radius:50%;border:2px solid '+(c.done?'var(--green,#22c55e)':'var(--border)')+';background:'+(c.done?'var(--green,#22c55e)':'transparent')+';cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(c.done?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>';
+    html += '<div onclick="projToggleCheck('+pidJs+','+i+')" style="width:20px;height:20px;border-radius:50%;border:2px solid '+(c.done?'var(--green,#22c55e)':'var(--border)')+';background:'+(c.done?'var(--green,#22c55e)':'transparent')+';cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(c.done?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>':'')+'</div>';
     html += '<span style="font-size:.85rem;color:var(--text);'+(c.done?'text-decoration:line-through;opacity:.5':'')+'">'+escHtml(c.text)+'</span>';
-    html += '<button onclick="projRemoveCheck('+p.id+','+i+')" style="margin-left:auto;background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem">×</button>';
+    html += '<button onclick="projRemoveCheck('+pidJs+','+i+')" style="margin-left:auto;background:none;border:none;color:var(--text3);cursor:pointer;font-size:.8rem">×</button>';
     html += '</div>';
   });
-  html += '<div style="display:flex;gap:6px;margin-top:8px"><input id="newCheckItem" placeholder="Ajouter une étape..." style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" onkeydown="if(event.key===\'Enter\')projAddCheck('+p.id+')"><button onclick="projAddCheck('+p.id+')" style="padding:8px 14px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;cursor:pointer;font-size:.85rem">+</button></div>';
+  html += '<div style="display:flex;gap:6px;margin-top:8px"><input id="newCheckItem" placeholder="Ajouter une étape..." style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:.85rem" onkeydown="if(event.key===\'Enter\')projAddCheck('+pidJs+')"><button onclick="projAddCheck('+pidJs+')" style="padding:8px 14px;border:none;border-radius:var(--radius);background:var(--accent);color:#fff;cursor:pointer;font-size:.85rem">+</button></div>';
   html += '</div>';
   
   // Documents section
@@ -1351,13 +1352,13 @@ async function projShowDetail(id) {
   } else {
     html += '<p style="font-size:.8rem;color:var(--text3);margin:0 0 8px">Aucun document</p>';
   }
-  html += '<div style="margin-top:8px"><label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px dashed var(--border);border-radius:var(--radius);cursor:pointer;font-size:.85rem;color:var(--text2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Ajouter un fichier<input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display:none" onchange="projUploadDoc('+p.id+',this)"></label></div>';
+  html += '<div style="margin-top:8px"><label style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px dashed var(--border);border-radius:var(--radius);cursor:pointer;font-size:.85rem;color:var(--text2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Ajouter un fichier<input type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display:none" onchange="projUploadDoc('+pidJs+',this)"></label></div>';
   html += '</div>';
 
   // Notes section
   html += '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
   html += '<h3 style="font-size:.95rem;color:var(--text);margin:0 0 10px">Notes</h3>';
-  html += '<textarea id="projNotes" rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:.85rem;font-family:inherit;resize:vertical;box-sizing:border-box" onblur="projSaveNotes('+p.id+')">'+(p.notes||'')+'</textarea>';
+  html += '<textarea id="projNotes" rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:.85rem;font-family:inherit;resize:vertical;box-sizing:border-box" onblur="projSaveNotes('+pidJs+')">'+(p.notes||'')+'</textarea>';
   html += '</div>';
   
   document.getElementById('projDetailContent').innerHTML = html;
