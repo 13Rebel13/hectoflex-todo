@@ -846,17 +846,17 @@ function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.filter-btn
 
 async function addTask(){const input=document.getElementById('newTask');const text=input.value.trim();if(!text)return;const body={text,list:currentList};if(currentCat!=='Tout')body.category=currentCat;const result=await apiFetch('/tasks',{method:'POST',body:JSON.stringify(body)});if(result){input.value='';await loadTasks()}input.focus()}
 
-async function toggleDone(id){const t=tasks.find(t=>t.id===id);if(!t)return;await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{done:!t.done,doneAt:!t.done?new Date().toISOString():null}})});await loadTasks()}
+async function toggleDone(id){const t=tasks.find(t=>String(t.id)===String(id));if(!t){showToast('Tâche introuvable','warning');return;}await apiFetch('/tasks/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify({list:currentList,updates:{done:!t.done,doneAt:!t.done?new Date().toISOString():null}})});await loadTasks()}
 
-async function toggleUrgent(id){const t=tasks.find(t=>t.id===id);if(!t)return;await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{urgent:!t.urgent}})});await loadTasks()}
+async function toggleUrgent(id){const t=tasks.find(t=>String(t.id)===String(id));if(!t)return;await apiFetch('/tasks/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify({list:currentList,updates:{urgent:!t.urgent}})});await loadTasks()}
 
-async function deleteTask(id){if(!confirm('Supprimer cette tâche ?'))return;await apiFetch('/tasks/'+id+'?list='+currentList,{method:'DELETE'});await loadTasks()}
+async function deleteTask(id){if(!confirm('Supprimer cette tâche ?'))return;await apiFetch('/tasks/'+encodeURIComponent(id)+'?list='+encodeURIComponent(currentList),{method:'DELETE'});await loadTasks()}
 
-async function editTask(id){const t=tasks.find(t=>t.id===id);if(!t)return;const newText=prompt('Modifier la tâche :',t.text);if(newText!==null&&newText.trim()){await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{text:newText.trim()}})});await loadTasks()}}
+async function editTask(id){const t=tasks.find(t=>String(t.id)===String(id));if(!t)return;const newText=prompt('Modifier la tâche :',t.text);if(newText!==null&&newText.trim()){await apiFetch('/tasks/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify({list:currentList,updates:{text:newText.trim()}})});await loadTasks()}}
 
 function toggleNote(id){const el=document.getElementById('note-'+id);el.classList.toggle('show');if(el.classList.contains('show'))el.focus()}
 
-async function saveNote(id){const note=document.getElementById('note-'+id).value;await apiFetch('/tasks/'+id,{method:'PUT',body:JSON.stringify({list:currentList,updates:{note}})})}
+async function saveNote(id){const noteEl=document.getElementById('note-'+id); if(!noteEl) return; const note=noteEl.value;await apiFetch('/tasks/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify({list:currentList,updates:{note}})})}
 
 function formatDate(iso){if(!iso)return'';const d=new Date(iso);return d.toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}
 function autoGrow(el){ if(!el) return; el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
@@ -881,12 +881,12 @@ function render(){
   const list=document.getElementById('taskList');
   if(filtered.length===0){list.innerHTML='<div class="empty"><span>✨</span>Aucune tâche !</div>';return}
   
-  list.innerHTML=filtered.map(t=>`<li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''}">
-    <div class="task-check" onclick="toggleDone(${t.id})"></div>
+  list.innerHTML=filtered.map(t=>{ const tid=String(t.id||'').replace(/'/g,"\\'"); return `<li class="task-item ${t.done?'done':''} ${t.urgent?'urgent':''}">
+    <div class="task-check" onclick="toggleDone('${tid}')"></div>
     <div class="task-content">
       <div class="task-text">${escHtml(t.text)}</div>
       ${t.note?'<div class="task-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>'+escHtml(t.note)+'</div>':''}
-      <textarea class="note-input" id="note-${t.id}" placeholder="Ajouter une note..." onblur="saveNote(${t.id})">${t.note||''}</textarea>
+      <textarea class="note-input" id="note-${t.id}" placeholder="Ajouter une note..." onblur="saveNote('${tid}')">${t.note||''}</textarea>
       <div class="task-meta">
         <span class="task-date">${formatDate(t.created_at||t.created)}</span>
         ${t.category?'<span class="task-tag">'+escHtml(t.category)+'</span>':''}
@@ -895,12 +895,12 @@ function render(){
       </div>
     </div>
     <div class="task-actions">
-      <button class="task-btn" onclick="toggleNote(${t.id})" title="Note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text2,#888)" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-      <button class="task-btn" onclick="toggleUrgent(${t.id})" title="Urgent">${t.urgent?'<svg width="16" height="16" viewBox="0 0 24 24" fill="#FF7300" stroke="#FF7300" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12" stroke="#fff"/><line x1="12" y1="16" x2="12.01" y2="16" stroke="#fff"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text2,#888)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'}</button>
-      <button class="task-btn" onclick="editTask(${t.id})" title="Modifier"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text2,#888)" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
-      <button class="task-btn del" onclick="deleteTask(${t.id})" title="Supprimer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text2,#888)" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
+      <button class="task-btn" onclick="toggleNote('${tid}')" title="Note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text2,#888)" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="task-btn" onclick="toggleUrgent('${tid}')" title="Urgent">${t.urgent?'<svg width="16" height="16" viewBox="0 0 24 24" fill="#FF7300" stroke="#FF7300" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12" stroke="#fff"/><line x1="12" y1="16" x2="12.01" y2="16" stroke="#fff"/></svg>':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text2,#888)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'}</button>
+      <button class="task-btn" onclick="editTask('${tid}')" title="Modifier"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text2,#888)" stroke-width="2"><path d="M17 3a2.83 2.83 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
+      <button class="task-btn del" onclick="deleteTask('${tid}')" title="Supprimer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text2,#888)" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>
     </div>
-  </li>`).join('')}
+  </li>`; }).join('')}
 
 
 
