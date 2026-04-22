@@ -1089,7 +1089,8 @@ function renderProjects() {
     var checkDone = (p.checklist||[]).filter(function(c){return c.done}).length;
     var checkTotal = (p.checklist||[]).length;
     var progress = checkTotal ? Math.round(checkDone/checkTotal*100) : 0;
-    return '<div onclick="projShowDetail('+JSON.stringify(String(p.id))+')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+sc+';cursor:pointer;display:flex;align-items:center">' +
+    var pid = String(p.id).replace(/'/g, "\\'");
+    return '<div onclick="projShowDetail(\''+pid+'\')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;border-left:4px solid '+sc+';cursor:pointer;display:flex;align-items:center">' +
       '<div style="display:flex;flex-direction:column;gap:2px;margin-right:10px" onclick="event.stopPropagation()"><button onclick="projMove('+p.id+',-1)" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:4px 8px;color:var(--text2);font-size:.75rem">&#9650;</button><button onclick="projMove('+p.id+',1)" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:4px 8px;color:var(--text2);font-size:.75rem">&#9660;</button></div>' +
       '<div style="flex:1">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
