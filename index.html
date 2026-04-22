@@ -1380,7 +1380,7 @@ async function projDeleteAndBack(id) {
 async function projToggleCheck(projId, checkIdx) {
   var r = await getProjects();
   var all = await r.json();
-  var p = all.find(function(x){return x.id===projId});
+  var p = all.find(function(x){return String(x.id)===String(projId)});
   if(!p || !p.checklist) return;
   p.checklist[checkIdx].done = !p.checklist[checkIdx].done;
   await updateProject(projId, {checklist: p.checklist});
@@ -1393,7 +1393,7 @@ async function projAddCheck(projId) {
   if(!text) return;
   var r = await getProjects();
   var all = await r.json();
-  var p = all.find(function(x){return x.id===projId});
+  var p = all.find(function(x){return String(x.id)===String(projId)});
   if(!p) return;
   var checklist = p.checklist || [];
   checklist.push({text: text, done: false});
@@ -1404,7 +1404,7 @@ async function projAddCheck(projId) {
 async function projRemoveCheck(projId, checkIdx) {
   var r = await getProjects();
   var all = await r.json();
-  var p = all.find(function(x){return x.id===projId});
+  var p = all.find(function(x){return String(x.id)===String(projId)});
   if(!p || !p.checklist) return;
   p.checklist.splice(checkIdx, 1);
   await updateProject(projId, {checklist: p.checklist});
@@ -1458,7 +1458,7 @@ async function projAddCostLine(projId, type) {
   }
   var r = await getProjects();
   var all = await r.json();
-  var p = all.find(function(x){return x.id===projId});
+  var p = all.find(function(x){return String(x.id)===String(projId)});
   if(!p) return;
   var costs = p.costs || [];
   costs.push({type:type, label:label, amount:amount, hours:hours, rate:rate, added:new Date().toISOString()});
@@ -1485,7 +1485,7 @@ async function projRemoveCost(projId, idx) {
   if(!confirm('Supprimer cette ligne?')) return;
   var r = await getProjects();
   var all = await r.json();
-  var p = all.find(function(x){return x.id===projId});
+  var p = all.find(function(x){return String(x.id)===String(projId)});
   if(!p||!p.costs) return;
   p.costs.splice(idx, 1);
   await updateProject(projId, {costs:p.costs});
