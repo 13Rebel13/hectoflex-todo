@@ -846,9 +846,9 @@ function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.filter-btn
 
 async function addTask(){const input=document.getElementById('newTask');const text=input.value.trim();if(!text)return;const body={text,list:currentList};if(currentCat!=='Tout')body.category=currentCat;const result=await apiFetch('/tasks',{method:'POST',body:JSON.stringify(body)});if(result){input.value='';await loadTasks()}input.focus()}
 
-async function toggleDone(id){const t=tasks.find(t=>String(t.id)===String(id));if(!t){showToast('Tâche introuvable','warning');return;}await apiFetch('/tasks/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify({list:currentList,updates:{done:!t.done,doneAt:!t.done?new Date().toISOString():null}})});await loadTasks()}
+async function toggleDone(id){const t=tasks.find(t=>String(t.id)===String(id));if(!t){showToast('Tâche introuvable','warning');return;}const payload={list:currentList,updates:{done:!t.done,doneAt:!t.done?new Date().toISOString():null}};let r=await apiFetch('/tasks/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify(payload)});if(!r){r=await apiFetch('/tasks/'+encodeURIComponent(id)+'?list='+encodeURIComponent(currentList),{method:'PUT',body:JSON.stringify(payload)});}if(!r){showToast('Erreur validation TODO','error');return;}await loadTasks()}
 
-async function toggleUrgent(id){const t=tasks.find(t=>String(t.id)===String(id));if(!t)return;await apiFetch('/tasks/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify({list:currentList,updates:{urgent:!t.urgent}})});await loadTasks()}
+async function toggleUrgent(id){const t=tasks.find(t=>String(t.id)===String(id));if(!t)return;const payload={list:currentList,updates:{urgent:!t.urgent}};let r=await apiFetch('/tasks/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify(payload)});if(!r){r=await apiFetch('/tasks/'+encodeURIComponent(id)+'?list='+encodeURIComponent(currentList),{method:'PUT',body:JSON.stringify(payload)});}if(!r){showToast('Erreur mise à jour urgent','error');return;}await loadTasks()}
 
 async function deleteTask(id){if(!confirm('Supprimer cette tâche ?'))return;await apiFetch('/tasks/'+encodeURIComponent(id)+'?list='+encodeURIComponent(currentList),{method:'DELETE'});await loadTasks()}
 
