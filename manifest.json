@@ -2,12 +2,20 @@
   "name": "HectoFlex App",
   "short_name": "HectoFlex",
   "description": "HectoFlex - Gestion Business",
-  "start_url": "/hectoflex-todo/",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#1a1a2e",
   "theme_color": "#FF7300",
   "icons": [
     {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
     {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ],
+  "shortcuts": [
+    {"name":"Tâches","short_name":"Tâches","url":"./#tasks"},
+    {"name":"DTF Swiss","short_name":"DTF","url":"./#dtf"},
+    {"name":"Planning","short_name":"Planning","url":"./#planning"}
   ]
 }

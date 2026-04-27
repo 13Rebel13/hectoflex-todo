@@ -1,43 +1,44 @@
-const CACHE = 'hf-todo-v3';
-const ASSETS = ['/', '/index.html', '/manifest.json'];
+const CACHE = 'hf-todo-v4';
+const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting())
-  );
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
-  );
+  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
 self.addEventListener('fetch', (e) => {
   const req = e.request;
-
-  // API calls: ALWAYS network first (never serve stale API data)
+  if (req.method !== 'GET') return;
   if (req.url.includes('workers.dev') || req.url.includes('/api/')) {
     e.respondWith(fetch(req).catch(() => caches.match(req)));
     return;
   }
-
-  // Navigation / HTML: network first to avoid stale index.html
   if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
-    e.respondWith(
-      fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-          return res;
-        })
-        .catch(() => caches.match(req).then((r) => r || caches.match('/index.html')))
-    );
+    e.respondWith(fetch(req).then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res; }).catch(() => caches.match(req).then((r) => r || caches.match('./index.html'))));
     return;
   }
+  e.respondWith(caches.match(req).then((r) => r || fetch(req).then((res)=>{ const c=res.clone(); caches.open(CACHE).then(cache=>cache.put(req,c)); return res; })));
+});
 
-  // Other assets: cache first, fallback network
-  e.respondWith(caches.match(req).then((r) => r || fetch(req)));
+self.addEventListener('message', (event) => {
+  const d = event.data || {};
+  if (d.type === 'LOCAL_NOTIFY') {
+    self.registration.showNotification(d.title || 'HectoFlex', {
+      body: d.body || '',
+      icon: './icon-192.png',
+      badge: './icon-192.png',
+      tag: d.tag || 'hf-local'
+    });
+  }
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clis) => {
+    for (const c of clis) { if ('focus' in c) return c.focus(); }
+    if (clients.openWindow) return clients.openWindow('./');
+  }));
 });
