@@ -1,34 +1,38 @@
-# Push setup (Vercel)
+# Push setup (Cloudflare Worker + D1)
 
-## 1) SQL Supabase
+## 1) D1 SQL
 
 ```sql
-create table if not exists public.push_subscriptions (
-  id uuid primary key default gen_random_uuid(),
-  user_id text null,
-  user_name text null,
-  endpoint text unique not null,
-  p256dh text not null,
-  auth text not null,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id TEXT PRIMARY KEY,
+  endpoint TEXT NOT NULL UNIQUE,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  user_id TEXT,
+  user_name TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
 );
+CREATE INDEX IF NOT EXISTS idx_push_user_id ON push_subscriptions(user_id);
 ```
 
-## 2) Env vars (Vercel)
-- SUPABASE_URL
-- SUPABASE_SERVICE_ROLE_KEY
-- VAPID_PUBLIC_KEY
-- VAPID_PRIVATE_KEY
-- VAPID_SUBJECT=mailto:info@hectoflex.ch
-- PUSH_ADMIN_KEY=choose-a-secret
+## 2) Worker routes utilisées
+- `POST /push/subscribe` (public app, avec auth bearer déjà utilisée)
+- `POST /push/unsubscribe`
+- `GET /push/subscriptions` (admin; protège avec `PUSH_ADMIN_KEY`)
 
-## 3) Test
-- Open app and click 🔔 Notifications
-- In backend test send:
+## 3) Variables Worker
+- `PUSH_ADMIN_KEY` (recommandé)
+- D1 binding: `HF_DB` (ou `DB` / `HF_D1` / `HECTOFLEX_DB`)
+
+## 4) Test rapide
 ```bash
-curl -X POST https://<your-vercel-domain>/api/push/send \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: <PUSH_ADMIN_KEY>" \
-  -d '{"title":"Test HectoFlex","body":"Notification OK"}'
+curl -H "Authorization: Bearer <token>" \
+  "https://hf-tasks-api.hectoflex.workers.dev/push/subscriptions" \
+  -H "x-api-key: <PUSH_ADMIN_KEY>"
 ```
+
+## 5) Envoi push serveur
+Le Worker stocke les subscriptions en D1.
+Pour l'envoi Web Push (chiffrement VAPID), faire l'envoi depuis n8n/Node (web-push),
+en lisant `GET /push/subscriptions`.
