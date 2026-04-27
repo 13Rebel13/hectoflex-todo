@@ -39,6 +39,21 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clis) => {
     for (const c of clis) { if ('focus' in c) return c.focus(); }
-    if (clients.openWindow) return clients.openWindow('./');
+    if (clients.openWindow) return clients.openWindow((event.notification && event.notification.data && event.notification.data.url) || './');
   }));
+});
+
+
+self.addEventListener('push', (event) => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch(e) {}
+  const title = data.title || 'HectoFlex';
+  const options = {
+    body: data.body || '',
+    icon: data.icon || './icon-192.png',
+    badge: data.badge || './icon-192.png',
+    tag: data.tag || 'hf-push',
+    data: { url: data.url || './' }
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
 });
