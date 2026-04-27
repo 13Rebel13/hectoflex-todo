@@ -5252,7 +5252,7 @@ window.addEventListener('appinstalled', function(){
   showToast('App installée ✅','success');
 });
 async function promptInstallApp(){
-  if(!hfInstallPromptEvent){ showToast('Installe via menu navigateur (Ajouter à l'écran d'accueil)','info'); return; }
+  if(!hfInstallPromptEvent){ showToast("Installe via menu navigateur (Ajouter a l'ecran d'accueil)",'info'); return; }
   hfInstallPromptEvent.prompt();
   try{ await hfInstallPromptEvent.userChoice; }catch(e){}
 }
