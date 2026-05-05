@@ -63,7 +63,7 @@ body{font-family:var(--font);background:radial-gradient(1200px 600px at 10% -10%
   #pageDtf{margin-left:120px!important;padding:10px 14px!important}
   #pageDevisMain,#pageFacturesMain,#pageClientsMain{margin-left:120px!important;padding:10px 14px!important}
   #pageCompta{margin-left:120px!important;padding:10px 14px!important}
-  #pageHistorique,#pagePlanning{margin-left:120px!important;padding:10px 14px!important}
+  #pageHistorique,#pagePlanning,#pageStats{margin-left:120px!important;padding:10px 14px!important}
   body{padding-bottom:0!important}
 }
 .container{max-width:800px;margin:0 auto;padding:20px}
@@ -186,7 +186,7 @@ body.force-desktop .bottom-nav button{padding:8px 10px!important;width:100%!impo
 body.force-desktop .bottom-nav button.active{background:var(--accent-dim)!important;border-left:3px solid var(--accent)!important;color:var(--accent)!important}
 body.force-desktop .bottom-nav button span.nav-icon svg{width:16px!important;height:16px!important}
 body.force-desktop .container{margin-left:120px!important;padding-bottom:0!important;width:calc(100% - 120px)!important;max-width:none!important;padding:10px 14px!important}
-body.force-desktop #pageCustoms,.force-desktop #pageProjects,.force-desktop #pageLeads,.force-desktop #pageSuppliers,.force-desktop #pageDtf,.force-desktop #pageCompta,.force-desktop #pageDevisMain,.force-desktop #pageFacturesMain,.force-desktop #pageClientsMain,.force-desktop #pageHistorique,.force-desktop #pagePlanning{margin-left:120px!important;padding:10px 14px!important}
+body.force-desktop #pageCustoms,.force-desktop #pageProjects,.force-desktop #pageLeads,.force-desktop #pageSuppliers,.force-desktop #pageDtf,.force-desktop #pageCompta,.force-desktop #pageDevisMain,.force-desktop #pageFacturesMain,.force-desktop #pageClientsMain,.force-desktop #pageHistorique,.force-desktop #pagePlanning,.force-desktop #pageStats{margin-left:120px!important;padding:10px 14px!important}
 body.force-desktop .sidebar-logo{display:block!important}
 body.force-desktop .sidebar-logo img{height:50px!important;max-width:90%!important}
 body.force-desktop .header{margin-left:120px!important}
@@ -195,7 +195,7 @@ body.force-desktop .header{margin-left:120px!important}
 .force-mobile .bottom-nav button{padding:6px 10px!important;width:auto!important;text-align:center!important;font-size:.7rem!important;flex-direction:column!important;align-items:center!important;gap:3px!important;min-width:60px!important;flex-shrink:0!important}
 .force-mobile .bottom-nav button.active{background:none!important;border-left:none!important;color:var(--accent)!important}
 .force-mobile .sidebar-logo{display:none!important}
-.force-mobile .container,.force-mobile #pageCustoms,.force-mobile #pageProjects,.force-mobile #pageLeads,.force-mobile #pageSuppliers,.force-mobile #pageDtf,.force-mobile #pageCompta,.force-mobile #pageDevisMain,.force-mobile #pageFacturesMain,.force-mobile #pageClientsMain,.force-mobile #pageHistorique,.force-mobile #pagePlanning{margin-left:0!important}
+.force-mobile .container,.force-mobile #pageCustoms,.force-mobile #pageProjects,.force-mobile #pageLeads,.force-mobile #pageSuppliers,.force-mobile #pageDtf,.force-mobile #pageCompta,.force-mobile #pageDevisMain,.force-mobile #pageFacturesMain,.force-mobile #pageClientsMain,.force-mobile #pageHistorique,.force-mobile #pagePlanning,.force-mobile #pageStats{margin-left:0!important}
 .force-mobile .header{margin-left:0!important}
 .force-mobile .container{padding-bottom:70px!important;max-width:800px!important;width:100%!important}
 
@@ -409,7 +409,8 @@ function showToast(msg, type, ms) {
 <button onclick="switchNav('facturesmain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg></span> Factures</button>
 <button onclick="switchNav('clientsmain',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg></span> Clients</button>
 <button onclick="switchNav('compta',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/></svg></span> Compta</button>
-<button onclick="switchNav('historique',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> Historique</button></div>
+<button onclick="switchNav('historique',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> Historique</button>
+<button onclick="switchNav('stats',this)"><span class="nav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span> Stats</button></div>
 <div class="container">
 <div class="page active" id="pageTasks">
 <div class="list-tabs">
@@ -802,6 +803,20 @@ function showToast(msg, type, ms) {
 
 <div class="page" id="pagePlanning" style="padding:0 16px"></div>
 
+<div class="page" id="pageStats" style="padding:0 16px">
+<div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+<h2 style="font-size:1.1rem;color:var(--accent);margin:0">Sites &amp; Statistiques</h2>
+</div>
+<div class="list-tabs" id="statsSiteTabs">
+<button class="list-tab active" onclick="statsSelectSite('hfcustoms',this)">HF Customs</button>
+<button class="list-tab" onclick="statsSelectSite('hfvitro',this)">HF Vitro</button>
+</div>
+<div id="statsMetrics" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0"></div>
+<div id="statsChecklist" style="margin:14px 0"></div>
+<div id="statsLinks" style="margin:14px 0"></div>
+</div>
+
 <div class="page" id="pageCompta" style="padding:0 16px">
 <div style="display:flex;align-items:center;gap:10px;margin:18px 0 10px">
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
@@ -840,6 +855,7 @@ function refreshPage(){
   else if(currentPage==='compta') { window.comptaTargetId='comptaContent'; comptaSwitchTab(comptaCurrentTab); }
   else if(currentPage==='planning') loadPlanning();
   else if(currentPage==='qr') {}
+  else if(currentPage==='stats') statsInit();
   else if(currentPage==='customs') {}
 }
 function showApp(){
@@ -941,7 +957,7 @@ function switchNav(page, btn, opts){
   document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':page==='suppliers'?'pageSuppliers':page==='dtf'?'pageDtf':page==='devismain'?'pageDevisMain':page==='facturesmain'?'pageFacturesMain':page==='clientsmain'?'pageClientsMain':page==='compta'?'pageCompta':page==='historique'?'pageHistorique':page==='planning'?'pagePlanning':'pageCustoms';
+  var target = page==='tasks'?'pageTasks':page==='qr'?'pageQr':page==='projects'?'pageProjects':page==='leads'?'pageLeads':page==='suppliers'?'pageSuppliers':page==='dtf'?'pageDtf':page==='devismain'?'pageDevisMain':page==='facturesmain'?'pageFacturesMain':page==='clientsmain'?'pageClientsMain':page==='compta'?'pageCompta':page==='historique'?'pageHistorique':page==='planning'?'pagePlanning':page==='stats'?'pageStats':'pageCustoms';
   var el = document.getElementById(target);
   if(el) el.classList.add('active');
   // Hide container when showing pages outside it
@@ -957,6 +973,7 @@ function switchNav(page, btn, opts){
   if(page==='compta') { window.comptaTargetId='comptaContent'; comptaInit(); }
   if(page==='historique') renderHistorique();
   if(page==='planning') loadPlanning();
+  if(page==='stats') statsInit();
   if(page==='projects') loadProjects();
   if(page==='leads') loadLeads();
   // Auto-refresh: reload data for active tab every 15s
@@ -5362,6 +5379,130 @@ function checkPlanningReminders(){
   }catch(e){}
 }
 setInterval(checkPlanningReminders, 60000);
+
+// ===== STATS / SEO =====
+var statsSite = 'hfcustoms';
+var STATS_DATA = {
+  hfcustoms: {
+    name: 'HF Customs',
+    url: 'https://www.hfcustoms.ch',
+    ga4id: 'G-LQXC2C2KDM',
+    gtm: 'GTM-WPQXXHZV',
+    ga4Link: 'https://analytics.google.com/analytics/web/',
+    gscLink: 'https://search.google.com/search-console?resource_id=https%3A%2F%2Fwww.hfcustoms.ch%2F',
+    done: [
+      'Favicon + apple-touch-icon sur toutes les pages',
+      'Meta title + description par page (SEO on-page)',
+      'Structured data LocalBusiness (JSON-LD)',
+      'Structured data FAQ (JSON-LD)',
+      'BreadcrumbList sur toutes les sous-pages',
+      'Sitemap.xml + sitemap-images.xml',
+      'robots.txt configuré',
+      'Google Tag Manager injecté (GTM-WPQXXHZV)',
+      'Google Analytics GA4 injecté (G-LQXC2C2KDM)',
+      'Images lazy load + dimensions explicites (Core Web Vitals)',
+      'Mentions légales + Politique de confidentialité',
+      'Page Contact dédiée',
+      '2 articles blog SEO (covering + PPF)',
+      'Google Business Profile — en cours de complétion',
+    ],
+    todo: [
+      'Google Business Profile — ajouter photos, horaires, paiements',
+      'Google Search Console — vérifier la propriété (fichier HTML ou DNS)',
+      'Avis Google — en demander aux 3 premiers clients',
+      'Backlinks — inscription annuaires suisses (pages-jaunes.ch, local.ch)',
+      'Réseaux sociaux — lier Instagram/Facebook depuis le site',
+      'Pages locales SEO (Lausanne, Renens, Morges, Nyon, Ecublens)',
+      'Bing Webmaster Tools — soumettre le sitemap',
+    ]
+  },
+  hfvitro: {
+    name: 'HF Vitro',
+    url: 'https://www.hfvitro.ch',
+    ga4id: null,
+    gtm: null,
+    ga4Link: 'https://analytics.google.com/analytics/web/',
+    gscLink: 'https://search.google.com/search-console?resource_id=https%3A%2F%2Fwww.hfvitro.ch%2F',
+    done: [
+      'Favicon + apple-touch-icon sur toutes les pages',
+      'Meta title + description par page (SEO on-page)',
+      'Structured data LocalBusiness (JSON-LD)',
+      'BreadcrumbList sur sous-pages services',
+      'Sitemap.xml + sitemap-images.xml',
+      'robots.txt configuré',
+      'Images lazy load + dimensions explicites (Core Web Vitals)',
+      'Mentions légales + Politique de confidentialité',
+      'Page Contact dédiée',
+      '2 articles blog SEO (films solaires + films décoratifs)',
+      '4 pages locales SEO (Lausanne, Genève, Fribourg, Morges)',
+      'Boutons "zone intervention" câblés vers les pages locales',
+    ],
+    todo: [
+      'Google Analytics GA4 — créer la propriété GA4 + injecter le code',
+      'Google Tag Manager — créer + injecter',
+      'Google Business Profile — créer la fiche HF Vitro',
+      'Google Search Console — vérifier la propriété',
+      'Pages locales supplémentaires (Yverdon, Vevey, Montreux)',
+      'Backlinks — inscription annuaires suisses',
+      'Avis Google',
+      'Bing Webmaster Tools',
+    ]
+  }
+};
+
+function statsSelectSite(site, btn) {
+  statsSite = site;
+  document.querySelectorAll('#statsSiteTabs .list-tab').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  statsRender();
+}
+
+function statsRender() {
+  var d = STATS_DATA[statsSite];
+  var m = document.getElementById('statsMetrics');
+  if(!m) return;
+  var hasGA = !!d.ga4id;
+  var metrics = [
+    {label:'Sessions (7j)', val: hasGA ? '→ GA4' : '—', sub: hasGA ? d.ga4id : 'Non configuré', color: hasGA ? 'var(--blue)' : 'var(--text3)'},
+    {label:'GTM', val: d.gtm || '—', sub: d.gtm ? 'Actif' : 'Non configuré', color: d.gtm ? 'var(--green)' : 'var(--text3)'},
+    {label:'Pages indexées', val:'→ GSC', sub:'Search Console', color:'var(--accent)'},
+    {label:'PageSpeed', val:'→ Test', sub:'Insights', color:'var(--blue)'},
+  ];
+  m.innerHTML = metrics.map(function(x){
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center"><div style="font-size:1rem;font-weight:700;color:'+x.color+'">'+x.val+'</div><div style="font-size:.7rem;color:var(--text3);margin-top:2px">'+x.label+'</div><div style="font-size:.65rem;color:var(--text2)">'+x.sub+'</div></div>';
+  }).join('');
+
+  var c = document.getElementById('statsChecklist');
+  if(!c) return;
+  var doneHtml = d.done.map(function(x){
+    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border)"><span style="color:var(--green);flex-shrink:0;margin-top:1px">✓</span><span style="font-size:.83rem;color:var(--text)">'+x+'</span></div>';
+  }).join('');
+  var todoHtml = d.todo.map(function(x){
+    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border)"><span style="color:var(--text3);flex-shrink:0;margin-top:1px">○</span><span style="font-size:.83rem;color:var(--text2)">'+x+'</span></div>';
+  }).join('');
+  c.innerHTML = '<div style="font-weight:600;font-size:.9rem;color:var(--text);margin-bottom:8px">Checklist SEO — '+d.name+'</div><div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">'+doneHtml+todoHtml+'</div>';
+
+  var l = document.getElementById('statsLinks');
+  if(!l) return;
+  var links = [
+    {label:'Ouvrir le site', href: d.url, icon:'🌐', dim:false},
+    {label:'Google Analytics', href: d.ga4Link, icon:'📊', dim:!d.ga4id, note: d.ga4id ? d.ga4id : 'Créer propriété GA4'},
+    {label:'Search Console', href: d.gscLink, icon:'🔍', dim:false},
+    {label:'PageSpeed Insights', href: 'https://pagespeed.web.dev/report?url='+encodeURIComponent(d.url), icon:'⚡', dim:false},
+  ];
+  l.innerHTML = '<div style="font-weight:600;font-size:.9rem;color:var(--text);margin-bottom:8px">Accès rapides</div><div style="display:flex;flex-direction:column;gap:8px">'
+    + links.map(function(x){
+      return '<a href="'+x.href+'" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;color:'+(x.dim?'var(--text3)':'var(--text)')+'"><span>'+x.icon+'</span><span style="font-size:.88rem;flex:1">'+x.label+'</span>'+(x.note?'<span style="font-size:.72rem;color:var(--text3)">'+x.note+'</span>':'')+'<span style="color:var(--text3)">→</span></a>';
+    }).join('')
+    + '</div>';
+}
+
+function statsInit() {
+  var tabs = document.querySelectorAll('#statsSiteTabs .list-tab');
+  tabs.forEach(function(b,i){ b.classList.toggle('active', (i===0&&statsSite==='hfcustoms')||(i===1&&statsSite==='hfvitro')); });
+  statsRender();
+}
+
 window.addEventListener('load', function(){
   registerServiceWorkerHF();
   var b=document.getElementById('installBtn'); if(b && isStandaloneHF()) b.style.display='none';
